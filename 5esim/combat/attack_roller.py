@@ -34,11 +34,39 @@ def attack_roll(attack_bonus, enemy_ac, crit_range=(20,)):
     }
 
 
-def damage_roll(damage_die, attack_bonus, critical=False):
-    base = random.randint(1, damage_die) + attack_bonus
-    if critical:
-        return base + random.randint(1, damage_die)
-    return base
+def damage_roll(damage_die, attack_bonus, critical=False, player_data=None):
+    """
+    Calculate damage based on player class and stats.
+    - Rogue: adds sneak attack rolls (d6 each)
+    - Spellcasters (sorcerer, wizard, druid, alchemist): rolls cantrip_dice_rolled × damage_die
+    - Others: standard damage_die + bonus
+    """
+    player_class = player_data.get('class', '') if player_data else ''
+    
+    if player_class == 'rougue':
+        # Rogue: standard damage + sneak attack
+        base = random.randint(1, damage_die) + attack_bonus
+        sneak_attack_rolls = player_data.get('sneak_attack_rolls', 0)
+        sneak_attack_damage = sum(random.randint(1, 6) for _ in range(sneak_attack_rolls))
+        total = base + sneak_attack_damage
+        if critical:
+            return total + random.randint(1, damage_die)
+        return total
+    
+    elif player_class in ('sorcerer', 'wizard', 'druid', 'alchemist'):
+        # Spellcaster: roll cantrip_dice_rolled × damage_die instead of standard damage
+        cantrip_dice_rolled = player_data.get('cantrip_dice_rolled', 1)
+        base = sum(random.randint(1, damage_die) for _ in range(cantrip_dice_rolled)) + attack_bonus
+        if critical:
+            return base + random.randint(1, damage_die)
+        return base
+    
+    else:
+        # Standard damage calculation for fighters, monks, archers, etc.
+        base = random.randint(1, damage_die) + attack_bonus
+        if critical:
+            return base + random.randint(1, damage_die)
+        return base
 
 
 def combat_round(enemy_ac, attack_count, damage_die, attack_bonus, crit_on_19=False):

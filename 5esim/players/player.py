@@ -104,7 +104,7 @@ def apply_monk_rules(player_data):
 
     # Rule 1: Increase attack_count by 1 when weapon is unarmed (fist or unarmed)
     if is_unarmed:
-        # Store the base attack_count the first time (from class definition or levels.json)
+        # Store the base attack_count the first time (from class definition)
         if 'base_attack_count' not in player_data:
             player_data['base_attack_count'] = int(player_data.get('attack_count', 1))
         
@@ -164,7 +164,14 @@ def choose_player_class(class_data):
 
         print('\nSelected class: ' + chosen_name.title())
         print('Class stats:')
-        pprint.pprint(chosen_data)
+        # Get level 1 attack count from player_classes.json
+        from players.leveler import load_player_classes
+        player_classes = load_player_classes()
+        level1_attack_count = player_classes[chosen_name].get('levels', {}).get('1', {}).get('attack_count', 1)
+        print(f"  HP: {chosen_data.get('hp')}")
+        print(f"  Weapon: {chosen_data.get('weapon')}")
+        print(f"  Armor: {chosen_data.get('armor')}")
+        print(f"  Level 1 Attack Count: {level1_attack_count}")
 
         confirm = input('Confirm this class? (y/n): ').strip().lower()
         if confirm in ('y', 'yes'):
@@ -175,9 +182,9 @@ def choose_player_class(class_data):
 
 
 try:
-    from players.leveler import load_levels, update_xp_and_level, xp_to_next_level
+    from players.leveler import update_xp_and_level, xp_to_next_level
 except ModuleNotFoundError:
-    from leveler import load_levels, update_xp_and_level, xp_to_next_level
+    from leveler import update_xp_and_level, xp_to_next_level
 
 
 if __name__ == '__main__':
@@ -189,9 +196,6 @@ if __name__ == '__main__':
 
     apply_weapon_to_player(selected_class_data)
     apply_armor_to_player(selected_class_data)
-    apply_monk_rules(selected_class_data)
-
-    level_data = load_levels()
 
     print(f"You chose {selected_class_name.title()}.")
     print('Starting class details:')
@@ -205,7 +209,6 @@ if __name__ == '__main__':
         if entry.startswith('weapon '):
             new_weapon = entry.split(' ', 1)[1].strip()
             apply_weapon_to_player(selected_class_data, new_weapon)
-            apply_monk_rules(selected_class_data)
             print(f"Weapon changed to '{selected_class_data['weapon']}'.")
             print(f"Damage die: d{selected_class_data['damage_die']}, on_hit_effect: {selected_class_data['on_hit_effect']}")
             continue
@@ -215,10 +218,9 @@ if __name__ == '__main__':
             continue
 
         xp_gain = int(entry)
-        update_xp_and_level(selected_class_data, xp_gain, level_data, base_hp=selected_class_data['base_hp'])
-        apply_monk_rules(selected_class_data)
+        update_xp_and_level(selected_class_data, xp_gain, class_name=selected_class_name, base_hp=selected_class_data['base_hp'])
 
-        next_xp = xp_to_next_level(selected_class_data['xp'], level_data)
+        next_xp = xp_to_next_level(selected_class_data['xp'], class_name=selected_class_name)
         print(f"Total XP: {selected_class_data['xp']}")
         print(f"Level: {selected_class_data['level']} (HP: {selected_class_data['hp']}, prof +{selected_class_data['proficiency_bonus']})")
         if next_xp is None:
@@ -226,5 +228,5 @@ if __name__ == '__main__':
         else:
             print(f"XP to next level: {next_xp}")
 
-    print('\nFinal player state:')
-    pprint.pprint(selected_class_data)
+    total_score = selected_class_data.get('xp', 0)
+    print(f'\nFinal Total Score: {total_score} XP')
