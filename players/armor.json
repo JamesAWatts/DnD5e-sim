@@ -1,0 +1,79 @@
+{
+"armor_list": {
+        "unarmored":{
+            "type": "none",
+            "ac":10,
+            "cost":0
+        },
+        "padded":{
+            "type": "light",
+            "ac":11,
+            "cost":5
+        },
+        "leather":{
+            "type": "light",
+            "ac":12,
+            "cost":10
+        },
+        "studded_leather":{
+            "type": "light",
+            "ac":13,
+            "cost":45
+        },
+        "hide":{
+            "type": "medium",
+            "ac":12,
+            "cost":10
+        },
+        "chain_shirt":{
+            "type": "medium",
+            "ac":13,
+            "cost":50
+        },
+        "breastplate":{
+            "type": "medium",
+            "ac":14,
+            "cost":400
+        },
+        "half_plate":{
+            "type": "medium",
+            "ac":15,
+            "cost":750
+        },
+        "ring_mail":{
+            "type": "heavy",
+            "ac":14,
+            "cost":30
+        },
+        "chain_mail":{
+            "type": "heavy",
+            "ac":16,
+            "cost":75
+        },
+        "splint":{
+            "type": "heavy",
+            "ac":17,
+            "cost":200
+        },
+        "plate":{
+            "type": "heavy",
+            "ac":18,
+            "cost":1500
+        },
+        "buckler":{
+            "type": "shield",
+            "ac":1,
+            "cost":10
+        },
+        "shield":{
+            "type": "shield",
+            "ac":2,
+            "cost":25
+        },
+        "kite_shield":{
+            "type": "shield",
+            "ac":3,
+            "cost":50
+        }
+    }
+}

@@ -1,0 +1,188 @@
+﻿{
+    "weapon_list": {
+        "unarmed": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 4,
+            "on_hit_effect": "swift",
+            "bonus": 0,
+            "cost": 0
+        },
+        "dagger": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 6,
+            "on_hit_effect": "swift",
+            "bonus": 0,
+            "cost": 2
+        },
+        "staff": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 6,
+            "on_hit_effect": "vex",
+            "bonus": 0,
+            "cost": 5
+        },
+        "hammer": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 6,
+            "on_hit_effect": "slow",
+            "bonus": 0,
+            "cost": 5
+        },
+        "sword": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 8,
+            "on_hit_effect": "vex",
+            "bonus": 0,
+            "cost": 15
+        },
+        "axe": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 8,
+            "on_hit_effect": "graze",
+            "bonus": 0,
+            "cost": 15
+        },
+        "mace": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 8,
+            "on_hit_effect": "sap",
+            "bonus": 0,
+            "cost": 15
+        },
+        "warhammer": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 8,
+            "on_hit_effect": "push",
+            "bonus": 0,
+            "cost": 15
+        },
+        "greatsword": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 10,
+            "on_hit_effect": "graze",
+            "bonus": 0,
+            "cost": 50
+        },
+        "whip": {
+            "type": "melee",
+            "attack_range": 2,
+            "die": 6,
+            "on_hit_effect": "slow",
+            "bonus": 0,
+            "cost": 10
+        },
+        "maul": {
+            "type": "melee",
+            "attack_range": 2,
+            "die": 10,
+            "on_hit_effect": "push",
+            "bonus": 0,
+            "cost": 50
+        },
+        "glaive": {
+            "type": "melee",
+            "attack_range": 2,
+            "die": 10,
+            "on_hit_effect": "cleave",
+            "bonus": 0,
+            "cost": 50
+        },
+        "sling": {
+            "type": "ranged",
+            "attack_range": 3,
+            "die": 4,
+            "on_hit_effect": "slow",
+            "bonus": 0,
+            "cost": 1
+        },
+        "shortbow": {
+            "type": "ranged",
+            "attack_range": 4,
+            "die": 6,
+            "on_hit_effect": "swift",
+            "bonus": 0,
+            "cost": 10
+        },
+        "bow": {
+            "type": "ranged",
+            "attack_range": 5,
+            "die": 6,
+            "on_hit_effect": "sap",
+            "bonus": 0,
+            "cost": 15
+        },
+        "longbow": {
+            "type": "ranged",
+            "attack_range": 7,
+            "die": 8,
+            "on_hit_effect": "vex",
+            "bonus": 0,
+            "cost": 50
+        },
+        "crossbow": {
+            "type": "ranged",
+            "attack_range": 5,
+            "die": 10,
+            "on_hit_effect": "push",
+            "bonus": 0,
+            "cost": 50
+        },
+        "fire_bolt": {
+            "type": "cantrip",
+            "attack_range": 5,
+            "die": 10,
+            "on_hit_effect": "graze",
+            "bonus": 0,
+            "cost": 0
+        },
+        "frost_bolt": {
+            "type": "cantrip",
+            "attack_range": 5,
+            "die": 6,
+            "on_hit_effect": "slow",
+            "bonus": 0,
+            "cost": 0
+        },
+        "static_bolt": {
+            "type": "cantrip",
+            "attack_range": 5,
+            "die": 6,
+            "on_hit_effect": "sap",
+            "bonus": 0,
+            "cost": 0
+        },
+        "poison_spray": {
+            "type": "cantrip",
+            "attack_range": 3,
+            "die": 8,
+            "on_hit_effect": "cleave",
+            "bonus": 0,
+            "cost": 0
+        },
+        "thorn_whip": {
+            "type": "cantrip",
+            "attack_range": 2,
+            "die": 10,
+            "on_hit_effect": "slow",
+            "bonus": 0,
+            "cost": 0
+        },
+        "rock_slam": {
+            "type": "cantrip",
+            "attack_range": 3,
+            "die": 8,
+            "on_hit_effect": "push",
+            "bonus": 0,
+            "cost": 0
+        }
+    }
+}

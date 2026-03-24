@@ -1,0 +1,27 @@
+{
+    "Weapon_effefts":{
+        "cleave": "hits all creatures in attack_range",
+        "vex": "hits grant self advantage on next attack",
+        "sap": "hits give enemy disadvantage on their next attack",
+        "push": "hits push enemy away by 2",
+        "slow": "hits reduce enemy movement by 2",
+        "graze": "missed attacks deal your bonus in damage",
+        "lifesteal": "hits heal you for half the damage dealt"
+    },
+    "Conditions": {
+        "stunned": "skip next turn",
+        "restrained": "cannot move",
+        "swift": "attack_count +=1",
+        "disadvantage":"compares 2 d20 rolls and takes lesser",
+        "advantage":"compares 2 d20 rolls and takes greater",
+        "poisoned": "disadvantage on attack rolls",
+        "blinded": "disadvantage on attack rolls and can't see",
+        "charmed": "can't attack charmer, ends if charmer attacks you",
+        "frightened": "disadvantage on attacks while enemy is in sight",
+        "grappled": "speed becomes 0, can't benefit from bonus to speed",
+        "incapacitated": "can't take actions or reactions",
+        "invisible": "can't be seen without magic, advantage on attack rolls against you",
+        "paralyzed": "incapacitated, can't move, meleeattack rolls against you have advantage, any hit is a critical hit",
+        "petrified": "turns to stone, incapacitated, can't move, can't speak, and is unaware of surroundings"
+    }
+}
