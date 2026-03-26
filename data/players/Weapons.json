@@ -1,0 +1,229 @@
+{
+    "weapon_list": {
+        "unarmed": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 4,
+            "on_hit_effect": "swift",
+            "bonus": 0,
+            "cost": 0,
+            "description": "Fighting with your bare fists. Quick but low damage."
+        },
+        "dagger": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 6,
+            "on_hit_effect": "swift",
+            "bonus": 0,
+            "cost": 2,
+            "description": "A small, double-edged blade. Easy to conceal and very fast."
+        },
+        "staff": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 6,
+            "on_hit_effect": "vex",
+            "bonus": 0,
+            "cost": 5,
+            "description": "A long wooden rod, favored by travelers and sorcerers alike."
+        },
+        "hammer": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 6,
+            "on_hit_effect": "slow",
+            "bonus": 0,
+            "cost": 5,
+            "description": "A simple tool repurposed for war. Its weight can stagger foes."
+        },
+        "sword": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 8,
+            "on_hit_effect": "vex",
+            "bonus": 0,
+            "cost": 15,
+            "description": "A versatile blade, standard issue for many soldiers."
+        },
+        "axe": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 8,
+            "on_hit_effect": "graze",
+            "bonus": 0,
+            "cost": 15,
+            "description": "A heavy-headed tool designed for chopping wood and breaking bone."
+        },
+        "mace": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 8,
+            "on_hit_effect": "sap",
+            "bonus": 0,
+            "cost": 15,
+            "description": "A bludgeoning weapon that can crush through armor."
+        },
+        "warhammer": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 8,
+            "on_hit_effect": "push",
+            "bonus": 0,
+            "cost": 15,
+            "description": "A heavy hammer built specifically for combat."
+        },
+        "greatsword": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 10,
+            "on_hit_effect": "graze",
+            "bonus": 0,
+            "cost": 50,
+            "description": "A massive two-handed blade that requires great strength to wield."
+        },
+        "greataxe": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 12,
+            "on_hit_effect": "graze",
+            "bonus": 0,
+            "cost": 30,
+            "description": "A huge axe that can cleave through multiple enemies."
+        },
+        "rusty_sword": {
+            "type": "melee",
+            "attack_range": 1,
+            "die": 4,
+            "on_hit_effect": "none",
+            "bonus": 0,
+            "cost": 5,
+            "description": "An old, corroded blade. It's better than nothing, but barely."
+        },
+        "whip": {
+            "type": "melee",
+            "attack_range": 2,
+            "die": 6,
+            "on_hit_effect": "slow",
+            "bonus": 0,
+            "cost": 10,
+            "description": "A long, flexible lash that can strike from a distance."
+        },
+        "maul": {
+            "type": "melee",
+            "attack_range": 2,
+            "die": 10,
+            "on_hit_effect": "push",
+            "bonus": 0,
+            "cost": 50,
+            "description": "A massive sledgehammer that can send foes flying."
+        },
+        "glaive": {
+            "type": "melee",
+            "attack_range": 2,
+            "die": 10,
+            "on_hit_effect": "cleave",
+            "bonus": 0,
+            "cost": 50,
+            "description": "A polearm with a large blade, perfect for keeping enemies at bay."
+        },
+        "sling": {
+            "type": "ranged",
+            "attack_range": 3,
+            "die": 4,
+            "on_hit_effect": "slow",
+            "bonus": 0,
+            "cost": 1,
+            "description": "A simple leather strap used to hurl stones at high speed."
+        },
+        "shortbow": {
+            "type": "ranged",
+            "attack_range": 4,
+            "die": 6,
+            "on_hit_effect": "swift",
+            "bonus": 0,
+            "cost": 10,
+            "description": "A compact bow that's easy to handle and fire quickly."
+        },
+        "bow": {
+            "type": "ranged",
+            "attack_range": 5,
+            "die": 6,
+            "on_hit_effect": "sap",
+            "bonus": 0,
+            "cost": 15,
+            "description": "A standard longbow, providing good range and power."
+        },
+        "longbow": {
+            "type": "ranged",
+            "attack_range": 7,
+            "die": 8,
+            "on_hit_effect": "vex",
+            "bonus": 0,
+            "cost": 50,
+            "description": "A powerful bow that can strike targets from across the battlefield."
+        },
+        "crossbow": {
+            "type": "ranged",
+            "attack_range": 5,
+            "die": 10,
+            "on_hit_effect": "push",
+            "bonus": 0,
+            "cost": 50,
+            "description": "A mechanical bow that fires heavy bolts with lethal force."
+        },
+        "fire_bolt": {
+            "type": "cantrip",
+            "attack_range": 5,
+            "die": 10,
+            "on_hit_effect": "graze",
+            "bonus": 0,
+            "cost": 0,
+            "description": "A mote of fire hurled at an enemy."
+        },
+        "frost_bolt": {
+            "type": "cantrip",
+            "attack_range": 5,
+            "die": 6,
+            "on_hit_effect": "slow",
+            "bonus": 0,
+            "cost": 0,
+            "description": "A frigid shard of ice that chills the target."
+        },
+        "static_bolt": {
+            "type": "cantrip",
+            "attack_range": 5,
+            "die": 6,
+            "on_hit_effect": "sap",
+            "bonus": 0,
+            "cost": 0,
+            "description": "A crackling arc of electricity that jumps to the foe."
+        },
+        "poison_spray": {
+            "type": "cantrip",
+            "attack_range": 3,
+            "die": 8,
+            "on_hit_effect": "cleave",
+            "bonus": 0,
+            "cost": 0,
+            "description": "A puff of noxious gas that chokes nearby enemies."
+        },
+        "thorn_whip": {
+            "type": "cantrip",
+            "attack_range": 2,
+            "die": 10,
+            "on_hit_effect": "slow",
+            "bonus": 0,
+            "cost": 0,
+            "description": "A long, vine-like whip covered in sharp thorns."
+        },
+        "rock_slam": {
+            "type": "cantrip",
+            "attack_range": 3,
+            "die": 8,
+            "on_hit_effect": "push",
+            "bonus": 0,
+            "cost": 0,
+            "description": "A magical hunk of earth that slams into the target."
+        }
+    }
+}

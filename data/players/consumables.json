@@ -1,0 +1,46 @@
+﻿{
+    "consumable_list": {
+        "potion": {
+            "name": "Potion",
+            "cost": 10,
+            "effect_type": "heal",
+            "value": 10,
+            "description": "Restores 10 HP."
+        },
+        "greater_healing_potion": {
+            "name": "Greater Healing Potion",
+            "cost": 25,
+            "effect_type": "heal",
+            "value": 25,
+            "description": "Restores 25 HP."
+        },
+        "mana_potion": {
+            "name": "Mana Potion",
+            "cost": 20,
+            "effect_type": "restore_mana",
+            "value": 10,
+            "description": "Restores 10 Mana."
+        },
+        "strength_potion": {
+            "name": "Strength Potion",
+            "cost": 15,
+            "effect_type": "buff_bonus",
+            "value": 2,
+            "description": "+2 to Attack/Damage bonus for the rest of combat."
+        },
+        "speed_potion": {
+            "name": "Speed Potion",
+            "cost": 20,
+            "effect_type": "buff_attacks",
+            "value": 1,
+            "description": "Gain 1 extra attack per turn for the rest of combat."
+        },
+        "poison_vial": {
+            "name": "Poison Vial",
+            "cost": 12,
+            "effect_type": "extra_damage",
+            "value": 5,
+            "description": "Your next successful hit deals 5 extra damage."
+        }
+    }
+}

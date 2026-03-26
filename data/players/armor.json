@@ -1,0 +1,112 @@
+{
+    "armor_list": {
+        "unarmored":{
+            "type": "none",
+            "ac":10,
+            "cost":0,
+            "description": "No armor. You rely on your agility and luck."
+        },
+        "padded":{
+            "type": "light",
+            "ac":11,
+            "cost":5,
+            "description": "Quilted layers of cloth and batting. Basic protection."
+        },
+        "leather":{
+            "type": "light",
+            "ac":12,
+            "cost":10,
+            "description": "The breastplate and shoulder protectors are made of leather that has been stiffened by being boiled in oil."
+        },
+        "leather armor":{
+            "type": "light",
+            "ac":12,
+            "cost":10,
+            "description": "Standard leather armor used by scouts and rogues."
+        },
+        "studded_leather":{
+            "type": "light",
+            "ac":13,
+            "cost":45,
+            "description": "Made from tough but flexible leather, studded leather is reinforced with close-set rivets or spikes."
+        },
+        "hide":{
+            "type": "medium",
+            "ac":12,
+            "cost":10,
+            "description": "This crude armor consists of thick furs and pelts."
+        },
+        "hide_armor":{
+            "type": "medium",
+            "ac":12,
+            "cost":10,
+            "description": "Rugged armor made from the hides of wild beasts."
+        },
+        "chain_shirt":{
+            "type": "medium",
+            "ac":13,
+            "cost":50,
+            "description": "Made of interlocking metal rings, a chain shirt is worn between layers of clothing or leather."
+        },
+        "breastplate":{
+            "type": "medium",
+            "ac":14,
+            "cost":400,
+            "description": "This armor consists of a fitted metal chest piece worn with supple leather."
+        },
+        "half_plate":{
+            "type": "medium",
+            "ac":15,
+            "cost":750,
+            "description": "Half plate consists of shaped metal plates that cover most of the wearer's body."
+        },
+        "ring_mail":{
+            "type": "heavy",
+            "ac":14,
+            "cost":30,
+            "description": "This armor is leather armor with heavy rings sewn into it."
+        },
+        "chain_mail":{
+            "type": "heavy",
+            "ac":16,
+            "cost":75,
+            "description": "Made of interlocking metal rings, chain mail includes a layer of quilted fabric worn underneath."
+        },
+        "chainmail":{
+            "type": "heavy",
+            "ac":16,
+            "cost":75,
+            "description": "A complete suit of chain mail, providing excellent protection."
+        },
+        "splint":{
+            "type": "heavy",
+            "ac":17,
+            "cost":200,
+            "description": "This armor is made of narrow vertical strips of metal riveted to a backing of leather."
+        },
+        "plate":{
+            "type": "heavy",
+            "ac":18,
+            "cost":1500,
+            "description": "Plate consists of shaped, interlocking metal plates to cover the entire body."
+        },
+        "buckler":{
+            "type": "shield",
+            "ac":1,
+            "cost":10,
+            "description": "A small, round shield held in the hand or strapped to the forearm."
+        },
+        "shield":{
+            "type": "shield",
+            "ac":2,
+            "cost":25,
+            "description": "A standard shield that provides a solid defense."
+        },
+        "kite_shield":{
+            "type": "shield",
+            "ac":3,
+            "cost":50,
+            "description": "A large, triangular shield favored by knights on horseback."
+        }
+    }
+}

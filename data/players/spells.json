@@ -1,0 +1,215 @@
+﻿{
+    "spell_list": {
+        "fire_bolt": {
+            "name": "Fire Bolt",
+            "level": 0,
+            "school": "Evocation",
+            "range": "120 ft",
+            "damage": "1d10",
+            "damage_type": "fire",
+            "description": "A mote of fire is hurled at a creature or object within range. Make a ranged spell attack."
+        },
+        "ray_of_frost": {
+            "name": "Ray of Frost",
+            "level": 0,
+            "school": "Evocation",
+            "range": "60 ft",
+            "damage": "1d8",
+            "damage_type": "cold",
+            "description": "A frigid beam of blue-white light streaks toward a creature within range. On hit, its speed is reduced by 10 feet."
+        },
+        "vicious_mockery": {
+            "name": "Vicious Mockery",
+            "level": 0,
+            "school": "Enchantment",
+            "range": "60 ft",
+            "damage": "1d4",
+            "damage_type": "psychic",
+            "description": "You unleash a string of insults. Target must succeed on a Wis save or take damage and have disadvantage on its next attack roll."
+        },
+        "magic_missile": {
+            "name": "Magic Missile",
+            "level": 1,
+            "school": "Evocation",
+            "range": "120 ft",
+            "damage": "3d4+3",
+            "damage_type": "force",
+            "description": "Creates three glowing darts of magical force. Each deals 1d4+1 force damage. They always hit."
+        },
+        "cure_wounds": {
+            "name": "Cure Wounds",
+            "level": 1,
+            "school": "Evocation",
+            "range": "Touch",
+            "healing": "1d8+4",
+            "description": "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting modifier."
+        },
+        "guiding_bolt": {
+            "name": "Guiding Bolt",
+            "level": 1,
+            "school": "Evocation",
+            "range": "120 ft",
+            "damage": "4d6",
+            "damage_type": "radiant",
+            "description": "A flash of light streaks toward a creature. On hit, the next attack roll against this target has advantage."
+        },
+        "scorching_ray": {
+            "name": "Scorching Ray",
+            "level": 2,
+            "school": "Evocation",
+            "range": "120 ft",
+            "damage": "6d6",
+            "damage_type": "fire",
+            "description": "You create three rays of fire and hurl them at targets within range. Each deals 2d6 fire damage."
+        },
+        "spiritual_weapon": {
+            "name": "Spiritual Weapon",
+            "level": 2,
+            "school": "Evocation",
+            "range": "60 ft",
+            "damage": "1d8+4",
+            "damage_type": "force",
+            "description": "You create a floating, spectral weapon within range that lasts for the duration or until you cast this spell again."
+        },
+        "hold_person": {
+            "name": "Hold Person",
+            "level": 2,
+            "school": "Enchantment",
+            "range": "60 ft",
+            "effect": "paralyzed",
+            "description": "Choose a humanoid that you can see within range. The target must succeed on a Wis save or be paralyzed."
+        },
+        "fireball": {
+            "name": "Fireball",
+            "level": 3,
+            "school": "Evocation",
+            "range": "150 ft",
+            "damage": "8d6",
+            "damage_type": "fire",
+            "description": "A bright streak flashes from your finger, then blossoms into an explosion of flame. Dex save for half damage."
+        },
+        "lightning_bolt": {
+            "name": "Lightning Bolt",
+            "level": 3,
+            "school": "Evocation",
+            "range": "100 ft line",
+            "damage": "8d6",
+            "damage_type": "lightning",
+            "description": "A stroke of lightning forming a line 100 feet long blasts out from you. Dex save for half damage."
+        },
+        "haste": {
+            "name": "Haste",
+            "level": 3,
+            "school": "Transmutation",
+            "range": "30 ft",
+            "effect": "buff_attacks",
+            "value": 1,
+            "description": "Target's speed is doubled, +2 AC, advantage on Dex saves, and gain an additional action each turn."
+        },
+        "blight": {
+            "name": "Blight",
+            "level": 4,
+            "school": "Necromancy",
+            "range": "30 ft",
+            "damage": "8d8",
+            "damage_type": "necrotic",
+            "description": "Necrotic energy washes over a creature of your choice. Con save for half damage."
+        },
+        "wall_of_fire": {
+            "name": "Wall of Fire",
+            "level": 4,
+            "school": "Evocation",
+            "range": "120 ft",
+            "damage": "5d8",
+            "damage_type": "fire",
+            "description": "You create a wall of fire on a solid surface within range. Deals damage to creatures within 10 feet of it."
+        },
+        "cone_of_cold": {
+            "name": "Cone of Cold",
+            "level": 5,
+            "school": "Evocation",
+            "range": "60 ft cone",
+            "damage": "8d8",
+            "damage_type": "cold",
+            "description": "A blast of cold air emits from your hands. Con save for half damage."
+        },
+        "hold_monster": {
+            "name": "Hold Monster",
+            "level": 5,
+            "school": "Enchantment",
+            "range": "90 ft",
+            "effect": "paralyzed",
+            "description": "Choose a creature that you can see within range. The target must succeed on a Wis save or be paralyzed."
+        },
+        "chain_lightning": {
+            "name": "Chain Lightning",
+            "level": 6,
+            "school": "Evocation",
+            "range": "150 ft",
+            "damage": "10d8",
+            "damage_type": "lightning",
+            "description": "You create a bolt of lightning that arcs toward a target and then to three other targets. Dex save for half damage."
+        },
+        "disintegrate": {
+            "name": "Disintegrate",
+            "level": 6,
+            "school": "Transmutation",
+            "range": "60 ft",
+            "damage": "10d6+40",
+            "damage_type": "force",
+            "description": "A thin green ray springs from your finger. If it reduces the target to 0 hit points, it is disintegrated."
+        },
+        "finger_of_death": {
+            "name": "Finger of Death",
+            "level": 7,
+            "school": "Necromancy",
+            "range": "60 ft",
+            "damage": "7d8+30",
+            "damage_type": "necrotic",
+            "description": "You send negative energy coursing through a creature. Con save for half damage."
+        },
+        "prismatic_spray": {
+            "name": "Prismatic Spray",
+            "level": 7,
+            "school": "Evocation",
+            "range": "60 ft cone",
+            "damage": "10d6",
+            "damage_type": "various",
+            "description": "Eight multicolored rays of light flash from your hand. Each ray has a different power and purpose."
+        },
+        "sunburst": {
+            "name": "Sunburst",
+            "level": 8,
+            "school": "Evocation",
+            "range": "150 ft",
+            "damage": "12d6",
+            "damage_type": "radiant",
+            "description": "Brilliant sunlight flashes in a 60-foot radius. Con save for half damage and to avoid being blinded."
+        },
+        "power_word_stun": {
+            "name": "Power Word Stun",
+            "level": 8,
+            "school": "Enchantment",
+            "range": "60 ft",
+            "effect": "stunned",
+            "description": "You speak a word of power. If the target has 150 hit points or fewer, it is stunned."
+        },
+        "meteor_swarm": {
+            "name": "Meteor Swarm",
+            "level": 9,
+            "school": "Evocation",
+            "range": "1 mile",
+            "damage": "40d6",
+            "damage_type": "fire/bludgeoning",
+            "description": "Blazing orbs of fire plummet to the ground at four different points. Dex save for half damage."
+        },
+        "power_word_kill": {
+            "name": "Power Word Kill",
+            "level": 9,
+            "school": "Enchantment",
+            "range": "60 ft",
+            "effect": "death",
+            "description": "You utter a word of power that can compel one creature you can see within range to die instantly if it has 100 HP or less."
+        }
+    }
+}

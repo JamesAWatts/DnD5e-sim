@@ -1,0 +1,79 @@
+{
+    "junk_list": {
+        "rusty_sword": {
+            "name": "Rusty Sword",
+            "cost": 5,
+            "description": "An old, rusty sword. Not very effective, but it has sentimental value."
+        },
+        "tattered_cloak": {
+            "name": "Tattered Cloak",
+            "cost": 3,
+            "description": "A worn-out cloak that offers minimal protection. It smells like it hasn't been washed in years."
+        },
+        "broken_shield": {
+            "name": "Broken Shield",
+            "cost": 4,
+            "description": "A shield that's seen better days. It has a large crack and won't block much damage."
+        },
+        "dented_helmet": {
+            "name": "Dented Helmet",
+            "cost": 6,
+            "description": "A helmet with several dents. It might still offer some protection, but it's not reliable."
+        },
+        "cracked_potion_bottle": {
+            "name": "Cracked Potion Bottle",
+            "cost": 2,
+            "description": "A potion bottle that's cracked and leaking. The contents are likely useless, but it could be worth something to a collector."
+        },
+        "loincloth": {
+            "name": "Loincloth",
+            "cost": 1,
+            "description": "A simple loincloth. Not very comfortable, but better than nothing."
+        },
+        "bone": {
+            "name": "Bone",
+            "cost": 1,
+            "description": "A dry, brittle bone. It might have belonged to someone once."
+        },
+        "tattered robes": {
+            "name": "Tattered Robes",
+            "cost": 2,
+            "description": "Worn-out robes from a sorcerer. They smell of ozone and old parchment."
+        },
+        "robes": {
+            "name": "Robes",
+            "cost": 5,
+            "description": "Simple cultist robes. Dark and mysterious."
+        },
+        "harpy_feather": {
+            "name": "Harpy Feather",
+            "cost": 10,
+            "description": "A vibrant feather from a harpy. It shimmer with an oily sheen."
+        },
+        "shiny_trinket": {
+            "name": "Shiny Trinket",
+            "cost": 15,
+            "description": "A shiny trinket dropped by a harpy. It's mostly just glass, but it's pretty."
+        },
+        "snake_scale": {
+            "name": "Snake Scale",
+            "cost": 20,
+            "description": "A shimmering scale from one of Medusa's snakes."
+        },
+        "lion_pelt": {
+            "name": "Lion Pelt",
+            "cost": 50,
+            "description": "The pelt of a Chimera's lion head. It's thick and warm."
+        },
+        "dragon_scale": {
+            "name": "Dragon Scale",
+            "cost": 500,
+            "description": "A hard, glowing scale from an ancient dragon. It's incredibly tough."
+        },
+        "legendary_hoard": {
+            "name": "Legendary Hoard",
+            "cost": 1000,
+            "description": "A small part of a dragon's legendary treasure. It's worth a fortune!"
+        }
+    }
+}

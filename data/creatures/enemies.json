@@ -1,0 +1,306 @@
+{
+    "kobold": {
+        "hp": 6,
+        "armor": 6,
+        "die": 4,
+        "bonus": 1,
+        "attack_range": 1,
+        "attack_count": 1,
+        "xp": 100,
+        "reward": {
+            "gold": 5,
+            "items": [
+                {"name": "loincloth", "type": "junk"}
+            ]
+        }
+    },
+    "kobold_slinger": {
+        "hp": 4,
+        "armor": 5,
+        "die": 4,
+        "bonus": 1,
+        "attack_range": 5,
+        "attack_count": 1,
+        "xp": 100,
+        "reward": {
+            "gold": 5,
+            "items": [
+                {"name": "sling", "type": "weapon"},
+                {"name": "loincloth", "type": "junk"}
+            ]
+        }
+    },
+    "skeleton": {
+        "hp": 8,
+        "armor": 8,
+        "die": 6,
+        "bonus": 2,
+        "attack_range": 1,
+        "attack_count": 1,
+        "xp": 110,
+        "reward": {
+            "gold": 2,
+            "items": [
+                {"name": "bone", "type": "junk"},
+                {"name": "rusty_sword", "type": "weapon"}
+            ]
+        }
+    },
+    "kobold_sorcerer":{
+        "hp": 10,
+        "armor": 6,
+        "die": 6,
+        "bonus": 2,
+        "attack_range": 5,
+        "attack_count": 1,
+        "xp": 150,
+        "reward": {
+            "gold": 10,
+            "items": [
+                {"name": "staff", "type": "weapon"},
+                {"name": "tattered robes", "type": "junk"}
+            ]
+        }
+    },
+    "goblin": {
+        "hp": 10,
+        "armor": 7,
+        "die": 6,
+        "bonus": 2,
+        "attack_range": 1,
+        "attack_count": 1,
+        "xp": 125,
+        "reward": {
+            "gold": 8,
+            "items": [
+                {"name": "dagger", "type": "weapon"},
+                {"name": "potion", "type": "consumable"}
+            ]
+        }
+    },
+    "goblin_archer": {
+        "hp": 8,
+        "armor": 6,
+        "die": 6,
+        "bonus": 2,
+        "attack_range": 5,
+        "attack_count": 1,
+        "xp": 125,
+        "reward": {
+            "gold": 8,
+            "items": [
+                {"name": "shortbow", "type": "weapon"},
+                {"name": "potion", "type": "consumable"}
+            ]
+        }
+    },
+    "cultist": {
+        "hp": 12,
+        "armor": 10,
+        "die": 4,
+        "bonus": 3,
+        "attack_range": 1,
+        "attack_count": 1,
+        "xp": 150,
+        "reward": {
+            "gold": 12,
+            "items": [
+                {"name": "dagger", "type": "weapon"},
+                {"name": "robes", "type": "junk"}
+            ]
+        }
+    },
+    "harpy": {
+        "hp": 15,
+        "armor": 11,
+        "die": 6,
+        "bonus": 4,
+        "attack_range": 1,
+        "attack_count": 2,
+        "xp": 160,
+        "reward": {
+            "gold": 15,
+            "items": [
+                {"name": "harpy_feather", "type": "junk"},
+                {"name": "shiny_trinket", "type": "junk"}
+            ]
+        }
+    },
+    "thief": {
+        "hp": 14,
+        "armor": 10,
+        "die": 8,
+        "bonus": 4,
+        "attack_range": 1,
+        "attack_count": 1,
+        "xp": 150,
+        "reward": {
+            "gold": 20,
+            "items": [
+                {"name": "sword", "type": "weapon"},
+                {"name": "chainmail", "type": "armor"}
+            ]
+        }
+    },
+    "goblin_chieften": {
+        "hp": 20,
+        "armor": 8,
+        "die": 8,
+        "bonus": 4,
+        "attack_range": 2,
+        "attack_count": 1,
+        "xp": 175,
+        "reward": {
+            "gold": 16,
+            "items": [
+                {"name": "warhammer", "type": "weapon"},
+                {"name": "potion", "type": "consumable"}
+            ]
+        }
+    },
+    "assassin": {
+        "hp": 16,
+        "armor": 10,
+        "die": 8,
+        "bonus": 5,
+        "attack_range": 5,
+        "attack_count": 1,
+        "xp": 180,
+        "reward": {
+            "gold": 25,
+            "items": [
+                {"name": "longbow", "type": "weapon"},
+                {"name": "leather armor", "type": "armor"}
+            ]
+        }
+    },
+    "guard": {
+        "hp": 20,
+        "armor": 12,
+        "die": 8,
+        "bonus": 4,
+        "attack_range": 1,
+        "attack_count": 2,
+        "xp": 200,
+        "reward": {
+            "gold": 25,
+            "items": [
+                {"name": "mace", "type": "weapon"},
+                {"name": "chainmail", "type": "armor"}
+            ]
+        }
+    },
+    "orc_warrior": {
+        "hp": 25,
+        "armor": 11,
+        "die": 10,
+        "bonus": 5,
+        "attack_range": 1,
+        "attack_count": 1,
+        "xp": 250,
+        "reward": {
+            "gold": 20,
+            "items": [
+                {"name": "greataxe", "type": "weapon"},
+                {"name": "hide_armor", "type": "armor"}
+            ]
+        }
+    },
+    "guard_captain": {
+        "hp": 30,
+        "armor": 14,
+        "die": 10,
+        "bonus": 5,
+        "attack_range": 2,
+        "attack_count": 2,
+        "xp": 400,
+        "reward": {
+            "gold": 50,
+            "items": [
+                {"name": "glaive", "type": "weapon"},
+                {"name": "half_plate", "type": "armor"}
+            ]
+        }
+    },
+    "minotaur": {
+        "hp": 45,
+        "armor": 12,
+        "die": 12,
+        "bonus": 6,
+        "attack_range": 1,
+        "attack_count": 1,
+        "xp": 500,
+        "reward": {
+            "gold": 60,
+            "items": [
+                {"name": "greataxe", "type": "weapon"},
+                {"name": "strength_potion", "type": "consumable"}
+            ]
+        }
+    },
+    "medusa": {
+        "hp": 55,
+        "armor": 15,
+        "die": 8,
+        "bonus": 7,
+        "attack_range": 5,
+        "attack_count": 2,
+        "xp": 750,
+        "on_hit_effect": "sap",
+        "reward": {
+            "gold": 100,
+            "items": [
+                {"name": "snake_scale", "type": "junk"},
+                {"name": "poison_vial", "type": "consumable"}
+            ]
+        }
+    },
+    "dark_knight": {
+        "hp": 70,
+        "armor": 18,
+        "die": 10,
+        "bonus": 8,
+        "attack_range": 1,
+        "attack_count": 2,
+        "xp": 1000,
+        "reward": {
+            "gold": 150,
+            "items": [
+                {"name": "plate", "type": "armor"},
+                {"name": "greatsword", "type": "weapon"}
+            ]
+        }
+    },
+    "chimera": {
+        "hp": 100,
+        "armor": 14,
+        "die": 8,
+        "bonus": 9,
+        "attack_range": 2,
+        "attack_count": 3,
+        "xp": 1500,
+        "reward": {
+            "gold": 250,
+            "items": [
+                {"name": "lion_pelt", "type": "junk"},
+                {"name": "mana_potion", "type": "consumable"}
+            ]
+        }
+    },
+    "ancient_dragon": {
+        "hp": 250,
+        "armor": 20,
+        "die": 12,
+        "bonus": 12,
+        "attack_range": 5,
+        "attack_count": 3,
+        "xp": 5000,
+        "reward": {
+            "gold": 2000,
+            "items": [
+                {"name": "dragon_scale", "type": "junk"},
+                {"name": "legendary_hoard", "type": "junk"}
+            ]
+        }
+    }
+}
