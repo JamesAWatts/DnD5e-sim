@@ -30,19 +30,23 @@ def roll_dice(dice_str):
             else: break
 
     # 2. Handle Multiplication/Division before Addition/Subtraction
-    # (Simple support for expressions like '2*10+5')
     if '*' in s or '/' in s:
-        # We look for terms that are pure math (no 'd')
-        # This is tricky because we want to preserve 'd' for the next step.
-        # Let's try evaluating parts that don't contain 'd'
         parts = re.split(r"(\+|-)", s)
         for i in range(len(parts)):
-            if parts[i] not in '+-' and 'd' not in parts[i] and any(op in parts[i] for op in "*/"):
-                try:
-                    # Sanitize and eval
-                    cleaned = "".join(c for c in parts[i] if c in "0123456789*/. ")
-                    parts[i] = str(int(eval(cleaned)))
-                except: pass
+            if parts[i] not in '+-' and any(op in parts[i] for op in "*/"):
+                # Split the term into factors (e.g. '2*2d6' -> ['2', '*', '2d6'])
+                factors = re.split(r"(\*|/)", parts[i])
+                res = None
+                for j in range(0, len(factors), 2):
+                    term = factors[j]
+                    val = roll_dice(term)
+                    if res is None:
+                        res = val
+                    else:
+                        op = factors[j-1]
+                        if op == '*': res *= val
+                        elif op == '/': res //= val if val else 1
+                parts[i] = str(res)
         s = "".join(parts)
 
     # 3. Resolve Dice Patterns NdS
@@ -108,7 +112,7 @@ def attack_roll(attack_bonus, enemy_ac, crit_range=(20,), advantage=0):
     }
 
 
-def damage_roll(damage_die, attack_bonus, critical=False, player_data=None):
+def damage_roll(damage_die, attack_bonus, critical=False, player_data=None, target=None):
     """
     Calculate damage based on player class and stats.
     Returns (damage_amount, dice_string).
@@ -117,6 +121,10 @@ def damage_roll(damage_die, attack_bonus, critical=False, player_data=None):
     eq_bonus = int(player_data.get('equipment_dmg_bonus', 0)) if player_data else 0
     total_bonus = attack_bonus + eq_bonus
 
+    # Adamantite check: Target is immune to crit damage bonuses
+    is_crit_immune = target.get('crit_immune', False) if target else False
+    effective_crit = critical and not is_crit_immune
+
     # 1. Complex String Handling (e.g., "2d10")
     if isinstance(damage_die, str) and 'd' in damage_die:
         dice_str = damage_die
@@ -124,7 +132,7 @@ def damage_roll(damage_die, attack_bonus, critical=False, player_data=None):
             dice_str += f"{'+' if total_bonus > 0 else ''}{total_bonus}"
         
         # Authentic 5e Crit: Roll dice twice
-        if critical:
+        if effective_crit:
             res1 = roll_dice(damage_die)
             res2 = roll_dice(damage_die)
             dice_str = f"({damage_die} + {damage_die}) [CRIT]"
@@ -142,7 +150,7 @@ def damage_roll(damage_die, attack_bonus, critical=False, player_data=None):
         if total_bonus != 0:
             dice_str += f"{'+' if total_bonus > 0 else ''}{total_bonus}"
         
-        if critical:
+        if effective_crit:
             res = sum(random.randint(1, sides) for _ in range(count * 2))
             dice_str = f"{count*2}d{sides} [CRIT]"
             if total_bonus != 0: dice_str += f"{'+' if total_bonus > 0 else ''}{total_bonus}"
@@ -157,7 +165,7 @@ def damage_roll(damage_die, attack_bonus, critical=False, player_data=None):
         if total_bonus != 0:
             dice_str += f"{'+' if total_bonus > 0 else ''}{total_bonus}"
             
-        if critical:
+        if effective_crit:
             res = random.randint(1, sides) + random.randint(1, sides)
             dice_str = f"2d{sides} [CRIT]"
             if total_bonus != 0: dice_str += f"{'+' if total_bonus > 0 else ''}{total_bonus}"

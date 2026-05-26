@@ -5,18 +5,20 @@
             "cost": "{prof}",
             "resource": "sp",
             "type": "attack",
+            "ranged": true,
             "dice": "{prof}d{damage_die}+{prof}",
             "effect": "enemy_advantage",
             "power": -1,
-            "description": "A well-aimed stone that can daze an opponent."
+            "description": "Hurl a well-aimed stone to daze the opponent. Deals {dice} ranged physical damage and inflicts a {power} penalty to their rolls ({effect})."
         },
         "bone_toss": {
             "name": "Bone Toss",
             "cost": 3,
             "resource": "sp",
             "type": "attack",
+            "ranged": true,
             "dice": "2d6+2",
-            "description": "The skeleton rips a bone from its body and hurls it."
+            "description": "Rip a bone from its own body and hurl it with unnatural force. Deals {dice} bludgeoning damage."
         },
         "blink_strike": {
             "name": "Blink Strike",
@@ -26,7 +28,7 @@
             "dice": "2d{damage_die}+{prof}",
             "effect": "enemy_advantage",
             "power": -1,
-            "description": "The creature blinks out of existence and reappears to strike from a different location."
+            "description": "Blink out of existence and reappear to strike from a blind spot. Deals {dice} physical damage and inflicts a {power} penalty to the target's rolls ({effect})."
         },
         "swift_strikes": {
             "name": "Swift Strikes",
@@ -36,29 +38,30 @@
             "dice": "2d{damage_die}+{prof/2}",
             "use_attack_count": true,
             "attack_count_overide": "+2",
-            "description": "Enemy attacks wiht a flurry of strikes."
+            "description": "Unleash a blistering flurry of strikes. Modifies the standard attack count by {attack_count_overide}, with each rapid blow dealing {dice} physical damage."
         },
         "screech": {
             "name": "Screech",
             "cost": "{prof/2+1}",
             "resource": "sp",
             "type": "save",
+            "ranged": true,
             "dice": "{prof/2}d6",
-            "aoe": true,
+            "saoe": true,
             "effect": "enemy_advantage",
             "power": -3,
-            "description": "A magical song that draws the player in, leaving them vulnerable."
+            "description": "Unleash a maddening, magical screech that resonates across the battlefield. Deals {dice} damage to ALL enemies and leaves them vulnerable, inflicting a {power} penalty ({effect}). A successful save halves the damage."
         },
-        
         "darkness": {
             "name": "Darkness",
             "cost": 5,
             "resource": "mp",
             "type": "auto",
-            "aoe": true,
-            "effect": "blinded",
+            "ranged": true,
+            "saoe": true,
+            "effect": "blind",
             "duration": 3,
-            "description": "A magical darkness that blinds all caught within it."
+            "description": "Conjure a sphere of magical darkness that engulfs the battlefield. ALL enemies are unavoidably rendered {effect} for {duration} turns."
         },
         "gore": {
             "name": "Gore",
@@ -69,7 +72,7 @@
             "dot": true,
             "dot_dice": "2d{damage_die}",
             "duration": 2,
-            "description": "A brutal thrust with sharp horns."
+            "description": "Deliver a brutal, tearing thrust with sharp horns. Deals an initial {dice} physical damage and causes severe bleeding for an additional {dot_dice} damage each turn. Lasts for {duration} turns."
         },
         "charge": {
             "name": "Charge",
@@ -79,16 +82,17 @@
             "dice": "{prof/2}d12+{level}",
             "effect": "stunned",
             "duration": "{prof/4}",
-            "description": "A thundering charge that stuns on impact."
+            "description": "Launch into a thundering, unstoppable charge. Deals {dice} bludgeoning damage and leaves the target {effect} for {duration} turns."
         },
         "petrifying_gaze": {
             "name": "Petrifying Gaze",
             "cost": "{prof}",
             "resource": "mp",
             "type": "save",
+            "ranged": true,
             "effect": "stunned",
             "duration": "{prof/2}",
-            "description": "A gaze that turns flesh to stone."
+            "description": "Lock eyes with a target to turn their flesh to stone. The target must succeed on a save or become {effect} for {duration} turns."
         },
         "cleave":{
             "name": "Cleave",
@@ -96,17 +100,8 @@
             "resource": "sp",
             "type": "save",
             "dice": "{prof/2}d6+{level/2}",
-            "aoe": true,
-            "description": "A wide swing that can hit multiple targets."
-        },
-        "drain_life": {
-            "name": "Drain Life",
-            "cost": "{prof/2}+1",
-            "resource": "sp",
-            "type": "attack",
-            "dice": "{prof/2}d6+{level/2}",
-            "on_hit_effect": "lifesteal",
-            "description": "A leeching attack that heals the user for the damage dealt."
+            "vaoe": true,
+            "description": "Unleash a wide, sweeping swing that cuts through enemy lines. Deals {dice} physical damage to all targets in the area. A successful save halves the damage."
         },
         "putrid_claw": {
             "name": "Putrid Claw",
@@ -115,45 +110,69 @@
             "type": "attack",
             "dice": "{prof}d{damage_die}+{prof}",
             "on_hit_effect": "petrify",
-            "duration": "({level}/2)+1"
+            "duration": "({level}/2)+1",
+            "description": "Slash with a rotting, disease-ridden claw. Deals {dice} necrotic damage. On a hit, inflicts the {on_hit_effect} status for {duration} turns."
+        },
+        "drain_life": {
+            "name": "Drain Life",
+            "cost": "{prof/2}+1",
+            "resource": "sp",
+            "type": "attack",
+            "dice": "{prof/2}d6+{level/2}",
+            "on_hit_effect": "lifesteal",
+            "description": "Siphon the vitality from an enemy to heal wounds. Deals {dice} necrotic damage and applies {on_hit_effect}, restoring health equal to the damage dealt."
         },
         "raise_dead": {
             "name": "Raise Dead",
-            "cost": "({prof}-1)/2",
+            "cost": "({prof})/2",
             "resource": "sp",
             "type": "summon",
+            "ranged": true,
             "summon_type": ["skeleton", "zombie"],
             "summon_count": "{level}/6",
-            "description": "Necromancer summons a skeleton to fight for them."
+            "description": "Channel dark magic to animate the fallen. Summons {summon_count} undead servant(s) to fight for the caster."
         },
-        "necrosis":{
+         "summon_greater_undead": {
+            "name": "Summon Greater Undead",
+            "cost": "({prof})/2",
+            "resource": "sp",
+            "type": "summon",
+            "ranged": true,
+            "summon_type": ["ghast", "ghoul"],
+            "summon_count": "level/8",
+            "description": "Tear through the veil of death and bind the fallen to your will. Summons {summon_count} Ghoul(s) and Ghast(s) to serve you."
+         },
+            "necrosis":{
             "name": "Necrosis",
             "cost": "{prof/2}",
             "resource": "mp",
             "type": "save",
+            "ranged": true,
             "dice": "{prof/2}d8+{level}/3",
-            "aoe": true,
+            "haoe": true,
             "dot": true,
             "dot_dice": "{prof/2}d8",
             "duration": "{prof/2}-1",
-            "description": "A wave of necrotic energy that damages and weakens the target."
+            "description": "Unleash a devastating wave of rotting necrotic energy. Deals an initial {dice} necrotic damage to ALL enemies. Those caught in the blast continue to decay, taking {dot_dice} damage each turn. Lasts for {duration} turns."
         },
         "eldritch_smite": {
             "name": "Eldritch Smite",
             "cost": "{prof/2}",
             "resource": "mp",
             "type": "auto",
+            "ranged": true,
             "dice": "{prof/2}d12+{level/2}",
-            "description": "Summon forth eldritch power to smite your target."
+            "description": "Channel forbidden eldritch power into a single, devastating strike. Unavoidably deals {dice} magical damage."
         },
         "fire_breath": {
             "name": "Fire Breath",
             "cost": "{prof/2}",
             "resource": "mp",
             "type": "save",
+            "ranged": true,
             "dice": "{prof/2}d6+{level/2}",
-            "aoe": true,
-            "description": "A cone of searing flames."
+            "saoe": true,
+            "description": "Exhale a searing cone of absolute inferno. Deals {dice} fire damage to ALL enemies in the blast zone. A successful save halves the damage."
         },
         "stinger_strike": {
             "name": "Stinger Strike",
@@ -166,7 +185,7 @@
             "dot": true,
             "dot_dice": "3d({prof}+1)",
             "duration": 3,
-            "description": "A stab from a poisonous stinger."
+            "description": "Thrust with a venomous stinger to paralyze and poison the target. Deals an initial {dice} piercing damage, inflicts a {power} penalty to their rolls ({effect}), and poisons them for an additional {dot_dice} damage each turn. Lasts for {duration} turns."
         },
         "tail_swipe": {
             "name": "Tail Swipe",
@@ -174,90 +193,98 @@
             "resource": "sp",
             "type": "save",
             "dice": "{prof/2}d10",
-            "aoe": true,
-            "description": "A sweep of the tail from a massive creature."
+            "haoe": true,
+            "description": "Sweep a massive, crushing tail through the enemy ranks. Deals {dice} bludgeoning damage to all targets in the area. A successful save halves the damage."
         },
         "dragon_breath": {
             "name": "Dragon Breath",
             "cost": "{prof/2}",
             "resource": "mp",
             "type": "save",
+            "ranged": true,
             "dice": "{prof/2}d8+{level/2}",
-            "aoe": true,
-            "description": "The ultimate destructive force of a dragon."
+            "saoe": true,
+            "description": "Unleash the ultimate destructive force of dragonkind. Deals a cataclysmic {dice} elemental damage to ALL enemies on the battlefield. A successful save halves the damage."
         },
         "lesser_heal": {
             "name": "Lesser Heal",
             "cost": "{current_mp}",
             "resource": "mp",
             "type": "heal",
+            "ranged": true,
             "dice": "{current_mp}d8+{prof}",
-            "description": "A minor mending of wounds."
+            "description": "Channel a brief surge of restorative magic. Consumes current MP to restore {dice} HP."
         },
         "heal": {
             "name": "Heal",
             "cost": "{current_mp}",
             "resource": "mp",
             "type": "heal",
+            "ranged": true,
             "dice": "{current_mp}d10+{level}",
-            "description": "A solid restoration of health."
+            "description": "Call upon potent restorative magic. Consumes current MP to restore a solid {dice} HP."
         },
         "greater_heal": {
             "name": "Greater Heal",
             "cost": "{current_mp}",
             "resource": "mp",
             "type": "heal",
+            "ranged": true,
             "dice": "({current_mp}*2)d12+{level}",
-            "description": "A powerful restoration of health."
+            "description": "Unleash a powerful burst of pure healing energy. Consumes current MP to restore a massive {dice} HP."
         },
         "regenerate": {
             "name": "Regenerate",
             "cost": "{current_mp}",
             "resource": "mp",
             "type": "heal",
+            "ranged": true,
             "hot": true,
             "dice": "{current_mp}d10+{level}",
             "duration": "{current_mp}",
             "hot_dice": "3d10+{prof}",
-            "description": "The target's wounds close automatically over time."
+            "description": "Stimulate rapid cellular growth to close gaping wounds. Consumes current MP to instantly restore {dice} HP, and continues to heal for {hot_dice} HP at the start of each turn. Lasts for {duration} turns."
         },
         "entangle": {
             "name": "Entangle",
             "cost": "{prof/2}+1",
             "resource": "mp",
             "type": "save",
+            "ranged": true,
             "effect": "stunned",
             "duration": "{prof/4}+1",
-            "aoe": true,
-            "description": "Grasping weeds and vines sprout from the ground, restraining those caught within."
+            "description": "Command the earth to sprout grasping weeds and crushing vines. All enemies in the area must save or become {effect} for {duration} turns."
         },
         "needle_burst": {
             "name": "Needle Burst",
             "cost": "({prof}+1)/2",
             "resource": "sp",
             "type": "attack",
+            "ranged": true,
             "dice": "{prof}d6+{prof}",
             "aoe": true,
-            "description": "The creature flings a barrage of sharp needles in all directions."
+            "description": "Violently expel a barrage of razor-sharp needles in every direction. Deals {dice} piercing damage to all enemies in the area."
         },
         "vicious_mockery": {
             "name": "Vicious Mockery",
             "cost": "{level/2}",
             "resource": "sp",
             "type": "save",
+            "ranged": true,
             "dice": "2d{level/2}+{prof}",
             "effect": "enemy_advantage",
             "power": -2,
-            "description": "A string of enchanted insults that wounds the target and leaves them distracted."
+            "description": "Weave subtle enchantments into a string of biting insults. Deals {dice} psychic damage and leaves the target distracted, inflicting a {power} penalty to their rolls ({effect}). A successful save halves the damage."
         },
         "conjure_minor_elemental": {
             "name": "Conjure Minor Elemental",
             "cost": "{prof/2}",
             "resource": "sp",
             "type": "summon",
+            "ranged": true,
             "summon_type": ["vine_blight"],
             "summon_count": "{level}/4",
-            "description": "Summon a plant-based vine blight to entangle your enemies."
+            "description": "Call upon the spirits of nature for aid. Summons {summon_count} Vine Blight(s) to entangle your enemies."
         }
     }
 }

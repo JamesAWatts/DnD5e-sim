@@ -2,32 +2,34 @@ import pygame
 import random
 from .base_state import BaseState
 from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.ui.backgrounds import BackgroundManager
+from interfaces.pygame.graphics.backgrounds import BackgroundManager
 from interfaces.pygame.ui.panel import draw_text_outlined
 from interfaces.pygame.ui.dialogue_box import DialogueBox
 from core.game_rules.constants import scale_x, scale_y, SCREEN_WIDTH, SCREEN_HEIGHT, COLOR_GOLD
 from core.players.player import validate_player_data
+from core.players.tavern import (
+    get_party_level, get_mercenary_starting_level, get_rest_cost, 
+    get_hire_cost, get_feast_cost, get_rumor_cost, get_respec_cost,
+    apply_rest, apply_feast, get_rumor_info
+)
 
 class TavernState(BaseState):
     def __init__(self, game, font):
         super().__init__(game, font)
         self.background = BackgroundManager.get_rest_bg() 
 
-        party_lvl = sum(p.get('level', 1) for p in self.game.party)
+        party = self.game.party
+        party_lvl = get_party_level(party)
         
-        # Determine start level for Hired Help (logic synced with ClassSelectState)
-        self.hire_level = 1
-        if party_lvl >= 46: self.hire_level = 15
-        elif party_lvl >= 31: self.hire_level = 10
-        elif party_lvl >= 16: self.hire_level = 5
-        elif party_lvl >= 6: self.hire_level = 3
+        # Determine start level for Hired Help
+        self.hire_level = get_mercenary_starting_level(party_lvl)
 
-        # Calculate costs
-        self.feast_cost = len(self.game.party) * 100
-        self.rest_cost = sum([5 * p.get('level', 1) for p in self.game.party])
-        self.hire_cost = self.hire_level * 100
-        self.rumor_cost = 50
-        self.respec_cost = 500
+        # Calculate costs using core functions
+        self.feast_cost = get_feast_cost(party)
+        self.rest_cost = get_rest_cost(party)
+        self.hire_cost = get_hire_cost(party_lvl)
+        self.rumor_cost = get_rumor_cost()
+        self.respec_cost = get_respec_cost()
 
         self.options = []
         if party_lvl >= 1:
@@ -64,7 +66,8 @@ class TavernState(BaseState):
     def handle_main_menu(self, option):
         lead = self.game.player
         inv = lead['inventory_ref']
-        party_lvl = sum(p.get('level', 1) for p in self.game.party)
+        party = self.game.party
+        party_lvl = get_party_level(party)
         
         if 'tavern_stats' not in lead:
             lead['tavern_stats'] = {'feast_used': False}
@@ -81,47 +84,15 @@ class TavernState(BaseState):
 
             if inv['gold'] >= self.feast_cost:
                 inv['gold'] -= self.feast_cost
+                msg = apply_feast(party, party_lvl)
                 tavern_stats['feast_used'] = True
-                
-                # Feast scaling: Level 26 (base), 41 (+1), 51 (+2)
-                mult = 5
-                stat_bonus = 0
-                if party_lvl >= 51:
-                    mult = 15
-                    stat_bonus = 2
-                elif party_lvl >= 41:
-                    mult = 10
-                    stat_bonus = 1
-                
-                for p in self.game.party:
-                    p['current_hp'] = p['max_hp']
-                    p['current_mp'] = p.get('max_mp', 0)
-                    p['current_sp'] = p.get('max_sp', 0)
-                    p['hp_buff'] = mult * p.get('level', 1)
-                    p['feast_bonus'] = stat_bonus
-
-                msg = "The party feasts sumptuously."
-                if stat_bonus > 0:
-                    msg += f" Everyone feels significantly tougher and more capable (+{stat_bonus} to stats)!"
-                else:
-                    msg += " Everyone feels significantly tougher!"
                 self.dialogue.set_messages(msg)
 
         elif "Rest" in option:
             if self.game.god_mode or inv.get("gold", 0) >= self.rest_cost:
-                self.game.consecutive_combats = 0
                 if not self.game.god_mode: inv["gold"] -= self.rest_cost
-                tavern_stats['feast_used'] = False
-                for p in self.game.party:
-                    p["current_hp"] = p.get("max_hp", 10)
-                    p["current_mp"] = p.get("max_mp", 0)
-                    p["current_sp"] = p.get("max_sp", 0)
-                    # Reset temp buffs (Grind Stone etc)
-                    p['weapon_bonus'] = 0
-                    p['feast_bonus'] = 0
-                    validate_player_data(p)
-                lead["rest_count"] = lead.get("rest_count", 0) + 1
-                self.dialogue.set_messages(f"The party rests peacefully. All limits and temporary buffs reset.")
+                msg = apply_rest(self.game)
+                self.dialogue.set_messages(msg)
 
         elif "Hired Help" in option:
             if len(self.game.party) >= 3:
@@ -137,16 +108,9 @@ class TavernState(BaseState):
         elif "Rumors" in option:
             if inv['gold'] >= self.rumor_cost:
                 inv['gold'] -= self.rumor_cost
-                from core.creatures.enemies import get_scaled_enemies
-                import math
-                total_level = sum(p.get('level', 1) for p in self.game.party)
-                party_size = len(self.game.party)
-                encounter_level = math.ceil(total_level - (party_size / 2) + 1)
+                types, encounter = get_rumor_info(self.game)
+                self.game.next_encounter = encounter
                 
-                next_enemies = get_scaled_enemies(encounter_level, battle_count=self.game.battle_counter + 1)
-                self.game.next_encounter = next_enemies
-                
-                types = list(set([e.get('category', 'unknown') for e in next_enemies]))
                 type_str = ", ".join([t.title() for t in types])
                 self.dialogue.set_messages([f"You hear whispers of {type_str} lurking ahead in the next area."])
             else:
@@ -180,7 +144,7 @@ class TavernState(BaseState):
             cs.stored_xp = xp # Hack to pass XP back
             self.game.change_state(cs)
 
-    def update(self, events):
+    def update(self, events, dt):
         if self.dialogue.current_message:
             self.dialogue.update()
             for event in events:
@@ -208,10 +172,11 @@ class TavernState(BaseState):
                             self.hiring_name += event.unicode
             return
 
-        super().update(events)
+        super().update(events, dt)
 
     def draw(self, screen):
         self.draw_background(screen)
+        self.draw_settings_button(screen)
         width, height = screen.get_size()
         
         if self.menu_state == "NAMING":
@@ -246,4 +211,5 @@ class TavernState(BaseState):
             gw, gh = self.font.size(gold_str)
             draw_text_outlined(screen, gold_str, self.font, COLOR_GOLD, width // 2 - gw // 2, height // 2 - scale_y(110))
 
-        self.dialogue.draw(screen)
+        if self.dialogue.current_message:
+            self.dialogue.draw(screen)

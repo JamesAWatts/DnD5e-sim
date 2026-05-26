@@ -7,7 +7,11 @@
             "type": "attack",
             "dice": "2d{damage_die}+{prof}",
             "use_attack_count": true,
-            "description": "A powerful blow that deals heavy damage."
+            "vfx": {
+                "type": "burst",
+                "color": "white"
+            },
+            "description": "Unleash a series of punishing, bone-crushing blows. Make {attack_count} empowered strikes, each dealing {dice} physical damage."
         },
         "action_surge": {
             "name": "Action Surge",
@@ -16,7 +20,11 @@
             "type": "attack",
             "dice": "3d{damage_die}+{level}",
             "use_attack_count": true,
-            "description": "You push yourself beyond your limits for an extra burst of power."
+            "vfx": {
+                "type": "burst",
+                "color": "yellow"
+            },
+            "description": "Push your body beyond its natural limits for an explosive burst of speed. Make {attack_count} devastating strikes, each dealing a massive {dice} physical damage."
         },
         "second_wind": {
             "name": "Second Wind",
@@ -24,7 +32,11 @@
             "resource": "sp",
             "type": "heal",
             "dice": "2d{damage_die}+{level}",
-            "description": "You call upon your stamina to regain hit points."
+            "vfx": {
+                "type": "aura",
+                "color": "green"
+            },
+            "description": "Dig deep and call upon your hidden reserves of stamina to push through the pain. Instantly restores {dice} HP."
         },
         "taunt": {
             "name": "Taunt",
@@ -32,10 +44,10 @@
             "resource": "sp",
             "type": "save",
             "effect": "taunted",
-            "aoe": true,
+            "saoe": true,
             "duration": 3,
             "bonus_spell_save":"{prof}",
-            "description": "Taunt all enemies, making you their target for 3 turns."
+            "description": "Bellow a mighty challenge that demands the attention of the entire battlefield. ALL enemies must save or become {effect} for {duration} turns. Taunted enemies suffer a {bonus_spell_save} penalty to their spell saves."
         },
         "precision_strike": {
             "name": "Precision Strike",
@@ -43,7 +55,7 @@
             "resource": "sp",
             "type": "auto",
             "dice": "4d{damage_die}+{level}",
-            "description": "A carefully aimed blow that is impossible to miss."
+            "description": "Identify a critical weakness in your enemy's guard and deliver a flawless, unavoidable strike. Unfailingly deals {dice} precision damage."
         },
         "indomitable": {
             "name": "Indomitable",
@@ -54,7 +66,7 @@
             "hot": true,
             "duration": 3,
             "hot_dice": "3d{damage_die}",
-            "description": "You shrug off your wounds through sheer force of will."
+            "description": "Shrug off grievous, life-threatening wounds through sheer, unwavering willpower. Instantly restores {dice} HP, and continues to heal you for {hot_dice} HP at the start of each turn. Lasts for {duration} turns."
         },
         "shield_bash": {
             "name": "Shield Bash",
@@ -64,7 +76,7 @@
             "dice": "3d{damage_die}+{level}",
             "effect": "stunned",
             "duration": 3,
-            "description": "You bash an enemy with your shield, potentially stunning them."
+            "description": "Step inside your opponent's guard and deliver a crushing, concussive blow with your shield. Deals {dice} bludgeoning damage. On a hit, leaves the target {effect} for {duration} turns."
         },
         "death_blow": {
             "name": "Death Blow",
@@ -74,7 +86,7 @@
             "dice": "5d{damage_die}+{level}",
             "dot": true,
             "dot_dice": "5d{damage_die}",
-            "description": "A lethal strike aimed at a vital point, causing severe bleeding."
+            "description": "Execute a lethal, calculated strike to a major artery. Unavoidably deals a massive {dice} physical damage and inflicts severe bleeding, causing the target to suffer an additional {dot_dice} damage each turn."
         },
         "flurry_of_blows": {
             "name": "Flurry of Blows",
@@ -84,7 +96,7 @@
             "dice": "2d{damage_die}+{prof}",
             "use_attack_count": true,
             "attack_count_overide": "+2",
-            "description": "A rapid succession of unarmed strikes."
+            "description": "Channel your ki to unleash a blindingly fast barrage of strikes. Modifies your standard attack count by {attack_count_overide}, with each rapid blow dealing {dice} physical damage."
         },
         "flowing_strikes": {
             "name": "Flowing Strikes",
@@ -93,7 +105,7 @@
             "type": "save",
             "aoe": true,
             "dice": "2d{damage_die}+{prof}",
-            "description": "You focus on your defense, making it harder for enemies to hit you."
+            "description": "Weave through the battlefield in a deadly, evasive dance, striking out at everyone around you. Deals {dice} damage to all enemies in the area. A successful save halves the damage."
         },
         "stunning_strike": {
             "name": "Stunning Strike",
@@ -103,7 +115,7 @@
             "dice": "3d{damage_die}+{level}",
             "effect": "stunned",
             "duration": 3,
-            "description": "A precise strike that interferes with the flow of energy in an opponent's body."
+            "description": "Deliver a precise, paralyzing blow that violently disrupts the flow of ki in your opponent's body. Deals {dice} physical damage and leaves the target {effect} for {duration} turns."
         },
         "wholeness_of_body": {
             "name": "Wholeness of Body",
@@ -114,7 +126,7 @@
             "hot": true,
             "duration": 3,
             "hot_dice": "2d{damage_die}+3",
-            "description": "You gain the ability to heal yourself through meditation."
+            "description": "Channel your inner energy to rapidly mend your wounds through intense combat meditation. Instantly restores {dice} HP, and continues to heal you for {hot_dice} HP at the start of each turn. Lasts for {duration} turns."
         },
         "chakra_blocking": {
             "name": "Chakra Blocking",
@@ -124,9 +136,9 @@
             "dice": "2d{damage_die}+{prof}",
             "use_attack_count": true,
             "attack_count_overide": "+2",
-            "effect": "enemy_advantage",
-            "power": -3,
-            "description": "A flurry of strikes aimed at an enemy's chakras, hits impose disadvantage."
+            "effect": "disadvantage",
+            "duration": 3,
+            "description": "Unleash a relentless flurry of targeted strikes to seal the enemy's chakras. Modifies your standard attack count by {attack_count_overide}, with each strike dealing {dice} physical damage. Hits inflict a {power} penalty to the target's rolls ({effect})."
         },
         "evasion": {
             "name": "Evasion",
@@ -135,9 +147,9 @@
             "type": "buff",
             "bonus_ac": 4,
             "bonus_magic_resistance": 4,
-            "reduce_spell_danage": "//2",
+            "reduce_spell_damage": "//2",
             "duration": 10,
-            "description": "You become more agile and elusive, increasing your chances to dodge attacks and spells."
+            "description": "Enter a state of heightened reflexes, becoming impossibly agile and elusive. For {duration} turns, gain +{bonus_ac} to your Armor Class, +{bonus_magic_resistance} to your Magic Resistance, and all incoming spell damage is reduced by half."
         },
         "ki_wave": {
             "name": "Ki Wave",
@@ -145,8 +157,8 @@
             "resource": "sp",
             "type": "save",
             "dice": "4d{damage_die}+{level/2}",
-            "aoe": true,
-            "description": "You unleash a wave of ki energy in all directions."
+            "saoe": true,
+            "description": "Violently expel your spiritual energy, unleashing a massive shockwave in all directions. Deals {dice} force damage to ALL enemies on the battlefield. A successful save halves the damage."
         },
         "quivering_palm": {
             "name": "Quivering Palm",
@@ -157,7 +169,7 @@
             "dot": true,
             "dot_dice": "3d{damage_die}+{level}",
             "duration": 3,
-            "description": "You set up lethal vibrations in someone's body."
+            "description": "Strike an opponent with palm techniques that send lethal, imperceptible vibrations through their body. Unavoidably deals an initial {dice} physical damage, and continues to tear them apart from the inside for {dot_dice} damage each turn. Lasts for {duration} turns."
         },
         "sneak_attack": {
             "name": "Sneak Attack",
@@ -166,7 +178,7 @@
             "type": "attack",
             "dice": "1d{damage_die}+{level/2}d6+{prof}",
             "use_attack_count": true,
-            "description": "A calculated strike that exploits an opening for massive damage. Scales with your Rogue level."
+            "description": "Exploit a momentary opening for a calculated, devastating blow. Make {attack_count} precise strikes, each dealing {dice} physical damage."
         },
         "poison_strike": {
             "name": "Poison Strike",
@@ -177,9 +189,8 @@
             "dot": true,
             "dot_dice": "{level/5}d4",
             "duration": 3,
-            "effect":"enemy_advantage",
-            "power": -2,
-            "description": "Strike wiht a poisoned blade, weakening the target for 2 turns"
+            "effect": "disadvantage",
+            "description": "Lash out with a toxic blade. Deals an initial {dice} physical damage and envenoms the target, inflicting a {power} penalty to their rolls ({effect}) and dealing {dot_dice} poison damage each turn. Lasts for {duration} turns."
         },
         "assassinate": {
             "name": "Assassinate",
@@ -187,7 +198,7 @@
             "resource": "sp",
             "type": "attack",
             "dice": "3(1d{damage_die}+{level/2}d6+{prof})",
-            "description": "You are at your deadliest when you get the drop on your enemies."
+            "description": "Strike from the shadows with lethal, merciless precision before the enemy can react. Deals a catastrophic {dice} physical damage."
         },
         "vital_strike": {
             "name": "Vital Strike",
@@ -198,18 +209,18 @@
             "dot": true,
             "dot_dice": "{level/4}d6",
             "duration": 3,
-            "description": "Strike an atery and cause the target to bleed."
+            "description": "Sever a major artery with a surgical, crippling blow. Deals {dice} physical damage and inflicts severe bleeding, causing the target to suffer an additional {dot_dice} damage each turn. Lasts for {duration} turns."
         },
         "smoke_bomb": {
             "name": "Smoke Bomb",
             "cost": 5,
             "resource": "sp",
             "type": "save",
-            "aoe": true,
+            "saoe": true,
             "dice": "{level/2}d6+{prof}",
-            "effect":"enemy_advantage",
-            "power": -2,
-            "description": "Throw an explosive that leaves a cloud of powder in the air, obscuring enemies sight."
+            "effect": "blind",
+            "duration": 2,
+            "description": "Detonate a volatile powder charge to blind and disorient the entire battlefield. Deals {dice} damage to ALL enemies. A failed save leaves them choking and obscured, inflicting a {power} penalty to their rolls ({effect})."
         },
         "emergency_rations": {
             "name": "Emergency Rations",
@@ -217,19 +228,19 @@
             "resource": "sp",
             "type": "heal",
             "dice": "{level/2}d6+{prof}",
-            "description": "Scarf down a magical ration of food."
+            "description": "Quickly consume a magically infused ration to patch yourself up mid-combat. Instantly restores {dice} HP."
         },
         "throwing_knives": {
             "name": "Throwing Knives",
             "cost": 8,
             "resource": "sp",
             "type": "save",
-            "aoe": true,
+            "vaoe": true,
             "dice": "2d{damage_die}+{level/2}d6+{prof}",
             "dot": true,
             "dot_dice": "{level/4}d6",
             "duration": 3,
-            "description": "Thow knives at all enemis, cuasing bleed on hit."
+            "description": "Unleash a fan of razor-sharp blades in a deadly arc. Deals an initial {dice} piercing damage to all enemies in the area. Those who fail their save suffer deep lacerations, bleeding for an additional {dot_dice} damage each turn. Lasts for {duration} turns."
         },
         "death_strike": {
             "name": "Death Strike",
@@ -237,15 +248,15 @@
             "resource": "sp",
             "type": "auto",
             "dice": "3(2d{damage_die}+{level}d6+{prof})",
-            "description": "You become a master of instant death."
+            "description": "Execute a flawless, unavoidable killing blow targeting an enemy's most vital organs. Unfailingly deals a massive {dice} physical damage."
         },
         "steady_shot": {
-            "name": "Steady shot",
+            "name": "Steady Shot",
             "cost": 1,
             "resource": "sp",
             "type": "auto",
             "dice": "2d{damage_die}+{level}",
-            "description": "A presicley aimed shot"
+            "description": "Take a steady breath and loose a precisely aimed arrow that flawlessly finds its mark. Unavoidably deals {dice} physical damage."
         },
         "volley": {
             "name": "Volley",
@@ -254,15 +265,15 @@
             "type": "save",
             "dice": "2d{damage_die}+{prof}",
             "aoe": true,
-            "description": "You fire a barrage of arrows into the air."
+            "description": "Fire a rapid barrage of arrows high into the air, raining death upon a clustered area. Deals {dice} physical damage to all enemies in the blast zone. A successful save halves the damage."
         },
-        "first_aide": {
-            "name": "First Aide",
+        "first_aid": {
+            "name": "First Aid",
             "cost": 3,
             "resource": "sp",
             "type": "heal",
             "dice": "2(1d{damage_die}+{level})",
-            "description": "You quickly patch up your wounds or those of an ally."
+            "description": "Rely on your wilderness survival instincts to quickly patch up severe wounds. Instantly restores {dice} HP to yourself or an ally."
         },
         "summon_wolf": {
             "name": "Summon Wolf",
@@ -271,7 +282,7 @@
             "type": "summon",
             "summon_type": ["wolf"],
             "summon_count": "level/5",
-            "description": "Summon a spectral wolf to fight by your side."
+            "description": "Call upon the primal spirits of the wild to aid your hunt. Summons {summon_count} spectral Wolf (or Wolves) to fight by your side."
         },
         "piercing_shot": {
             "name": "Piercing Shot",
@@ -282,27 +293,27 @@
             "dot": true,
             "dot_dice": "{level/4}d6",
             "duration": 3,
-            "description": "A powerful shot that pierces through armor adn causes bleeding."
+            "description": "Draw your bowstring to its absolute limit, firing a devastating, armor-piercing arrow. Unfailingly deals an initial {dice} physical damage and inflicts deep, bleeding wounds that cause an additional {dot_dice} damage each turn. Lasts for {duration} turns."
         },
-        "ensnaring_arrow": {
-            "name": "Ensnaring Arrow",
-            "cost": 5,
+        "entangling_shot": {
+            "name": "Entangling Shot",
+            "cost": 4,
             "resource": "sp",
-            "type": "attack",
-            "dice": "2(2d{damage_die}+{level})", 
-            "effect": "enemy_advantage",
-            "power": -4,
-            "description": "An arrow that releases vines upon impact, tangling the enemy."
+            "type": "save",
+            "dice": "1d{damage_die}+{level}", 
+            "effect": "disadvantage",
+            "duration": 4,
+            "description": "Fire an arrow that bursts into grasping, magical vines upon impact. Deals {dice} damage and ensnares the target, inflicting a {power} penalty to their rolls ({effect})."
         },
         "rapid_fire": {
             "name": "Rapid Fire",
             "cost": 6,
             "resource": "sp",
             "type": "attack",
-            "dice": "2d{damage_die}+{prof})",
+            "dice": "2d{damage_die}+{prof}",
             "use_attack_count": true,
             "attack_count_overide": "*2",
-            "description": "You fire a quick succession of arrows."
+            "description": "Unleash a blistering volley of arrows in the blink of an eye. Make {attack_count_overide} ranged attacks, each dealing {dice} damage."
         },
         "explosive_arrow": {
             "name": "Explosive Arrow",
@@ -310,8 +321,8 @@
             "resource": "sp",
             "type": "save",
             "dice": "3(2d{damage_die}+{prof})",
-            "aoe": true,
-            "description": "An arrow tipped with an explosive charge."
+            "saoe": true,
+            "description": "Fire a heavily modified arrow tipped with a highly volatile charge. Erupts on impact, dealing {dice} fire and piercing damage to ALL enemies on the battlefield."
         },
         "sniper_shot": {
             "name": "Sniper Shot",
@@ -319,7 +330,7 @@
             "resource": "sp",
             "type": "auto",
             "dice": "4(2d{damage_die}+{level2}+{prof})",
-            "description": "A perfectly placed shot aimed at a lethal point."
+            "description": "Take careful aim and deliver a single, perfectly placed shot to a vital organ. Unavoidably deals a catastrophic {dice} precision damage."
         },
         "summon_owlbear": {
             "name": "Summon Owlbear",

@@ -3,7 +3,7 @@ import json
 import os
 from interfaces.pygame.states.base_state import BaseState
 from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.ui.backgrounds import BackgroundManager
+from interfaces.pygame.graphics.backgrounds import BackgroundManager
 from interfaces.pygame.ui.dialogue_box import DialogueBox
 from core.players.player import apply_weapon_to_player, apply_armor_to_player, apply_trinket_to_player, apply_shield_to_player, load_weapons, load_armor, load_trinkets, load_shields, can_equip_armor, get_weapon_display_name, get_armor_display_name, load_consumables
 from core.players.shop import visit_shop
@@ -273,7 +273,10 @@ class InventoryState(BaseState):
 
         return f"Used on {target_char['name']}. {res['msg']}"
 
-    def update(self, events):
+    def update(self, events, dt):
+        if self.handle_settings_input(events):
+            return
+
         if self.dialogue.current_message:
             self.dialogue.update()
             for event in events:
@@ -302,6 +305,8 @@ class InventoryState(BaseState):
             screen.blit(self.background, (0, 0))
         else:
             screen.fill((30, 30, 30))
+
+        self.draw_settings_button(screen)
 
         from interfaces.pygame.ui.panel import draw_text_outlined
         from core.game_rules.constants import SCREEN_WIDTH

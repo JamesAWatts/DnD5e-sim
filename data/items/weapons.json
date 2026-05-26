@@ -30,7 +30,7 @@
             "on_hit_effect": "vex",
             "bonus": 1,
             "cost": 300,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A magical dagger with improved balance. +1 bonus."
         },
         "dagger_2": {
@@ -42,7 +42,7 @@
             "on_hit_effect": "vex",
             "bonus": 2,
             "cost": 750,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A finely crafted magical dagger. +2 bonus."
         },
         "dagger_3": {
@@ -53,8 +53,9 @@
             "die": 6,
             "on_hit_effect": "vex",
             "bonus": 3,
+            "crit+": 1,
             "cost": 1500,
-            "in_shop": false,
+            "in_shop": true ,
             "description": "A legendary dagger of unmatched precision. +3 bonus."
         },
         "sickle": {
@@ -77,7 +78,7 @@
             "on_hit_effect": "graze",
             "bonus": 1,
             "cost": 300,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A reinforced magical sickle. +1 bonus."
         },
         "sickle_2": {
@@ -89,7 +90,7 @@
             "on_hit_effect": "graze",
             "bonus": 2,
             "cost": 750,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A glowing magical sickle. +2 bonus."
         },
         "sickle_3": {
@@ -100,8 +101,9 @@
             "die": 6,
             "on_hit_effect": "graze",
             "bonus": 3,
+            "crit+": 1,
             "cost": 1500,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A divine sickle that cuts through any defense. +3 bonus."
         },
         "hammer": {
@@ -124,7 +126,7 @@
             "on_hit_effect": "sap",
             "bonus": 1,
             "cost": 300,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A magically weighted hammer. +1 bonus."
         },
         "hammer_2": {
@@ -136,7 +138,7 @@
             "on_hit_effect": "sap",
             "bonus": 2,
             "cost": 750,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A hammer imbued with seismic force. +2 bonus."
         },
         "hammer_3": {
@@ -147,8 +149,9 @@
             "die": 6,
             "on_hit_effect": "sap",
             "bonus": 3,
+            "crit+": 1,
             "cost": 1500,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A world-shaking hammer of the gods. +3 bonus."
         },
         "totem": {
@@ -173,7 +176,7 @@
             "bonus": 1,
             "spell_save": 2,
             "cost": 500,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A magically resonant totem. +1 bonus, +2 Spell DC."
         },
         "totem_2": {
@@ -186,7 +189,7 @@
             "bonus": 2,
             "spell_save": 3,
             "cost": 1000,
-            "in_shop": false,
+            "in_shop": true,
             "description": "An ancient, powerful totem. +2 bonus, +3 Spell DC."
         },
         "totem_3": {
@@ -197,9 +200,10 @@
             "die": 4,
             "on_hit_effect": "sap",
             "bonus": 3,
+            "crit+": 1,
             "spell_save": 4,
             "cost": 2000,
-            "in_shop": false,
+            "in_shop": true,
             "description": "The Primal Totem of Ages. +3 bonus, +4 Spell DC."
         },
         "holy_symbol": {
@@ -224,7 +228,7 @@
             "bonus": 1,
             "spell_save": 2,
             "cost": 500,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A blessed holy symbol. +1 bonus, +2 Spell DC."
         },
         "holy_symbol_2": {
@@ -237,7 +241,7 @@
             "bonus": 2,
             "spell_save": 3,
             "cost": 1000,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A radiant holy symbol. +2 bonus, +3 Spell DC."
         },
         "holy_symbol_3": {
@@ -248,9 +252,10 @@
             "die": 4,
             "on_hit_effect": "graze",
             "bonus": 3,
+            "crit+": 1,
             "spell_save": 4,
             "cost": 2000,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A divine artifact of supreme grace. +3 bonus, +4 Spell DC."
         },
         "orb": {
@@ -275,7 +280,7 @@
             "bonus": 1,
             "spell_save": 2,
             "cost": 500,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A crystal orb of focus. +1 bonus, +2 Spell DC."
         },
         "orb_2": {
@@ -288,7 +293,7 @@
             "bonus": 2,
             "spell_save": 3,
             "cost": 1000,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A pulsating orb of power. +2 bonus, +3 Spell DC."
         },
         "orb_3": {
@@ -299,9 +304,10 @@
             "die": 4,
             "on_hit_effect": "vex",
             "bonus": 3,
+            "crit+": 1,
             "spell_save": 4,
             "cost": 2000,
-            "in_shop": false,
+            "in_shop": true,
             "description": "The Eye of the Void. +3 bonus, +4 Spell DC."
         },
         "staff": {
@@ -326,7 +332,7 @@
             "bonus": 1,
             "spell_save": 3,
             "cost": 750,
-            "in_shop": false,
+            "in_shop": true,
             "description": "An enchanted staff of warding. +1 bonus, +3 Spell DC."
         },
         "staff_2": {
@@ -339,7 +345,7 @@
             "bonus": 2,
             "spell_save": 4,
             "cost": 1250,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A masterwork wizard's staff. +2 bonus, +4 Spell DC."
         },
         "staff_3": {
@@ -350,9 +356,10 @@
             "die": 6,
             "on_hit_effect": "none",
             "bonus": 3,
+            "crit+": 1,
             "spell_save": 5,
             "cost": 2500,
-            "in_shop": false,
+            "in_shop": true,
             "description": "The Staff of the Archmagi. +3 bonus, +5 Spell DC."
         },
         "wand": {
@@ -377,7 +384,7 @@
             "bonus": 1,
             "spell_save": 3,
             "cost": 750,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A precise magical wand. +1 bonus, +3 Spell DC."
         },
         "wand_2": {
@@ -390,7 +397,7 @@
             "bonus": 2,
             "spell_save": 4,
             "cost": 1250,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A wand of concentrated magic. +2 bonus, +4 Spell DC."
         },
         "wand_3": {
@@ -401,9 +408,10 @@
             "die": 4,
             "on_hit_effect": "none",
             "bonus": 3,
+            "crit+": 1,
             "spell_save": 5,
             "cost": 2500,
-            "in_shop": false,
+            "in_shop": true,
             "description": "The Wand of Eternal Stars. +3 bonus, +5 Spell DC."
         },
         "sword": {
@@ -426,7 +434,7 @@
             "on_hit_effect": "vex",
             "bonus": 1,
             "cost": 400,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A keen-edged magical sword. +1 bonus."
         },
         "sword_2": {
@@ -438,7 +446,7 @@
             "on_hit_effect": "vex",
             "bonus": 2,
             "cost": 900,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A glowing blade of justice. +2 bonus."
         },
         "sword_3": {
@@ -449,8 +457,9 @@
             "die": 8,
             "on_hit_effect": "vex",
             "bonus": 3,
+            "crit+": 1,
             "cost": 1800,
-            "in_shop": false,
+            "in_shop": true,
             "description": "Excalibur itself. +3 bonus."
         },
         "axe": {
@@ -473,7 +482,7 @@
             "on_hit_effect": "graze",
             "bonus": 1,
             "cost": 400,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A magically sharp axe. +1 bonus."
         },
         "axe_2": {
@@ -485,7 +494,7 @@
             "on_hit_effect": "graze",
             "bonus": 2,
             "cost": 900,
-            "in_shop": false,
+            "in_shop": true,
             "description": "An axe that cleaves with supernatural force. +2 bonus."
         },
         "axe_3": {
@@ -496,8 +505,9 @@
             "die": 8,
             "on_hit_effect": "graze",
             "bonus": 3,
+            "crit+": 1,
             "cost": 1800,
-            "in_shop": false,
+            "in_shop": true,
             "description": "The Axe of the Titan Lords. +3 bonus."
         },
         "mace": {
@@ -520,7 +530,7 @@
             "on_hit_effect": "sap",
             "bonus": 1,
             "cost": 400,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A magically weighted mace. +1 bonus."
         },
         "mace_2": {
@@ -532,7 +542,7 @@
             "on_hit_effect": "sap",
             "bonus": 2,
             "cost": 900,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A mace that strikes with the weight of a mountain. +2 bonus."
         },
         "mace_3": {
@@ -543,8 +553,9 @@
             "die": 8,
             "on_hit_effect": "sap",
             "bonus": 3,
+            "crit+": 1,
             "cost": 1800,
-            "in_shop": false,
+            "in_shop": true,
             "description": "The Sunstar Mace. +3 bonus."
         },
         "warhammer": {
@@ -567,7 +578,7 @@
             "on_hit_effect": "sap",
             "bonus": 1,
             "cost": 600,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A thunderous warhammer. +1 bonus."
         },
         "warhammer_2": {
@@ -579,7 +590,7 @@
             "on_hit_effect": "sap",
             "bonus": 2,
             "cost": 1200,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A warhammer imbued with lightning. +2 bonus."
         },
         "warhammer_3": {
@@ -590,8 +601,9 @@
             "die": 10,
             "on_hit_effect": "sap",
             "bonus": 3,
+            "crit+": 1,
             "cost": 2500,
-            "in_shop": false,
+            "in_shop": true,
             "description": "Mjolnir's kin. +3 bonus."
         },
         "greataxe": {
@@ -614,7 +626,7 @@
             "on_hit_effect": "none",
             "bonus": 1,
             "cost": 600,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A magically sharpened greataxe. +1 bonus."
         },
         "greataxe_2": {
@@ -626,7 +638,7 @@
             "on_hit_effect": "none",
             "bonus": 2,
             "cost": 1200,
-            "in_shop": false,
+            "in_shop": true,
             "description": "An axe that cleaves space itself. +2 bonus."
         },
         "greataxe_3": {
@@ -637,8 +649,9 @@
             "die": 12,
             "on_hit_effect": "none",
             "bonus": 3,
+            "crit+": 1,
             "cost": 2500,
-            "in_shop": false,
+            "in_shop": true,
             "description": "The Sky-Cleaver. +3 bonus."
         },
         "greatsword": {
@@ -661,7 +674,7 @@
             "on_hit_effect": "vex",
             "bonus": 1,
             "cost": 600,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A perfectly balanced magical greatsword. +1 bonus."
         },
         "greatsword_2": {
@@ -673,7 +686,7 @@
             "on_hit_effect": "vex",
             "bonus": 2,
             "cost": 1200,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A blade that hums with kinetic energy. +2 bonus."
         },
         "greatsword_3": {
@@ -684,8 +697,9 @@
             "die": 10,
             "on_hit_effect": "vex",
             "bonus": 3,
+            "crit+": 1,
             "cost": 2500,
-            "in_shop": false,
+            "in_shop": true,
             "description": "The Sword of Thousand Truths. +3 bonus."
         },
         "glaive": {
@@ -708,7 +722,7 @@
             "on_hit_effect": "graze",
             "bonus": 1,
             "cost": 600,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A magically extended glaive. +1 bonus."
         },
         "glaive_2": {
@@ -720,7 +734,7 @@
             "on_hit_effect": "graze",
             "bonus": 2,
             "cost": 1200,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A glaive that dances in the wielder's hands. +2 bonus."
         },
         "glaive_3": {
@@ -731,8 +745,9 @@
             "die": 10,
             "on_hit_effect": "graze",
             "bonus": 3,
+            "crit+": 1,
             "cost": 2500,
-            "in_shop": false,
+            "in_shop": true,
             "description": "The Eternal Sentinel. +3 bonus."
         },
         "sling": {
@@ -755,7 +770,7 @@
             "on_hit_effect": "sap",
             "bonus": 1,
             "cost": 200,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A magically spun sling. +1 bonus."
         },
         "sling_2": {
@@ -767,7 +782,7 @@
             "on_hit_effect": "sap",
             "bonus": 2,
             "cost": 450,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A sling of impossible velocity. +2 bonus."
         },
         "sling_3": {
@@ -778,8 +793,9 @@
             "die": 4,
             "on_hit_effect": "sap",
             "bonus": 3,
+            "crit+": 1,
             "cost": 1000,
-            "in_shop": false,
+            "in_shop": true,
             "description": "The Star-Thrower. +3 bonus."
         },
         "shortbow": {
@@ -802,7 +818,7 @@
             "on_hit_effect": "vex",
             "bonus": 1,
             "cost": 300,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A magically tensioned shortbow. +1 bonus."
         },
         "shortbow_2": {
@@ -813,8 +829,8 @@
             "die": 6,
             "on_hit_effect": "vex",
             "bonus": 2,
-            "cost": 1575000,
-            "in_shop": false,
+            "cost": 750,
+            "in_shop": true,
             "description": "A bow that fires phantom arrows. +2 bonus."
         },
         "shortbow_3": {
@@ -825,8 +841,9 @@
             "die": 6,
             "on_hit_effect": "vex",
             "bonus": 3,
+            "crit+": 1,
             "cost": 1500,
-            "in_shop": false,
+            "in_shop": true,
             "description": "The Wind-Whistle Bow. +3 bonus."
         },
         "longbow": {
@@ -849,7 +866,7 @@
             "on_hit_effect": "vex",
             "bonus": 1,
             "cost": 500,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A magically accurate longbow. +1 bonus."
         },
         "longbow_2": {
@@ -861,7 +878,7 @@
             "on_hit_effect": "vex",
             "bonus": 2,
             "cost": 1000,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A bow made from elder-wood. +2 bonus."
         },
         "longbow_3": {
@@ -872,8 +889,9 @@
             "die": 8,
             "on_hit_effect": "vex",
             "bonus": 3,
+            "crit+": 1,
             "cost": 2000,
-            "in_shop": false,
+            "in_shop": true,
             "description": "The Horizon-Seeker. +3 bonus."
         },
         "crossbow": {
@@ -896,7 +914,7 @@
             "on_hit_effect": "sap",
             "bonus": 1,
             "cost": 600,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A magically reinforced crossbow. +1 bonus."
         },
         "crossbow_2": {
@@ -908,7 +926,7 @@
             "on_hit_effect": "sap",
             "bonus": 2,
             "cost": 1200,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A crossbow that fires with the force of a siege engine. +2 bonus."
         },
         "crossbow_3": {
@@ -919,8 +937,9 @@
             "die": 10,
             "on_hit_effect": "sap",
             "bonus": 3,
+            "crit+": 1,
             "cost": 2500,
-            "in_shop": false,
+            "in_shop": true,
             "description": "The Bolt of Retribution. +3 bonus."
         },
         "rapier": {
@@ -943,7 +962,7 @@
             "on_hit_effect": "swift",
             "bonus": 1,
             "cost": 500,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A magically fleet rapier. +1 bonus."
         },
         "rapier_2": {
@@ -955,7 +974,7 @@
             "on_hit_effect": "swift",
             "bonus": 2,
             "cost": 1000,
-            "in_shop": false,
+            "in_shop": true,
             "description": "A blade that strikes before it is seen. +2 bonus."
         },
         "rapier_3": {
@@ -965,9 +984,10 @@
             "attack_range": 1,
             "die": 8,
             "on_hit_effect": "swift",
-            "bonus": 2000,
-            "cost": 5000,
-            "in_shop": false,
+            "bonus": 3,
+            "crit+": 1,
+            "cost": 2000,
+            "in_shop": true,
             "description": "The Needle of Fate. +3 bonus."
         },
         "adamantine_claw": {
@@ -978,6 +998,7 @@
             "die": 10,
             "on_hit_effect": "graze",
             "bonus": 3,
+            "crit+": 1,
             "cost": 1800,
             "in_shop": false,
             "description": "A wickedly sharp claw made of indestructible adamantine. +3 bonus."
@@ -1052,6 +1073,7 @@
             "die": "2d10",
             "on_hit_effect": "sap",
             "bonus": 3,
+            "crit+": 1,
             "cost": 1500,
             "in_shop": false,
             "description": "A darkened blade that reeks of evil. +2 bonus, Sap on hit."

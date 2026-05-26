@@ -1,7 +1,7 @@
 import pygame
 from interfaces.pygame.states.base_state import BaseState
 from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.ui.backgrounds import BackgroundManager
+from interfaces.pygame.graphics.backgrounds import BackgroundManager
 from interfaces.pygame.ui.dialogue_box import DialogueBox
 from interfaces.pygame.ui.panel import draw_text_outlined
 from core.game_rules.constants import scale_y, SCREEN_WIDTH, COLOR_GOLD
@@ -9,7 +9,7 @@ from core.players.player import (
     load_weapons, load_armor, load_trinkets, load_shields, 
     apply_weapon_to_player, apply_armor_to_player, apply_shield_to_player, apply_trinket_to_player
 )
-from core.players.shop import load_consumables
+from core.players.shop import get_sell_price, load_consumables, get_available_shop_inventory
 from core.combat.combat_engine import CombatEngine
 
 class ShopState(BaseState):
@@ -48,65 +48,9 @@ class ShopState(BaseState):
         options = ["Robes", "Light", "Medium", "Heavy", "Back"]
         self.active_menu = Menu(options, self.font, width=100, header="Armor Type?")
 
-    def is_item_unlocked(self, category, item):
-        party_lvl = sum(p.get('level', 1) for p in self.game.party)
-        cost = item.get('cost', 0)
-        bonus = item.get('bonus', 0)
-        
-        if category == "weapons":
-            if party_lvl >= 46: return True # Weapon +3
-            if bonus >= 3: return party_lvl >= 46
-            if party_lvl >= 31: return True # Weapon +2
-            if bonus >= 2: return party_lvl >= 31
-            if party_lvl >= 16: return True # Weapons +1
-            if bonus >= 1: return party_lvl >= 16
-            return True # Base weapons at lvl 1
-            
-        elif category == "armor":
-            if party_lvl >= 36: return True # All armor
-            if party_lvl >= 21: return cost < 1000
-            if party_lvl >= 3: return cost < 500
-            return False 
-            
-        elif category == "shields":
-            if party_lvl >= 36: return True # All shields
-            if party_lvl >= 21: return cost < 800
-            if party_lvl >= 1: return cost < 400
-            return False
-            
-        elif category == "trinkets":
-            if party_lvl >= 51: return True # All trinkets
-            if party_lvl >= 41: return cost < 2000
-            if party_lvl >= 26: return cost < 1500
-            if party_lvl >= 6: return cost < 500
-            return False
-            
-        return True # Consumables
-
     def open_buy_category(self, category, sub_category=None):
-        if category == "weapons":
-            data = load_weapons().get("weapon_list", {})
-            if sub_category:
-                data = {k: v for k, v in data.items() if v.get('weapon_class', 'simple').lower() == sub_category.lower()}
-        elif category == "armor":
-            data = load_armor()
-            if sub_category:
-                target_type = sub_category.lower()
-                if target_type == "robes": target_type = "robe"
-                data = {k: v for k, v in data.items() if v.get('type', 'none').lower() == target_type}
-        elif category == "shields":
-            data = load_shields()
-        elif category == "consumables":
-            data = load_consumables()
-        elif category == "trinkets":
-            data = load_trinkets()
-        else:
-            return
-
-        # Filter by level and in_shop
-        available = {k: v for k, v in data.items() if v.get('cost', 0) > 0 and v.get('in_shop', True) and self.is_item_unlocked(category, v)}
-        
-        # REMOVED class-based filtering here per request
+        party_lvl = sum(p.get('level', 1) for p in self.game.party)
+        available = get_available_shop_inventory(party_lvl, category, sub_category)
         
         if category == "armor":
             # none > light > medium > heavy > robe
@@ -234,14 +178,7 @@ class ShopState(BaseState):
                 item_data = data.get(k, {})
             
             # Calculate sell prices
-            if category == "junk":
-                # Junk sells for full cost value (not half like other items)
-                price = item_data.get('cost', 1)
-                print(f"DEBUG PYGAME PRICE: {k} junk cost = {item_data.get('cost', 'NOT_FOUND')} → sell price = {price}")
-            else:
-                # Other items sell for 50% cost
-                price = item_data.get('cost', 2) // 2
-                if price < 1: price = 1
+            price = get_sell_price(category, item_data)
             
             display_name = item_data.get('name', k.replace('_', ' ')).title()
             full_display = f"{display_name} x{count} ({price}g)"
@@ -516,7 +453,7 @@ class ShopState(BaseState):
             self.mode = "BUY_ITEMS"
             self.open_buy_category(self.buy_category, self.buy_sub_category)
 
-    def update(self, events):
+    def update(self, events, dt):
         if self.dialogue.current_message:
             self.dialogue.update()
             for event in events:
@@ -524,11 +461,12 @@ class ShopState(BaseState):
                     self.dialogue.handle_event(event)
             return
             
-        super().update(events)
+        super().update(events, dt)
 
     def draw(self, screen):
         # --- Draw background FIRST ---
         self.draw_background(screen)
+        self.draw_settings_button(screen)
 
         # Show Gold at the top
         gold_text = f"Gold: {self.inventory.get('gold', 0)}"
@@ -540,4 +478,5 @@ class ShopState(BaseState):
             # Position at x=150, y=300 in Base space
             self.active_menu.draw(screen, 150, 300)
             
-        self.dialogue.draw(screen)
+        if self.dialogue.current_message:
+            self.dialogue.draw(screen)

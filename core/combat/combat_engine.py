@@ -21,7 +21,7 @@ def get_effect_desc(effect_name):
     if effect_name in conds:
         return conds[effect_name]
     # Check Weapon effects
-    weap = EFFECTS_DATA.get("Weapon_effefts", {}) # Note: typo in JSON 'Weapon_effefts'
+    weap = EFFECTS_DATA.get("Weapon_effefts", {}) # Note: typo in JSON 'Weapon_effefts'       
     if effect_name in weap:
         return weap[effect_name]
     return ""
@@ -33,6 +33,271 @@ def get_advantage_desc(power):
     return adv_type, f"for {duration} round{'s' if duration > 1 else ''}"
 
 class CombatEngine:
+    @staticmethod
+    def get_total_attack_bonus(actor):
+        """Calculates total attack bonus: Proficiency + Weapon + Equipment + Feast."""
+        prof = int(actor.get('proficiency_bonus', 0))
+        w_bonus = int(actor.get('weapon_bonus', 0))
+        eq_atk = int(actor.get('equipment_atk_bonus', 0))
+        f_bonus = int(actor.get('feast_bonus', 0))
+        return prof + w_bonus + eq_atk + f_bonus
+
+    @staticmethod
+    def get_attack_advantage(attacker, target):
+        """Consolidates advantage/disadvantage logic based on conditions and status."""
+        adv = 0
+        a_conds = attacker.get('conditions', {})
+        t_conds = target.get('conditions', {})
+        
+        if 'advantage' in a_conds: adv += 1
+        if 'disadvantage' in a_conds: adv -= 1
+        if 'blind' in a_conds: adv -= 1
+        if 'blind' in t_conds: adv += 1
+        
+        if 'frightened' in a_conds:
+            source_id, _ = a_conds['frightened']
+            if id(target) == source_id: adv -= 1
+            
+        if 'advantage_next' in t_conds:
+            adv += 1
+            
+        return adv
+
+    @staticmethod
+    def resolve_action(actor, action_data, target_list, crit_range=[20]):
+        """
+        Pure data-focused action resolution with accuracy and damage math.
+        """
+        if not action_data or not target_list:
+            return []
+
+        results = []
+        
+        # 1. Prepare Placeholders
+        prof = int(actor.get('proficiency_bonus', 0))
+        total_level = sum(actor.get('class_levels', {}).values()) if actor.get('class_levels') else actor.get('level', 1)
+        
+        placeholders = {
+            "{damage_die}": str(actor.get('damage_die', actor.get('die', 4))),
+            "{level}": str(total_level),
+            "{level/2}": str(total_level // 2),
+            "{level/3}": str(total_level // 3),
+            "{level/4}": str(total_level // 4),
+            "{level/5}": str(total_level // 5),
+            "{level2}": str(total_level // 2),
+            "{prof}": str(prof),
+            "{prof/2}": str(prof // 2),
+            "{prof/3}": str(prof // 3),
+            "{prof/4}": str(prof // 4),
+        }
+
+        # 2. Determine base formulas
+        a_type = action_data.get('type', 'attack')
+        if a_type == 'heal':
+            damage_formula = action_data.get('damage', 0)
+            healing_formula = action_data.get('healing', action_data.get('dice', 0))
+        else:
+            damage_formula = action_data.get('damage', action_data.get('dice', 0))
+            healing_formula = action_data.get('healing', 0)
+
+        # 3. Deduct Cost
+        cost_raw = action_data.get('cost', 0)
+        cost = 0
+        if cost_raw:
+            try:
+                resolved_cost = CombatEngine._resolve_math(str(cost_raw), placeholders)
+                cost = int(eval(resolved_cost, {"__builtins__": None}, {})) if any(op in resolved_cost for op in "+-*/") else int(resolved_cost)
+            except:
+                cost = int(cost_raw) if str(cost_raw).isdigit() else 0
+
+        if cost > 0:
+            res_type = action_data.get('resource', 'mp')
+            res_key = f"current_{res_type}"
+            actor[res_key] = max(0, actor.get(res_key, 0) - cost)
+        
+        # Loop through all targets
+        for target in target_list:
+            is_hit = True
+            is_crit = False
+            roll_info = {}
+            res_payload = {
+                "target": target,
+                "type": action_data.get('damage_type', 'physical')
+            }
+            
+            a_type = action_data.get('type', 'attack')
+
+            # --- 4. ACCURACY CHECK ---
+            if a_type == 'attack':
+                atk_bonus = CombatEngine.get_total_attack_bonus(actor)
+                adv = CombatEngine.get_attack_advantage(actor, target)
+                ac = int(target.get('ac', 10))
+                
+                # Check for stunned auto-crit (Melee only)
+                if 'stunned' in target.get('conditions', {}) and actor.get('attack_range', 1) <= 3:
+                    is_hit = True
+                    is_crit = True
+                    roll_val, _ = roll_d20(advantage=adv)
+                    roll_info = {'roll': roll_val, 'hit': True, 'critical': True, 'total': roll_val + atk_bonus}
+                else:
+                    res = attack_roll(atk_bonus, ac, crit_range=tuple(crit_range), advantage=adv)
+                    is_hit = res['hit']
+                    is_crit = res['critical']
+                    roll_info = res
+                
+                res_payload.update({
+                    'roll': roll_info['roll'],
+                    'total_roll': roll_info['total'],
+                    'crit': is_crit
+                })
+                if not is_hit:
+                    res_payload['miss'] = True
+
+            elif a_type == 'save':
+                dc = CombatEngine.compute_spell_dc(actor)
+                resist = CombatEngine.compute_spell_resist(target)
+                difficulty = max(0, dc - resist)
+                
+                roll, _ = roll_d20()
+                passed = roll >= difficulty
+                roll_info = {'save_roll': roll, 'success': passed, 'dc': difficulty}
+                
+                res_payload['save_roll'] = roll
+                res_payload['save_info'] = {id(target): roll_info}
+                # Saves always "hit" but damage may be halved later
+                is_hit = True
+
+            # --- 5. DAMAGE / HEALING RESOLUTION ---
+            damage = 0
+            if is_hit:
+                if damage_formula:
+                    d_form = CombatEngine._resolve_math(str(damage_formula), placeholders)
+                    d_form = CombatEngine.evaluate_dynamic_tags(d_form, actor, target)
+                    damage = CombatEngine._parse_math_string(actor, d_form)
+                    
+                    if is_crit:
+                        # Critical Hit: Double the dice roll (unless target is crit_immune)
+                        if not target.get('crit_immune'):
+                            damage += CombatEngine._parse_math_string(actor, d_form)
+                    
+                    # Half damage on successful save
+                    if a_type == 'save' and roll_info.get('success'):
+                        damage //= 2
+
+            healing = 0
+            if healing_formula:
+                h_form = CombatEngine._resolve_math(str(healing_formula), placeholders)
+                h_form = CombatEngine.evaluate_dynamic_tags(h_form, actor, target)
+                healing = CombatEngine._parse_math_string(actor, h_form)
+
+            # --- 6. EFFECTS (DOT/HOT) ---
+            effects = []
+            # Only apply secondary effects if hit (and if save, it must have failed)
+            if is_hit and (a_type != 'save' or not roll_info.get('success')):
+                for eff_type in ['dot', 'hot']:
+                    if action_data.get(eff_type):
+                        dur_raw = action_data.get('duration', 3)
+                        try:
+                            dur_res = CombatEngine._resolve_math(str(dur_raw), placeholders)
+                            duration = int(eval(dur_res, {"__builtins__": None}, {})) if any(op in dur_res for op in "+-*/") else int(dur_res)
+                        except:
+                            duration = 3
+
+                        # Fetch dice from hot_dice/dot_dice, falling back to main dice formula
+                        dice_raw = action_data.get(f'{eff_type}_dice', action_data.get('dice', '1d6'))
+                        dice = CombatEngine._resolve_math(str(dice_raw), placeholders)
+                        
+                        # Force 'hot' type for heal abilities
+                        actual_type = 'hot' if a_type == 'heal' else eff_type
+
+                        effects.append({
+                            'name': action_data.get('name', 'Lingering Effect'),
+                            'type': actual_type,
+                            'dice': dice,
+                            'duration': duration
+                        })
+
+                # --- 7. STATUS EFFECTS (effect, effect2, effect3) ---
+                for e_key in ['effect', 'effect2', 'effect3']:
+                    effect_name = action_data.get(e_key)
+                    if effect_name:
+                        # Resolve duration
+                        dur_raw = action_data.get('duration', 1)
+                        try:
+                            dur_res = CombatEngine._resolve_math(str(dur_raw), placeholders)
+                            duration = int(eval(dur_res, {"__builtins__": None}, {})) if any(op in dur_res for op in "+-*/") else int(dur_res)
+                        except:
+                            duration = 1
+                        
+                        # Resolve power
+                        power_raw = action_data.get('power', 0)
+                        power = 0
+                        try:
+                            pow_res = CombatEngine._resolve_math(str(power_raw), placeholders)
+                            power = int(eval(pow_res, {"__builtins__": None}, {})) if any(op in pow_res for op in "+-*/") else int(pow_res)
+                        except:
+                            power = 0
+
+                        # Standardize name (blinded -> blind, poisoned -> poison)
+                        eff_type = effect_name.lower()
+                        if eff_type == 'blinded': eff_type = 'blind'
+                        if eff_type == 'poisoned': eff_type = 'poison'
+
+                        effects.append({
+                            'name': effect_name,
+                            'type': eff_type,
+                            'duration': duration,
+                            'value': power
+                        })
+
+            res_payload.update({
+                "damage": damage,
+                "healing": healing,
+                "effects": effects
+            })
+            results.append(res_payload)
+
+        return results
+
+    @staticmethod
+    def _parse_math_string(actor, formula):
+        """
+        Safely parses JSON math strings (e.g., '1d8 + 5' or '2 * 10').
+        Handles dice notation and basic math via attack_roller helper.
+        """
+        if not formula:
+            return 0
+        if isinstance(formula, int):
+            return formula
+        if not isinstance(formula, str):
+            try: return int(formula)
+            except: return 0
+
+        # Handle dice notation and basic math via attack_roller helper
+        processed = formula.upper()
+        from .attack_roller import roll_dice
+        try:
+            return roll_dice(processed)
+        except:
+            return 0
+
+    @staticmethod
+    def evaluate_dynamic_tags(formula_string, actor, target):
+        """
+        Resolves dynamic tags like {current_mp} just-in-time using the actor's current state. 
+        """
+        if not isinstance(formula_string, str) or '{' not in formula_string:
+            return formula_string
+
+        # Swap out {current_mp} for actor['mp'] (using 'current_mp' per codebase convention)  
+        mp = actor.get('current_mp', actor.get('mp', 0))
+        hp = actor.get('current_hp', actor.get('hp', 0))
+
+        res = formula_string.replace("{current_mp}", str(mp))
+        res = res.replace("{current_hp}", str(hp))
+
+        return res
+
     @staticmethod
     def resolve_attack(attacker, target, advantage=0, debug=None, float_mgr=None, extra_damage=0, crit_range=[]):
         """
@@ -47,57 +312,83 @@ class CombatEngine:
         eq_atk = int(attacker.get('equipment_atk_bonus', 0))
         f_bonus = int(attacker.get('feast_bonus', 0))
         attack_bonus = prof + w_bonus + eq_atk + f_bonus
-        
+
         target_ac = int(target.get('ac', 10))
         target_pos = target.get('screen_pos', (400, 300))
-        
+
         attacker_name = attacker.get('name', 'Attacker')
         target_name = target.get('name', 'Target')
         
-        # Determine crit range (Merge with optional parameter)
+        # --- Advantage/Disadvantage Logic (Consolidated) ---
+        atk_adv = int(advantage)
+        target_conds = target.get('conditions', {})
+        attacker_conds = attacker.get('conditions', {})
+
+        # 1. Blinded: Attacker has Disadvantage, Targets have Advantage to be hit
+        if 'blind' in attacker_conds: atk_adv -= 1
+        if 'blind' in target_conds: atk_adv += 1
+
+        # 2. Frightened: Disadvantage when attacking the source
+        if 'frightened' in attacker_conds:
+            source_id, _ = attacker_conds['frightened']
+            if id(target) == source_id:
+                atk_adv -= 1
+            # Inverse: Source has advantage against target
+            if id(attacker) == source_id:
+                atk_adv += 1
+
+        # 3. Advantage Next: Grants advantage to the next attacker
+        if 'advantage_next' in target_conds:
+            atk_adv += 1
+            # Mark for removal after this resolution
+            target['_consume_advantage_next'] = True
+
+        # 4. Standard Advantage/Disadvantage buffs
+        if 'advantage' in attacker_conds: atk_adv += 1
+        if 'disadvantage' in attacker_conds: atk_adv -= 1
+
+        # Determine crit range
         base_crit = [20]
         if attacker.get('crit_on_18'): base_crit = [18, 19, 20]
         elif attacker.get('crit_on_19'): base_crit = [19, 20]
-        
         actual_crit = list(set(base_crit + list(crit_range)))
 
-        res = attack_roll(attack_bonus, target_ac, crit_range=tuple(actual_crit), advantage=advantage)
-        
+        res = attack_roll(attack_bonus, target_ac, crit_range=tuple(actual_crit), advantage=atk_adv)
+
         # --- Stunned Auto-Crit Trigger ---
-        # If target is stunned and attacker is melee (type or range < 3), automatic critical hit.
-        target_conds = target.get('conditions', {})
-        if target_conds.get('stunned'):
+        if 'stunned' in target_conds:
             is_melee = False
-            if attacker.get('weapon_type') == 'melee':
-                is_melee = True
-            # Use weapon_range (players) or attack_range (enemies)
             r_val = attacker.get('weapon_range', attacker.get('attack_range', 1))
-            if r_val < 3:
+            if r_val <= 3: # Changed from < 3 to <= 3 to include standard 5e 10ft reach or just be safer
                 is_melee = True
-            
+
             if is_melee:
                 res['hit'] = True
                 res['critical'] = True
-        
+
         damage = 0
         effects = []
         messages = []
-        
+
         status = "hit" if res['hit'] else "missed"
         if res['critical']: status = "CRITICAL hit"
-        
+
         msg = f"{attacker_name} attacked {target_name} and {status}"
 
         if res['hit']:
-            # For damage, we use weapon_bonus + Feast. 
+            # For damage, we use weapon_bonus + Feast.
             # For enemies (who lack weapon_bonus), proficiency_bonus acts as their primary modifier.
             primary_mod = w_bonus if w_bonus != 0 else prof
             dmg_mod = primary_mod + f_bonus
-            
+
             # Fallback to 'die' if 'damage_die' is missing (for enemies)
             damage_die = attacker.get('damage_die', attacker.get('die', 4))
-            damage, dice_str = damage_roll(damage_die, dmg_mod, critical=res['critical'], player_data=attacker)
-            
+
+            # Resolve dynamic tags right before damage roll
+            damage_die = CombatEngine.evaluate_dynamic_tags(damage_die, attacker, target)     
+
+            damage, dice_str = damage_roll(damage_die, dmg_mod, critical=res['critical'], player_data=attacker, target=target)
+
             # Add bonus_dmg (used by summons)
             b_dmg = int(attacker.get('bonus_dmg', 0))
             if b_dmg > 0:
@@ -118,64 +409,64 @@ class CombatEngine:
                     float_mgr.add("CRIT!", target_pos, "crit", rise_speed=2.0)
                 else:
                     float_mgr.add("HIT", target_pos, "hit")
-                
+
                 if damage > 0:
                     float_mgr.add(f"-{damage}", target_pos, "damage", rise_speed=1.5)
 
             if debug:
                 debug.set("Last Damage", damage)
                 debug.log(f"Hit! Roll: {res['roll']} vs AC {target_ac}")
-            
+
             # Handle standard on-hit effects
             effect_type = attacker.get('on_hit_effect', '').lower()
             duration = int(attacker.get('duration', 1))
-            
+
             if effect_type == 'vex':
-                effects.append(('vex', duration))
+                effects.append({'name': 'Vex', 'type': 'vex', 'duration': duration})
                 msg += f" Vex applied to {attacker_name}."
             elif effect_type == 'sap':
-                effects.append(('sap', duration))
+                effects.append({'name': 'Sap', 'type': 'sap', 'duration': duration})
                 msg += f" Sap applied to {target_name}."
             elif effect_type == 'poison':
-                effects.append(('poisoned', duration))
+                effects.append({'name': 'Poisoned', 'type': 'poisoned', 'duration': duration})
                 msg += f" Poisoned applied to {target_name}."
                 if float_mgr: float_mgr.add("POISONED", target_pos, "effect")
             elif effect_type == 'lifesteal':
                 heal_amt = max(1, damage // 2)
-                effects.append(('heal_attacker', heal_amt))
+                effects.append({'name': 'Lifesteal', 'type': 'heal_attacker', 'value': heal_amt})
                 msg += f" Lifesteal applied to {attacker_name}."
-                
+
             # Handle weapon-based DOT
             if attacker.get('dot'):
                 dot_val = attacker.get('dot_dice', 4)
                 # Ensure it's a dice string
                 if isinstance(dot_val, int): dot_val = f"1d{dot_val}"
                 elif isinstance(dot_val, str) and 'd' not in dot_val: dot_val = f"1d{dot_val}"
-                
+
                 # DOT duration is handled separately in effects
-                effects.append(('dot', (str(dot_val), duration)))
+                effects.append({'name': 'Lingering Damage', 'type': 'dot', 'dot_dice': str(dot_val), 'duration': duration})
                 msg += f" Lingering damage applied to {target_name}."
 
             # Handle weapon enchantments
             enchant = attacker.get('weapon_enchantment')
             if enchant == 'lifesteal':
                 heal_amt = max(1, damage // 2)
-                effects.append(('heal_attacker', heal_amt))
+                effects.append({'name': 'Lifesteal', 'type': 'heal_attacker', 'value': heal_amt})
                 msg += f" Lifesteal applied to {attacker_name}."
             elif enchant == 'fire':
                 fire_dmg = random.randint(1, 4)
-                effects.append(('extra_dmg', fire_dmg))
+                effects.append({'name': 'Fire', 'type': 'extra_dmg', 'value': fire_dmg})
                 msg += f" Fire applied to {target_name}."
-                if float_mgr: float_mgr.add(f"-{fire_dmg}", target_pos, (255, 128, 0))
+                if float_mgr: float_mgr.add(f"-{fire_dmg}", target_pos, (255, 128, 0))        
             elif enchant == 'frost':
-                effects.append(('enemy_advantage', -1)) # Slow effect
+                effects.append({'name': 'Chilled', 'type': 'enemy_advantage', 'value': -1}) # Slow effect
                 msg += f" Frost applied to {target_name}."
                 if float_mgr: float_mgr.add("CHILLED", target_pos, (100, 200, 255))
             elif enchant == 'silence':
                 # DC 12 Silence save
                 save_roll, _ = roll_d20()
                 if save_roll < 12:
-                    effects.append(('silence', 1))
+                    effects.append({'name': 'Silence', 'type': 'silence', 'duration': 1})
                     msg += f" Silence applied to {target_name}."
                     if float_mgr: float_mgr.add("SILENCED", target_pos, "effect")
                 else:
@@ -192,7 +483,7 @@ class CombatEngine:
             if effect_type == 'graze':
                 graze_dmg = max(1, prof // 2)
                 damage = graze_dmg
-                msg += f" Graze applied to {target_name}, dealing {graze_dmg} damage."
+                msg += f" Graze applied to {target_name}, dealing {graze_dmg} damage."        
                 if float_mgr: float_mgr.add(f"-{graze_dmg}", target_pos, "damage")
 
         messages.append(msg)
@@ -225,7 +516,7 @@ class CombatEngine:
         # 'spell_save' is currently used in player_data for equipment bonus
         item_bonus = int(caster.get('spell_save', 0))
         f_bonus = int(caster.get('feast_bonus', 0))
-        
+
         dc = 8 + prof + item_bonus + f_bonus + ability_bonus
         return max(0, min(20, dc))
 
@@ -243,44 +534,56 @@ class CombatEngine:
         """Helper to replace placeholders and evaluate math in a string."""
         if not isinstance(input_str, str):
             return str(input_str)
-            
+
         result = input_str
-        
+
         # 0. Handle Nested Dice (e.g. 2d{damage_die} where damage_die is 2d10)
         # If {damage_die} placeholder is a dice string, "d{damage_die}" should become "*({damage_die})"
         dd_val = placeholders.get("{damage_die}")
         if dd_val and 'd' in str(dd_val):
              result = result.replace("d{damage_die}", f"*({dd_val})")
 
-        # 1. Replace all named placeholders
+        # 1. Prepare an Evaluation Context from placeholders (e.g. {prof} -> prof=4)
+        eval_context = {}
+        for k, v in placeholders.items():
+            clean_key = k.strip("{}")
+            # Only add simple alphabetic keys (prof, level, damage_die) to context
+            # to avoid confusing eval with keys like "level/2"
+            if clean_key.isalpha():
+                try:
+                    eval_context[clean_key] = int(v)
+                except:
+                    eval_context[clean_key] = v
+
+        # 2. Replace all named placeholders (direct exact match)
         for ph, val in placeholders.items():
             result = result.replace(ph, str(val))
-            
+
         import re
-        # 2. Resolve all remaining {math} blocks explicitly
+        # 3. Resolve all remaining {math} blocks explicitly
         def eval_block(match):
             expr = match.group(0).strip("{}")
             try:
-                # Use a safe eval for the inner math
-                return str(int(eval(expr, {"__builtins__": None}, {})))
+                # Use the eval_context so {prof/3} works if 'prof' is defined
+                return str(int(eval(expr, {"__builtins__": None}, eval_context)))
             except:
                 # If eval fails, maybe it's still a placeholder or complex string
                 return match.group(0)
-        
+
         result = re.sub(r"\{[^\}]+\}", eval_block, result)
-        
-        # 3. Handle dice strings and general arithmetic
+
+        # 4. Handle dice strings and general arithmetic
         # We split by + and - to evaluate terms, but preserve 'd' for dice
         parts = re.split(r"(\+|-)", result)
         resolved_parts = []
-        
+
         for part in parts:
             if not part or part in "+-":
                 resolved_parts.append(part)
                 continue
-            
+
             if 'd' in part:
-                # Handle dice notation XdY where X and Y might still be math like (4+1)
+                # Handle dice notation XdY where X and Y might still be math like (4+1)       
                 d_match = re.split(r"(d)", part) # Split by 'd' but keep it
                 sub_resolved = []
                 for sub in d_match:
@@ -291,7 +594,7 @@ class CombatEngine:
                     if any(c in sub for c in "()*/"):
                         try:
                             # Sanitize sub for safety
-                            cleaned = "".join(c for c in sub if c in "0123456789+-*/(). ")
+                            cleaned = "".join(c for c in sub if c in "0123456789+-*/(). ")    
                             val = str(int(eval(cleaned, {"__builtins__": None}, {})))
                             sub_resolved.append(val)
                         except:
@@ -303,18 +606,18 @@ class CombatEngine:
                 # Pure math part
                 if any(c in part for c in "()*/"):
                     try:
-                        cleaned = "".join(c for c in part if c in "0123456789+-*/(). ")
+                        cleaned = "".join(c for c in part if c in "0123456789+-*/(). ")       
                         val = str(int(eval(cleaned, {"__builtins__": None}, {})))
                         resolved_parts.append(val)
                     except:
                         resolved_parts.append(part)
                 else:
                     resolved_parts.append(part)
-                    
+
         return "".join(resolved_parts)
 
     @staticmethod
-    def resolve_ability(ability_data, caster, targets, debug=None, float_mgr=None, skip_cost=False):
+    def resolve_ability(ability_data, caster, targets, debug=None, float_mgr=None, skip_cost=False, crit_range=[20]):
         """
         Resolves a single iteration of an ability (skill or spell) cast against one or more targets.
         targets: can be a single target dict or a list of target dicts.
@@ -323,18 +626,18 @@ class CombatEngine:
         # Ensure targets is a list
         if not isinstance(targets, list):
             targets = [targets]
-            
-        is_aoe = ability_data.get('aoe', False)
+
+        is_aoe = ability_data.get('aoe', False) or ability_data.get('saoe', False)
         # If not AOE, we only hit the first target in the list
         active_targets = targets if is_aoe else [targets[0]]
 
-        # Check 'cost' (skills) first, then 'level' (spells)
-        mana_cost_raw = 0 if skip_cost else ability_data.get('cost', ability_data.get('level', 0))
-        
+        # Check 'cost' (skills/spells)
+        mana_cost_raw = 0 if skip_cost else ability_data.get('cost', 0)
+
         # Prepare placeholders for all resolutions
         prof = int(caster.get('proficiency_bonus', 0))
         total_level = sum(caster.get('class_levels', {}).values()) if caster.get('class_levels') else caster.get('level', 1)
-        
+
         # Snapshot-aware resource values
         mp_val = int(caster.get('standby_mp', caster.get('current_mp', 0)))
         sp_val = int(caster.get('standby_sp', caster.get('current_sp', 0)))
@@ -343,21 +646,19 @@ class CombatEngine:
             "{damage_die}": str(caster.get('damage_die', caster.get('die', 4))),
             "{level}": str(total_level),
             "{level/2}": str(total_level // 2),
+            "{level/3}": str(total_level // 3),
+            "{level/4}": str(total_level // 4),
             "{level2}": str(total_level // 2),
             "{prof}": str(prof),
-            "{current_mp}": str(mp_val),
-            "{current_mp/2}": str(mp_val // 2),
-            "{current_mp2}": str(mp_val // 2),
-            "{current_sp}": str(sp_val),
-            "{current_sp/2}": str(sp_val // 2),
-            "{current_sp2}": str(sp_val // 2)
+            "{prof/2}": str(prof // 2),
+            "{prof/4}": str(prof // 4),
         }
 
         mana_cost = 0
         if mana_cost_raw:
             try:
                 # Resolve math/placeholders in cost (e.g. "{prof}/2 + 1")
-                resolved_cost = CombatEngine._resolve_math(str(mana_cost_raw), placeholders)
+                resolved_cost = CombatEngine._resolve_math(str(mana_cost_raw), placeholders)  
                 if any(op in resolved_cost for op in "+-*/"):
                     mana_cost = int(eval(resolved_cost, {"__builtins__": None}, {}))
                 else:
@@ -365,24 +666,24 @@ class CombatEngine:
             except:
                 # Fallback to 0 or raw int if possible
                 mana_cost = int(mana_cost_raw) if str(mana_cost_raw).isdigit() else 0
-        
+
         total_damage = 0
         total_healing = 0
         all_effects = []
         msg_parts = []
-        
+
         caster_name = caster.get('name', 'Caster')
         target_names = ", ".join([t.get('name', 'Target') for t in active_targets])
-        
+
         name = ability_data.get('name', 'Ability')
         resource_type = ability_data.get('resource', 'mp')
-        
+
         if debug:
             debug.set("Last Ability", name)
 
         spell_type = ability_data.get('type', 'attack')
         dice_str = ability_data.get('dice', '')
-        
+
         hits_by_target = {id(t): 0 for t in active_targets}
         damage_by_target = {id(t): 0 for t in active_targets}
         healing_by_target = {id(t): 0 for t in active_targets}
@@ -390,55 +691,73 @@ class CombatEngine:
         rolls_by_target = {}
         saves_info = {} # Map of tid -> {'roll': int, 'success': bool, 'dc': int}
 
+        # Pre-roll damage for save-type abilities (standard 5e: roll once for all targets)    
+        damage_roll = 0
+        if spell_type == "save" and dice_str:
+            current_dice = CombatEngine._resolve_math(dice_str, placeholders)
+            current_dice = CombatEngine.evaluate_dynamic_tags(current_dice, caster, active_targets[0])
+            damage_roll = roll_dice(current_dice)
+
         for target in active_targets:
             tid = id(target)
             target_pos = target.get('screen_pos', (400, 300))
-            
-            # Determine Dice
-            current_dice = dice_str
-            if ability_data.get('use_damage_die'):
-                # Monk-style damage die scaling
-                die = caster.get('damage_die', caster.get('die', 4))
-                current_dice = f"1d{die}"
-                w_bonus = int(caster.get('weapon_bonus', 0))
-                f_bonus = int(caster.get('feast_bonus', 0))
-                total_bonus = w_bonus + prof + f_bonus
-                
-                # Level scaling: {damage_die} + {player_level / 2}
-                if ability_data.get('bonus_per_level'):
-                    level_bonus = total_level // 2
-                    total_bonus += level_bonus
-                
-                if total_bonus != 0:
-                    current_dice += f"{'+' if total_bonus > 0 else ''}{total_bonus}"
 
-            # Resolve placeholders and math in the determined dice string
-            if current_dice:
-                current_dice = CombatEngine._resolve_math(current_dice, placeholders)
+            # Determine Dice (skipped if already rolled for save)
+            current_dice = dice_str
+            if spell_type != "save":
+                if ability_data.get('use_damage_die'):
+                    # Monk-style damage die scaling
+                    die = caster.get('damage_die', caster.get('die', 4))
+                    if isinstance(die, str) and 'd' in die:
+                        current_dice = die
+                    else:
+                        current_dice = f"1d{die}"
+                    w_bonus = int(caster.get('weapon_bonus', 0))
+                    f_bonus = int(caster.get('feast_bonus', 0))
+                    total_bonus = w_bonus + prof + f_bonus
+
+                    # Level scaling: {damage_die} + {player_level / 2}
+                    if ability_data.get('bonus_per_level'):
+                        level_bonus = total_level // 2
+                        total_bonus += level_bonus
+
+                    if total_bonus != 0:
+                        current_dice += f"{'+' if total_bonus > 0 else ''}{total_bonus}"      
+
+                # Resolve placeholders and math in the determined dice string
+                if current_dice:
+                    current_dice = CombatEngine._resolve_math(current_dice, placeholders)     
+                    current_dice = CombatEngine.evaluate_dynamic_tags(current_dice, caster, target)
 
             # Resolve by Type
             f_bonus = int(caster.get('feast_bonus', 0))
             if spell_type == "attack":
-                roll, _ = roll_d20()
+                atk_bonus = CombatEngine.get_total_attack_bonus(caster)
+                ac = int(target.get('ac', 10))
+                adv = CombatEngine.get_attack_advantage(caster, target)
+                
+                res = attack_roll(atk_bonus, ac, crit_range=tuple(crit_range), advantage=adv)
+                roll = res['roll']
                 rolls_by_target[tid] = roll
-                # Standard 75% hit chance (roll 6+), improved by Feast bonus
-                threshold = max(2, 6 - f_bonus)
-                if roll >= threshold:
+
+                if res['hit']:
                     dmg = roll_dice(current_dice) if current_dice else 0
+                    
+                    # Handle Critical Hit Damage for Spells
+                    if res['critical'] and not target.get('crit_immune'):
+                        dmg += roll_dice(current_dice) if current_dice else 0
+                        
                     dmg *= ability_data.get('multiplier', 1)
                     # Add feast bonus to damage if it's an attack ability
                     dmg += f_bonus
                     damage_by_target[tid] += dmg
                     hits_by_target[tid] += 1
                     failed_saves_by_target[tid] += 1
-                    if float_mgr: float_mgr.add(f"-{dmg}", target_pos, "damage")
+                    if float_mgr: float_mgr.add(f"-{dmg}", target_pos, "hit")
                 else:
                     if float_mgr: float_mgr.add("MISS", target_pos, "miss")
 
             elif spell_type == "save":
-                # Roll damage ONCE for all targets if there's a dice string
-                damage_roll = roll_dice(current_dice) if current_dice else 0
-                
                 # Resolve ability-specific DC bonus
                 ability_dc_bonus = ability_data.get('bonus_spell_save', 0)
                 if ability_dc_bonus:
@@ -446,52 +765,50 @@ class CombatEngine:
                         ability_dc_bonus = int(CombatEngine._resolve_math(str(ability_dc_bonus), placeholders))
                     except:
                         ability_dc_bonus = 0
-                
+
                 spell_dc = CombatEngine.compute_spell_dc(caster, ability_bonus=int(ability_dc_bonus))
-                
-                for target in active_targets:
-                    tid = id(target)
-                    target_pos = target.get('screen_pos', (400, 300))
-                    
-                    roll, _ = roll_d20()
-                    spell_resist = CombatEngine.compute_spell_resist(target)
-                    difficulty = max(0, min(20, spell_dc - spell_resist))
 
-                    failed = roll < difficulty
-                    saves_info[tid] = {'roll': roll, 'success': not failed, 'dc': difficulty, 'damage_roll': damage_roll}
+                # Blindness grants disadvantage to saves
+                save_adv = 0
+                if 'blind' in target.get('conditions', {}):
+                    save_adv = -1
 
-                    if failed:
-                        dmg = damage_roll
-                        dmg *= ability_data.get('multiplier', 1)
-                        damage_by_target[tid] += dmg
-                        hits_by_target[tid] += 1
-                        failed_saves_by_target[tid] += 1
-                        if float_mgr:
-                            float_mgr.add("FAIL", target_pos, "fail")
-                            if dmg > 0: float_mgr.add(f"-{dmg}", target_pos, "damage")
-                    else:
-                        dmg = damage_roll // 2
-                        dmg *= ability_data.get('multiplier', 1)
-                        damage_by_target[tid] += dmg
-                        hits_by_target[tid] += 1
-                        if float_mgr:
-                            float_mgr.add("SAVE", target_pos, "save")
-                            if dmg > 0: float_mgr.add(f"-{dmg}", target_pos, "damage")
-                
-                # End of target loop for save type
-                continue
+                roll, _ = roll_d20(advantage=save_adv)
+                spell_resist = CombatEngine.compute_spell_resist(target)
+                difficulty = max(0, min(20, spell_dc - spell_resist))
+
+                failed = roll < difficulty
+                saves_info[tid] = {'roll': roll, 'success': not failed, 'dc': difficulty, 'damage_roll': damage_roll}
+
+                if failed:
+                    dmg = damage_roll
+                    dmg *= ability_data.get('multiplier', 1)
+                    damage_by_target[tid] += dmg
+                    hits_by_target[tid] += 1
+                    failed_saves_by_target[tid] += 1
+                    if float_mgr:
+                        float_mgr.add("FAIL", target_pos, "fail")
+                        if dmg > 0: float_mgr.add(f"-{dmg}", target_pos, "hit")
+                else:
+                    dmg = damage_roll // 2
+                    dmg *= ability_data.get('multiplier', 1)
+                    damage_by_target[tid] += dmg
+                    hits_by_target[tid] += 1
+                    if float_mgr:
+                        float_mgr.add("SAVE", target_pos, "save")
+                        if dmg > 0: float_mgr.add(f"-{dmg}", target_pos, "hit")
 
             elif spell_type == "auto":
                 threshold = ability_data.get('hp_threshold')
                 is_below = True
-                if threshold and target.get('current_hp', target.get('hp', 999)) > threshold:
+                if threshold and target.get('current_hp', target.get('hp', 999)) > threshold: 
                     is_below = False
 
                 if is_below:
                     dmg = ability_data.get('threshold_damage')
                     if dmg is None:
                         dmg = roll_dice(current_dice) if current_dice else 0
-                    
+
                     damage_by_target[tid] += dmg * ability_data.get('multiplier', 1)
                     hits_by_target[tid] += 1
                     failed_saves_by_target[tid] += 1
@@ -500,12 +817,12 @@ class CombatEngine:
                 else:
                     dmg = ability_data.get('else_damage', 0)
                     if dmg > 0:
-                        damage_by_target[tid] += dmg * ability_data.get('multiplier', 1)
+                        damage_by_target[tid] += dmg * ability_data.get('multiplier', 1)      
                         hits_by_target[tid] += 1
                         # Do not increment failed_saves_by_target so effects don't apply if above threshold
                         if float_mgr:
                             float_mgr.add(f"-{dmg}", target_pos, "damage")
-            
+
             elif spell_type == "heal":
                 heal_amt = roll_dice(current_dice) if current_dice else 0
                 heal_amt *= ability_data.get('multiplier', 1)
@@ -513,14 +830,14 @@ class CombatEngine:
                 healing_by_target[tid] += heal_amt
                 hits_by_target[tid] += 1
                 failed_saves_by_target[tid] += 1
-                
+
                 if float_mgr:
                     float_mgr.add(f"+{heal_amt}", target_pos, "heal")
-            
+
             elif spell_type == "buff":
                 hits_by_target[tid] += 1
                 failed_saves_by_target[tid] += 1
-            
+
             elif spell_type == "summon":
                 hits_by_target[tid] += 1
                 failed_saves_by_target[tid] += 1
@@ -534,7 +851,7 @@ class CombatEngine:
         duration_raw = ability_data.get('duration', 1)
         duration = 1
         try:
-            resolved_dur = CombatEngine._resolve_math(str(duration_raw), placeholders)
+            resolved_dur = CombatEngine._resolve_math(str(duration_raw), placeholders)        
             if any(op in resolved_dur for op in "+-*/"):
                 duration = int(eval(resolved_dur, {"__builtins__": None}, {}))
             else:
@@ -555,15 +872,15 @@ class CombatEngine:
                     try:
                         resolved_power = CombatEngine._resolve_math(str(power_raw), placeholders)
                         if any(op in resolved_power for op in "+-*/"):
-                            power = int(eval(resolved_power, {"__builtins__": None}, {}))
+                            power = int(eval(resolved_power, {"__builtins__": None}, {}))     
                         else:
                             power = int(resolved_power)
                     except:
                         try: power = int(power_raw)
                         except: power = 0
-                    
-                    all_effects.append((effect_name, power if power else duration))
-                    
+
+                    all_effects.append({'name': effect_name, 'type': effect_name.lower(), 'duration': duration, 'value': power})
+
                     if float_mgr:
                         # Find the first valid target position for effect display
                         target_pos = active_targets[0].get('screen_pos', (400, 300))
@@ -585,25 +902,25 @@ class CombatEngine:
                 except:
                     try: dot_duration = int(dot_duration_raw)
                     except: dot_duration = 3
-                
+
                 if has_hot or ability_data.get('type') == 'heal':
                     effect_type = 'hot'
-                    dice = ability_data.get('hot_dice', ability_data.get('dot_dice', '1d6'))
+                    dice = ability_data.get('hot_dice', ability_data.get('dot_dice', '1d6'))  
                 else:
                     effect_type = 'dot'
                     dice = ability_data.get('dot_dice', '1d6')
-                
+
                 # Resolve placeholders and math in dice string
                 dice = CombatEngine._resolve_math(dice, placeholders)
-                
+
                 # Store info in effects to be handled by combat state
-                all_effects.append((effect_type, (dice, dot_duration)))
+                all_effects.append({'name': effect_type.upper(), 'type': effect_type, 'dot_dice': dice, 'duration': dot_duration})
 
         # Handle Lifesteal / on_hit_effect for abilities
         if total_damage > 0:
             if ability_data.get('on_hit_effect') == 'lifesteal':
                 heal_amt = max(1, total_damage // 2)
-                all_effects.append(('heal_attacker', heal_amt))
+                all_effects.append({'name': 'Lifesteal', 'type': 'heal_attacker', 'value': heal_amt})
 
         # Build message
         status = "hit" if total_hits > 0 else "missed"
@@ -615,14 +932,18 @@ class CombatEngine:
                 msg += f", restoring {total_healing} HP."
             else:
                 msg += "."
-            
-            for effect, val in all_effects:
+
+            for effect in all_effects:
                 # Simple logic for internal messages
-                msg += f" {effect.replace('_', ' ').title()} applied."
+                msg += f" {effect['name'].replace('_', ' ').title()} applied."
         else:
             msg += "."
         msg_parts.append(msg)
-            
+
+        if mana_cost > 0:
+            res_key = f"current_{resource_type}"
+            caster[res_key] = max(0, caster.get(res_key, 0) - mana_cost)
+
         res_dict = {
             'mana_cost': mana_cost,
             'damage': total_damage,
@@ -645,8 +966,8 @@ class CombatEngine:
             first_tid = list(rolls_by_target.keys())[0]
             roll_val = rolls_by_target[first_tid]
             res_dict['roll'] = roll_val
-            
-            # Calculate total_bonus as requested: {item_bonus+proficiency+bonus+feast}
+
+            # Calculate total_bonus as requested: {item_bonus+proficiency+bonus+feast}        
             # In our engine: proficiency_bonus + weapon_bonus + equipment_atk_bonus + feast_bonus
             w_bonus = int(caster.get('weapon_bonus', 0))
             eq_atk = int(caster.get('equipment_atk_bonus', 0))
@@ -670,7 +991,7 @@ class CombatEngine:
         bonus_gain = item_data.get('bonus_gain', 0)
         attack_gain = item_data.get('attack_gain', 0)
         extra_damage = item_data.get('extra_damage', 0)
-        
+
         # Map effect_type/value if they exist
         e_type = item_data.get('effect_type')
         val = item_data.get('value', 0)
@@ -684,7 +1005,7 @@ class CombatEngine:
 
         display_name = item_data.get('name', 'Item').replace('_', ' ').title()
         msg = f"Used {display_name}. {item_data.get('description', '')}"
-        
+
         return {
             'hp_gain': hp_gain,
             'mana_gain': mana_gain,
@@ -705,23 +1026,23 @@ class CombatEngine:
         total_gold = 0
         items = []
         messages = []
-        
+
         for enemy in enemies:
             # 1. Gold: Use defined reward gold + a scaling level bonus
             reward_data = enemy.get('reward', {})
             base_gold = reward_data.get('gold', 10)
-            
+
             # Add some randomness and scaling to make it feel more frequent/rewarding
             scaling_bonus = random.randint(5, 15) + (enemy.get('level', 1) * 2)
             gold_dropped = base_gold + scaling_bonus
             total_gold += gold_dropped
-            
+
             # 2. Items: 50/50 chance to drop one of the items in the reward list
             reward_items = reward_data.get('items', [])
             if reward_items and random.random() < 0.5:
                 # Pick one item from the reward list
                 item = random.choice(reward_items)
-                
+
                 if isinstance(item, dict):
                     i_name = item.get('name')
                     i_type = item.get('type', 'junk')
@@ -732,15 +1053,15 @@ class CombatEngine:
                     # Fallback for old string format
                     items.append(('junk', item))
                     messages.append(f"Found {item.replace('_', ' ').title()}!")
-            
+
             # 3. Extra Chance for Potion (Bonus)
             if random.random() < 0.2:
-                potion = random.choice(['healing_potion', 'mana_potion', 'stamina_potion'])
+                potion = random.choice(['healing_potion', 'mana_potion', 'stamina_potion'])   
                 items.append(('consumable', potion))
                 messages.append(f"Found {potion.replace('_', ' ').title()}!")
 
         messages.append(f"Gained {total_gold} gold!")
-        
+
         return {
             'gold': total_gold,
             'items': items,

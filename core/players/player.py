@@ -3,82 +3,45 @@ import json
 import os
 from core.game_rules.path_utils import get_resource_path
 
-# Locate JSON path in the data directory dynamically
-json_path = get_resource_path(os.path.join('data', 'players', 'player_classes.json'))
+from core.game_rules.database_manager import db
 
-with open(json_path, 'r', encoding='utf-8-sig') as f:
-    classes = json.load(f)
-
+# Use cached data from DatabaseManager
+classes = db.get_classes()
+weapons_data = db.get_weapons()
+armor_data = db.get_armor()
+shields_data = db.get_shields()
+trinkets_data = db.get_trinkets()
 
 def load_weapons():
-    path = get_resource_path(os.path.join('data', 'items', 'weapons.json'))
-
-    with open(path, 'r', encoding='utf-8-sig') as f:
-        return json.load(f)
-
-weapons_data = load_weapons()
-
+    return db.get_weapons()
 
 def get_weapon_stats(weapon_name):
     weapon_key = (weapon_name or 'unarmed').lower()
-    wl = weapons_data.get('weapon_list', {})
+    wl = db.get_weapons() # Direct access to cache
     if weapon_key in wl:
         return wl[weapon_key]
     return wl.get('unarmed', {'die': 4, 'attack_range': 1, 'bonus': 0})
 
 def load_armor():
-    path = get_resource_path(os.path.join('data', 'items', 'armor.json'))
-    with open(path, 'r', encoding='utf-8-sig') as f:
-        data = json.load(f)
-    return data.get('armor_list', {})
+    return db.get_armor()
     
-armor_data = load_armor()
-
 def load_shields():
-    path = get_resource_path(os.path.join('data', 'items', 'shields.json'))
-    try:
-        with open(path, 'r', encoding='utf-8-sig') as f:
-            data = json.load(f)
-        return data.get('shield_list', {})
-    except FileNotFoundError:
-        return {}
-
-shields_data = load_shields()
+    return db.get_shields()
 
 def load_trinkets():
-    path = get_resource_path(os.path.join('data', 'items', 'trinkets.json'))
-    try:
-        with open(path, 'r', encoding='utf-8-sig') as f:
-            data = json.load(f)
-        return data.get('trinket_list', {})
-    except FileNotFoundError:
-        return {}
-
-trinkets_data = load_trinkets()
+    return db.get_trinkets()
 
 def load_consumables():
-    json_path = get_resource_path(os.path.join('data', 'items', 'consumables.json'))
-    try:
-        with open(json_path, 'r', encoding='utf-8-sig') as f:
-            return json.load(f).get('consumable_list', {})
-    except FileNotFoundError:
-        return {}
+    return db.get_consumables()
 
 def load_spells():
-    json_path = get_resource_path(os.path.join('data', 'combat', 'spells.json'))
-    try:
-        with open(json_path, 'r', encoding='utf-8-sig') as f:
-            return json.load(f).get('spell_list', {})
-    except FileNotFoundError:
-        return {}
+    return db.get_spells()
 
 def load_skills():
-    json_path = get_resource_path(os.path.join('data', 'combat', 'skills.json'))
-    try:
-        with open(json_path, 'r', encoding='utf-8-sig') as f:
-            return json.load(f).get('skill_list', {})
-    except FileNotFoundError:
-        return {}
+    return db.get_skills()
+
+def load_summons():
+    return db.get_summons()
 
 def apply_weapon_to_player(player_data, weapon_name=None):
     if not weapon_name:
@@ -127,10 +90,20 @@ def apply_weapon_to_player(player_data, weapon_name=None):
     player_data['weapon_type'] = weapon_stats.get('type', 'melee')
     
     # Critical hit logic
-    crit_range = int(weapon_stats.get('critical', 20))
-    player_data['critical'] = crit_range
-    player_data['crit_on_19'] = (crit_range <= 19)
-    player_data['crit_on_18'] = (crit_range <= 18)
+    crit_range_base = int(weapon_stats.get('critical', 20))
+    player_data['critical'] = crit_range_base
+    
+    # Numerical bonus system (crit+ tag)
+    # Start with weapon's bonus, but let armor/trinkets add to it in apply_armor_to_player
+    player_data['crit_bonus'] = int(weapon_stats.get('crit+', 0))
+    
+    # Backward compatibility for existing 'critical' flag in JSON
+    if crit_range_base <= 18: player_data['crit_bonus'] = max(player_data['crit_bonus'], 2)
+    elif crit_range_base <= 19: player_data['crit_bonus'] = max(player_data['crit_bonus'], 1)
+
+    # Legcy Flags
+    player_data['crit_on_19'] = (player_data['crit_bonus'] >= 1)
+    player_data['crit_on_18'] = (player_data['crit_bonus'] >= 2)
 
     # Spell DC bonus
     player_data['spell_save'] = int(weapon_stats.get('spell_save', 0))
@@ -324,6 +297,14 @@ def apply_armor_to_player(player_data):
     eq_atk = armor_stats.get('bonus_atk', 0) + shield_stats.get('bonus_atk', 0) + trinket_stats.get('bonus_atk', 0)
     eq_dmg = armor_stats.get('bonus_dmg', 0) + shield_stats.get('bonus_dmg', 0) + trinket_stats.get('bonus_dmg', 0)
     
+    # Crit Bonus aggregation
+    eq_crit = int(armor_stats.get('crit+', 0)) + int(shield_stats.get('crit+', 0)) + int(trinket_stats.get('crit+', 0))
+    player_data['crit_bonus'] = player_data.get('crit_bonus', 0) + eq_crit
+    
+    # Update legacy flags based on FINAL aggregated bonus
+    player_data['crit_on_19'] = (player_data['crit_bonus'] >= 1)
+    player_data['crit_on_18'] = (player_data['crit_bonus'] >= 2)
+
     # Include base weapon spell_save bonus
     weapon_name = player_data.get('weapon', 'unarmed')
     weapon_stats = get_weapon_stats(weapon_name)
@@ -340,6 +321,9 @@ def apply_armor_to_player(player_data):
     player_data['spell_save'] = eq_spell_save
     player_data['spell_resist'] = eq_spell_resist
     
+    # Crit Immunity (e.g. from Adamantite Armor)
+    player_data['crit_immune'] = armor_stats.get('crit_immune', False) or shield_stats.get('crit_immune', False) or trinket_stats.get('crit_immune', False)
+
     return player_data
 
 def apply_shield_to_player(player_data, shield_name=None):

@@ -231,6 +231,33 @@
             "in_shop": false,
             "bonus_hp": 30,
             "description": "Armor reinforced with troll bones. It seems to pulse with vitality. +30 Max HP."
+        },
+        "adamantite_studded_leather": {
+            "name": "Adamantite Studded Leather",
+            "type": "light",
+            "ac": 13,
+            "cost": 3000,
+            "crit_immune": true,
+            "initiative_boost": 4,
+            "description": "Reinforced with ultra-hard adamantite. Grants immunity to the extra damage from critical hits."
+        },
+        "adamantite_breastplate": {
+            "name": "Adamantite Breastplate",
+            "type": "medium",
+            "ac": 15,
+            "cost": 5000,
+            "crit_immune": true,
+            "damage_resist": 2,
+            "description": "A gleaming adamantite chestpiece. Grants immunity to the extra damage from critical hits."
+        },
+        "adamantite_plate": {
+            "name": "Adamantite Plate",
+            "type": "heavy",
+            "ac": 18,
+            "cost": 8000,
+            "crit_immune": true,
+            "damage_resist": 5,
+            "description": "The pinnacle of physical protection. Grants immunity to the extra damage from critical hits."
         }
     }
 }

@@ -1,24 +1,13 @@
 import json
 import os
-from core.game_rules.path_utils import get_writeable_path
+from .storage_adapter import StorageManager
 
 class SaveManager:
-    SAVE_DIR = get_writeable_path("saves")
-
-    @staticmethod
-    def ensure_save_dir():
-        if not os.path.exists(SaveManager.SAVE_DIR):
-            os.makedirs(SaveManager.SAVE_DIR)
-
-    @staticmethod
-    def get_save_path(slot):
-        return os.path.join(SaveManager.SAVE_DIR, f"save_slot_{slot}.json")
+    # Initialize the adapter instance
+    _storage = StorageManager()
 
     @staticmethod
     def save_game(slot, party, inventory=None, battle_counter=0, bestiary_rp=None):
-        SaveManager.ensure_save_dir()
-        path = SaveManager.get_save_path(slot)
-        
         # Ensure it's a list
         if not isinstance(party, list):
             party = [party]
@@ -29,7 +18,7 @@ class SaveManager:
         if inventory is None and lead:
             inventory = lead.get('inventory_ref', {})
 
-        save_data = {
+        raw_save_data = {
             "is_party_save": True,
             "party": party,
             "inventory": inventory, # Global Inventory
@@ -39,27 +28,13 @@ class SaveManager:
             "level": lead.get('level', 1)
         }
         
-        try:
-            with open(path, 'w', encoding='utf-8') as f:
-                json.dump(save_data, f, indent=4)
-            return True
-        except Exception as e:
-            print(f"Error saving game: {e}")
-            return False
+        # Use StorageManager to serialize and save
+        return SaveManager._storage.save(slot, raw_save_data)
 
     @staticmethod
     def load_game_data(slot):
         """Returns the full save dictionary or None."""
-        path = SaveManager.get_save_path(slot)
-        if not os.path.exists(path):
-            return None
-        
-        try:
-            with open(path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except Exception as e:
-            print(f"Error loading game: {e}")
-            return None
+        return SaveManager._storage.load(slot)
 
     @staticmethod
     def load_game(slot):
@@ -81,9 +56,27 @@ class SaveManager:
                     'trinket': {}, 'consumable': {}, 'junk': {}, 'key_items': {}
                 }
 
-            # Sync all players to use the SAME inventory object
+            # --- Stat Synchronization & Clamping ---
+            from core.players.player import validate_player_data
+            
             for p in party:
+                # 1. Sync inventory reference
                 p['inventory_ref'] = inventory
+                
+                # 2. Capture saved resources
+                saved_hp = p.get('current_hp', p.get('hp', 10))
+                saved_mp = p.get('current_mp', 0)
+                saved_sp = p.get('current_sp', 0)
+                
+                # 3. Recalculate stats based on current class/level/gear
+                validate_player_data(p)
+                
+                # 4. Restore and clamp saved values (Prevents reloading from healing the player)
+                p['current_hp'] = min(saved_hp, p.get('max_hp', 10))
+                p['hp'] = p['current_hp'] # Sync legacy hp key
+                p['current_mp'] = min(saved_mp, p.get('max_mp', 0))
+                p['current_sp'] = min(saved_sp, p.get('max_sp', 0))
+
             return party
         # Old single-player save (directly a dict)
         elif isinstance(data, dict):
@@ -92,7 +85,21 @@ class SaveManager:
                 'gold': 0, 'weapon': {}, 'armor': {}, 'shield': {},
                 'trinket': {}, 'consumable': {}, 'junk': {}, 'key_items': {}
             })
+            
+            from core.players.player import validate_player_data
             data['inventory_ref'] = inventory
+            
+            saved_hp = data.get('current_hp', data.get('hp', 10))
+            saved_mp = data.get('current_mp', 0)
+            saved_sp = data.get('current_sp', 0)
+            
+            validate_player_data(data)
+            
+            data['current_hp'] = min(saved_hp, data.get('max_hp', 10))
+            data['hp'] = data['current_hp']
+            data['current_mp'] = min(saved_mp, data.get('max_mp', 0))
+            data['current_sp'] = min(saved_sp, data.get('max_sp', 0))
+            
             return [data]
         return None
 
@@ -113,8 +120,4 @@ class SaveManager:
 
     @staticmethod
     def delete_save(slot):
-        path = SaveManager.get_save_path(slot)
-        if os.path.exists(path):
-            os.remove(path)
-            return True
-        return False
+        return SaveManager._storage.delete(slot)

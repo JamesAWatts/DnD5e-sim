@@ -2,7 +2,7 @@ import pygame
 import random
 from .base_state import BaseState
 from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.ui.backgrounds import BackgroundManager
+from interfaces.pygame.graphics.backgrounds import BackgroundManager
 from interfaces.pygame.ui.panel import Panel, draw_text_outlined
 from interfaces.pygame.ui.inventory_panel import InventoryPanel
 from core.game_rules.constants import scale_x, scale_y, SCREEN_WIDTH, SCREEN_HEIGHT, COLOR_GOLD, COLOR_WHITE
@@ -19,16 +19,8 @@ class HubState(BaseState):
         # Get persistent hub background from manager
         self.background = BackgroundManager.get_hub_bg(self.game.player)
 
-        self.base_options = ["Fight", "Tavern", "Shop", "Inventory", "Settings"]
-        
-        # --- Bestiary Unlock Check ---
-        total_party_level = sum(p.get('level', 1) for p in self.game.party)
-        if total_party_level >= 21:
-            self.base_options.insert(1, "Bestiary")
-
-        options = list(self.base_options)
-        if game.god_mode:
-            options += ["Level Up", "Invincible"]
+        # --- Feature Unlock Check (MVC) ---
+        options = self.game.get_unlocked_hub_features()
 
         self.menu = Menu(options, font, width=150, pos=(120, 200))
         
@@ -56,7 +48,7 @@ class HubState(BaseState):
         elif self.menu_state == "DEV":
             self.handle_dev_menu(option)
 
-    def update(self, events):
+    def update(self, events, dt):
         # Check for cheat code keys and character switching
         for event in events:
             if event.type == pygame.KEYDOWN:
@@ -85,37 +77,35 @@ class HubState(BaseState):
                     # Any other key resets the sequence
                     self.current_input_sequence = []
 
-        super().update(events)
+        super().update(events, dt)
 
     def handle_main_menu(self, option):
         p = self.game.party[self.selected_index]
         if option == "Fight":
-            # Check for Rumors encounter
+            # 1. Determine category and fetch enemies
             if hasattr(self.game, 'next_encounter') and self.game.next_encounter:
                 enemies = self.game.next_encounter
-                self.game.next_encounter = None # Clear it
+                # If Rumors has a category stored, use it, else default to 'general'
+                category = getattr(self.game, 'next_category', 'general')
+                self.game.next_encounter = None 
             else:
                 from core.creatures.enemies import get_scaled_enemies
-                import math
-                
-                # Determine encounter level (Budget)
-                party_size = len(self.game.party)
-                total_level = sum(p.get('level', 1) for p in self.game.party)
-                
-                if party_size > 1:
-                    encounter_level = math.ceil((total_level / 2) + (party_size - 1))
-                else:
-                    encounter_level = total_level
+                encounter_level = self.game.calculate_encounter_level()
+                enemies, category = get_scaled_enemies(encounter_level, 
+                                                     battle_count=self.game.battle_counter,
+                                                     party_size=len(self.game.party))
 
-                enemies = get_scaled_enemies(encounter_level, battle_count=self.game.battle_counter)
+            # 2. Tag every enemy with the category for the SpriteManager
+            for e in enemies:
+                e['category'] = category
 
-            # Increment battle counter and consecutive counter
+            # 3. Transition to combat
             self.game.battle_counter += 1
-            self.game.consecutive_combats += 1
+            self.game.consecutive_combats = getattr(self.game, 'consecutive_combats', 0) + 1
             self.game.enemies = enemies
             
-            from .combat import CombatState
-            self.game.change_state(CombatState(self.game, self.font))
+            from interfaces.pygame.states.combat_state import CombatStateNew
+            self.game.change_state(CombatStateNew(self.game, self.font, player_data=p, enemy_data=enemies), transition_type='random')
 
         elif option == "Shop":
             from .shop_state import ShopState
@@ -130,16 +120,12 @@ class HubState(BaseState):
             from .bestiary import BestiaryState
             self.game.change_state(BestiaryState(self.game, self.font))
 
-        elif option == "Settings":
-            from .settings_state import SettingsState
-            self.game.change_state(SettingsState(self.game, self.font, previous_state=self))
-
         elif option == "Tavern":
             from .tavern import TavernState
             self.game.change_state(TavernState(self.game, self.font))
 
         elif option == "Dev Tools":
-            dev_options = ["1,000 HP", "10,000 Gold", "Level Up", "Restart Game", "Back"]
+            dev_options = ["1,000 HP", "10,000 Gold", "Level Up", "Max Level", "RP+", "Restart Game", "Back"]
             self.sub_menu = Menu(dev_options, self.font, header="Dev Tools")
             self.menu_state = "DEV"
             self.active_menu = self.sub_menu
@@ -159,8 +145,9 @@ class HubState(BaseState):
                 pass
 
     def draw(self, screen):
-        # --- Draw background FIRST ---
+        # --- Draw background ---
         self.draw_background(screen)
+        self.draw_settings_button(screen)
 
         width, height = screen.get_size()
         p = self.game.party[self.selected_index]
@@ -178,7 +165,7 @@ class HubState(BaseState):
             title_y
         )
         
-        # --- Gold (Under Title) ---
+        # --- Gold ---
         gold_val = p.get('inventory_ref', {}).get('gold', 0)
         gold_str = f"Gold: {gold_val}"
         gw, gh = self.font.size(gold_str)
@@ -235,7 +222,7 @@ class HubState(BaseState):
                          xp_in_level, xp_needed_in_level, (0, 128, 128), self.font)
 
         # --- Draw Party Characters (Rotating Dish) ---
-        from interfaces.pygame.graphics.enemy_sprites import SpriteManager
+        from interfaces.pygame.graphics.sprite_manager import SpriteManager
         num_party = len(self.game.party)
         
         # Shift the entire platter left by 50px
@@ -255,13 +242,10 @@ class HubState(BaseState):
 
             for idx, is_left in side_indices:
                 char = self.game.party[idx]
-                # Closer to center: offset 160 instead of 200
                 bx_off = -scale_x(160) if is_left else scale_x(160)
-                # Up 10px: -50 total offset
                 by_off = -scale_y(50)
                 
                 p_class = char.get("class", "fighter")
-                # Reduced size: 152x152 (5% less than 160)
                 sprite = SpriteManager.get_player_sprite(p_class, size=(scale_x(152), scale_y(152)))
                 if sprite:
                     inactive_sprite = sprite.copy()
@@ -309,5 +293,3 @@ class HubState(BaseState):
             
         # --- Tooltip (Draw LAST) ---
         self.inventory_panel.draw_tooltip(screen)
-
-    # REMOVE OLD DRAWING METHODS

@@ -8,9 +8,10 @@ from core.game_rules.constants import (
 )
 
 class SettingsState(BaseState):
-    def __init__(self, game, font, previous_state=None):
+    def __init__(self, game, font, previous_state=None, excluded_options=None):
         super().__init__(game, font)
         self.previous_state = previous_state
+        self.excluded_options = excluded_options or []
         
         # UI Elements
         self.menu = Menu(["Music: On", "Exit Game", "Back"], font, width=200)
@@ -25,10 +26,22 @@ class SettingsState(BaseState):
     def refresh_menu_text(self):
         """Updates the menu text to show current settings."""
         music_status = "Off" if self.game.music_manager.is_muted else "On"
-        new_options = [f"Music: {music_status}", "Save Game", "Exit Game", "Back"]
+        all_options = [f"Music: {music_status}", "Save Game", "Exit Game", "Back"]
+        
+        # Filter based on keywords in excluded_options
+        new_options = []
+        for opt in all_options:
+            is_excluded = False
+            for excl in self.excluded_options:
+                if excl.lower() in opt.lower():
+                    is_excluded = True
+                    break
+            if not is_excluded:
+                new_options.append(opt)
+                
         self.menu.set_options(new_options)
 
-    def update(self, events):
+    def update(self, events, dt):
         mouse_pos = pygame.mouse.get_pos()
         
         for event in events:
@@ -48,13 +61,17 @@ class SettingsState(BaseState):
             elif event.type == pygame.MOUSEMOTION and self.is_dragging:
                 self.update_volume_from_mouse(mouse_pos[0])
 
-        super().update(events)
+        super().update(events, dt)
 
     def update_volume_from_mouse(self, mx):
         """Calculates volume based on mouse X position relative to slider."""
         rel_x = mx - self.slider_rect.x
         new_vol = rel_x / self.slider_rect.width
         self.game.music_manager.set_volume(new_vol)
+
+    def handle_settings_input(self, events):
+        """Override to prevent opening settings while already in settings."""
+        return False
 
     def on_select(self, option):
         if "Music:" in option:

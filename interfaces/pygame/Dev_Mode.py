@@ -24,10 +24,42 @@ class DevTools:
             from core.players.leveler import xp_to_next_level
             from interfaces.pygame.states.level_up import LevelUpState
             
-            # We don't necessarily need to add XP if we're just forcing the state,
-            # but let's keep the logic consistent.
+            # Level up everyone in the party for dev mode
+            for char in game.party:
+                current_level = char.get('level', 1)
+                char['xp'] = xp_to_next_level(current_level)
+            
             game.change_state(LevelUpState(game, pygame.font.SysFont("Arial", 32), is_dev_mode=True))
-            return "Dev Level Up Triggered!"
+            return "Party Level Up Triggered!"
+
+        elif action == "RP+":
+            # Add 25 RP to all categories in the bestiary
+            categories = ['beast', 'dragon', 'fae', 'goblinoid', 'humanoid', 'undead']
+            for cat in categories:
+                game.bestiary_rp[cat] = game.bestiary_rp.get(cat, 0) + 25
+            return "Added 25 RP to all categories!"
+
+        elif action == "Max Level":
+            from core.players.leveler import recalculate_stats
+            from core.players.player import validate_player_data
+            
+            for char in game.party:
+                char['xp'] = 300000
+                char['level'] = 20
+                # Assign 20 levels to their primary class
+                primary_class = char.get('class', 'fighter').lower()
+                char['class_levels'] = {primary_class: 20}
+                
+                recalculate_stats(char)
+                validate_player_data(char)
+                
+                # Full Heal
+                char['current_hp'] = char['max_hp']
+                char['hp'] = char['max_hp']
+                char['current_mp'] = char.get('max_mp', 0)
+                char['current_sp'] = char.get('max_sp', 0)
+                
+            return "All party members set to Level 20!"
 
         elif action == "Restart Game":
             from interfaces.pygame.states.class_select import ClassSelectState

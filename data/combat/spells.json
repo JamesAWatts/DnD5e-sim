@@ -2,354 +2,387 @@
     "spell_list": {
         "chromatic_orb": {
             "name": "Chromatic Orb",
-            "level": 1,
+            "cost": 1,
             "dice": "3d8+{prof}",
             "type": "attack",
-            "description": "You hurl an orb of energy at a target within range. Make a spell attack."
+            "ranged": true,
+            "description": "Hurl a sphere of volatile elemental energy. Deals {dice} damage to a single target."
         },
         "magic_missile": {
             "name": "Magic Missile",
-            "level": 1,
+            "cost": 1,
             "dice": "3d4+{prof}",
             "type": "auto",
-            "description": "Creates three glowing darts of magical force. Each deals 1d4+1 force damage. They always hit."
+            "ranged": true,
+            "vfx": {
+                "type": "projectile",
+                "color": [180, 50, 255]
+            },
+            "description": "Conjure glowing darts of magical force that unerringly strike your foe. Unavoidably deals {dice} force damage."
         },
         "cure_wounds": {
             "name": "Cure Wounds",
-            "level": 1,
+            "cost": 1,
             "dice": "2d8+{level}+{prof}",
             "type": "heal",
-            "description": "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting modifier."
+            "vfx": {
+                "type": "aura",
+                "color": "green"
+            },
+            "description": "Channel restorative magic through a healing touch. Restores {dice} HP to the target."
         },
         "guiding_bolt": {
             "name": "Guiding Bolt",
-            "level": 1,
+            "cost": 1,
             "dice": "4d6",
             "type": "attack",
             "effect": "advantage_next",
-            "description": "A flash of light streaks toward a creature. On hit, the next attack roll against this target has advantage."
+            "ranged": true,
+            "description": "A brilliant flash of divine light streaks toward your enemy. Deals {dice} radiant damage and grants Advantage on the next attack made against them."
         },
         "inflict_wounds": {
             "name": "Inflict Wounds",
-            "level": "{prof}",
+            "cost": "{prof}",
             "dice": "{prof}d10",
             "type": "attack",
-            "description": "Touch a creature with necrotic energy."
+            "description": "Unleash a surge of dark, necrotic energy through a devastating touch. Deals {dice} necrotic damage to a single creature."
         },
         "scorching_ray": {
             "name": "Scorching Ray",
-            "level": 2,
+            "cost": 2,
             "attack_count_overide": 3,
             "use_attack_count": true,
             "dice": "{prof}d6",
             "type": "attack",
-            "description": "You create three rays of fire and hurl them at targets within range. Each deals 2d6 fire damage."
+            "ranged": true,
+            "description": "Conjure searing rays of intense flame and hurl them at your foes. Make {attack_count_overide} ranged spell attacks, each dealing {dice} fire damage."
         },
         "spiritual_weapon": {
             "name": "Spiritual Weapon",
-            "level": 2,
+            "cost": 2,
             "dice": "2d8+{level/2}",
             "type": "attack",
+            "ranged": true,
             "dot": true,
             "dot_dice": "1d8+{prof}",
             "duration": 5,
-            "description": "You create a floating, spectral weapon within range that lasts for the duration or until you cast this spell again."
+            "description": "Manifest a spectral weapon to strike down your enemies. Deals an initial {dice} force damage, and continues to assail the target for {dot_dice} damage each turn. Lasts for {duration} turns."
         },
         "hold_person": {
             "name": "Hold Person",
-            "level": 2,
+            "cost": 2,
             "type": "save",
             "effect": "stunned",
             "duration": 5,
-            "description": "Choose a humanoid that you can see within range. The target must succeed on a save or be stunned."
+            "ranged": true,
+            "description": "Bind a humanoid foe with paralyzing, invisible chains. The target must succeed on a saving throw or become {effect} for {duration} turns."
         },
         "moonbeam": {
             "name": "Moonbeam",
-            "level": 2,
-            "dice":"2d8+{level/2}",
+            "cost": 2,
+            "dice": "2d8+{level/2}",
             "type": "save",
+            "ranged": true,
             "dot": true,
             "dot_dice": "1d8+{prof}",
             "duration": 3,
-            "description": "A silvery beam of pale light shines down dealing damage."
+            "description": "Call down a searing beam of pale, silvery moonlight. Deals {dice} radiant damage initially, and burns the target for an additional {dot_dice} damage each turn. Lasts for {duration} turns."
         },
         "fireball": {
             "name": "Fireball",
-            "level": 3,
+            "cost": 3,
             "dice": "6d6+{level/2}",
             "type": "save",
             "aoe": true,
-            "description": "A bright streak flashes from your finger, then blossoms into an explosion of flame. Dex save for half damage."
+            "ranged": true,
+            "vfx": {
+                "type": "burst",
+                "color": "orange"
+            },
+            "description": "A bright streak flashes from your finger, blossoming into a devastating explosion of flame. Deals {dice} fire damage to all targets in the blast radius. A successful save halves the damage."
         },
         "lightning_bolt": {
             "name": "Lightning Bolt",
-            "level": 3,
+            "cost": 3,
             "dice": "6d6+{level/2}",
             "type": "save",
-            "aoe": true,
-            "description": "A stroke of lightning forming a line 100 feet long blasts out from you. Dex save for half damage."
+            "haoe": true,
+            "ranged": true,
+            "vfx": {
+                "type": "lightning_strike",
+                "color": "cyan"
+            },
+            "description": "Unleash a brilliant stroke of lightning that tears through enemy ranks. Deals {dice} lightning damage to all targets caught in its path. A successful save halves the damage."
         },
         "haste": {
             "name": "Haste",
-            "level": 3,
+            "cost": 3,
             "type": "buff",
             "effect": "haste",
             "duration": 3,
-            "description": "Target's speed is doubled, +2 AC, advantage on Dex saves, and gain an additional action each turn."
+            "ranged": true,
+            "description": "Energize an ally with preternatural speed. Grants the {effect} status for {duration} turns, drastically increasing their speed, evasiveness, and granting an additional action each turn."
         },
         "blight": {
             "name": "Blight",
-            "level": 4,
+            "cost": 4,
             "dice": "8d8+{level/2}",
             "type": "save",
-            "description": "Necrotic energy washes over a creature of your choice. Con save for half damage."
+            "ranged": true,
+            "description": "Flood a creature with corrupting necrotic energy, rapidly draining their moisture and vitality. Deals {dice} necrotic damage. A successful save halves the damage."
         },
         "wall_of_fire": {
             "name": "Wall of Fire",
-            "level": 4,
+            "cost": 4,
             "dice": "5d8+{level/2}",
             "type": "save",
-            "aoe" : true,
+            "vaoe" : true,
+            "ranged": true,
             "dot": true,
             "dot_dice": "5d8+{prof}",
             "duration": 3,
-            "description": "You create a wall of fire on a solid surface within range. Deals damage to creatures within 10 feet of it."
+            "description": "Conjure a roaring wall of searing flames. Erupts for an initial {dice} fire damage, and violently burns targets trapped within the inferno for an additional {dot_dice} damage each turn. Lasts for {duration} turns."
         },
         "ice_storm":{
             "name": "Ice Storm",
-            "level": 4,
+            "cost": 4,
             "dice": "4d6 + 2d10",
             "type": "save",
             "effect": "disadvantage",
             "aoe" : true,
+            "ranged": true,
             "dot": true,
             "dot_dice": "2d10",
             "duration": 3,
-            "description": "You create a hail storm. Dealing damage in an AoE and giving disadvantage to all who fail their save"
+            "description": "Call down a punishing storm of magical hail and freezing rain. Crushes targets for {dice} cold and bludgeoning damage initially. Those who fail their save suffer {effect} and take {dot_dice} freezing damage each turn. Lasts for {duration} turns."
         },
         "cone_of_cold": {
             "name": "Cone of Cold",
-            "level": 5,
+            "cost": 5,
             "dice": "8d8",
             "type": "save",
             "aoe": true,
-            "effect": "enemy_advantage",
-            "power": -3,
-            "description": "A blast of cold air emits from your hands. Con save for half damage."
+            "ranged": true,
+            "effect": "disadvantage",
+            "duration": 3,
+            "description": "Unleash a devastating blast of freezing air from your outstretched hands. Deals {dice} cold damage to all enemies in the blast area. Targets that fail their save suffer a {power} penalty ({effect}). A successful save halves the damage."
         },
         "immolation": {
             "name": "Immolation",
-            "level": 5,
+            "cost": 5,
             "dice":  "8d6",
             "type": "save",
+            "ranged": true,
             "dot": true,
             "dot_dice": "4d6",
             "duration": 3,
-            "description": "The target is engulfed in flames. Dealing 8d6 damage and subsiquent 4d6 fire damage"
+            "description": "Engulf a target in roaring, magical flames. Incinerates the foe for an initial {dice} fire damage, and continues to violently burn them for an additional {dot_dice} damage each turn. Lasts for {duration} turns."
         },
         "maelstrom": {
             "name": "Maelstrom",
-            "level": 5,
-            "dice":  "6d6",
+            "cost": 5,
+            "dice":  "{prof/2}d6",
             "type": "save",
+            "ranged": true,
             "effect": "disadvantage",
-            "aoe": true,
+            "saoe": true,
             "dot": true,
-            "dot_dice": "4d6",
+            "dot_dice": "{prof/3}d6",
             "duration": 3,
-            "description": "A swirling mass of water appears, churing into a storm. Dealing damage and impeding the target."
+            "description": "Conjure a churning, tempestuous whirlpool that engulfs the battlefield. Deals an initial {dice} bludgeoning damage to ALL enemies. Those caught within are battered for an additional {dot_dice} damage each turn and suffer {effect}. Lasts for {duration} turns."
         },
         "mass_cure_wounds": {
             "name": "Mass Cure Wounds",
-            "level": 5,
+            "cost": 5,
             "dice": "3d8+{level}+{prof}",
             "type": "heal",
             "aoe": true,
-            "description": "A wave of healing energy eminates from you, healing allies for 5d8+10 hit points."
+            "ranged": true,
+            "description": "Radiate a brilliant wave of restorative energy that washes over your allies. Restores {dice} HP to all targets within the healing radius."
         },
         "chain_lightning": {
             "name": "Chain Lightning",
-            "level": 6,
+            "cost": 6,
             "dice": "10d8",
             "type": "save",
-            "aoe": true,
-            "description": "You create a bolt of lightning that arcs toward a target and then to three other targets. Dex save for half damage."
-        },
-        "sunbeam": {
+            "saoe": true,
+            "ranged": true,
+            "vfx": {
+                "type": "lightning_strike",
+                "color": "cyan"
+            },  
+            "description": "Unleash a terrifying bolt of lightning that violently arcs between your enemies. Deals {dice} lightning damage to ALL targets on the battlefield. A successful save halves the damage."
+        },"sunbeam": {
             "name": "Sunbeam",
-            "level": 6,
+            "cost": 6,
             "dice": "6d8",
             "type": "save",
             "aoe": true,
+            "ranged": true,
             "dot": true,
             "dot_dice":"6d8",
             "duration": 3,
             "effect": "blind",
-            "description": "A beam of brilliant light flashes from your hand in a 5-foot-wide, 60-foot-long line. Each creature in the line must make a Con save."
+            "description": "Unleash a beam of blinding, brilliant light. Deals an initial {dice} radiant damage to targets caught in the blast. Those who fail their save are {effect} and suffer an additional {dot_dice} damage each turn. Lasts for {duration} turns."
         },
         "disintegrate": {
             "name": "Disintegrate",
-            "level": 6,
+            "cost": 6,
             "dice": "10d6+40",
             "type": "attack",
-            "description": "A thin green ray springs from your finger. If it reduces the target to 0 hit points, it is disintegrated."
+            "ranged": true,
+            "description": "Fire a deadly, thin green ray of pure destructive force. Deals a devastating {dice} force damage. Targets reduced to 0 hit points by this spell are instantly turned to ash."
         },
         "finger_of_death": {
             "name": "Finger of Death",
-            "level": 7,
+            "cost": 7,
             "dice": "7d8+30",
             "type": "save",
-            "description": "You send negative energy coursing through a creature. Con save for half damage."
+            "ranged": true,
+            "description": "Channel ultimate necrotic power, sending fatal negative energy coursing through a single creature's veins. Deals {dice} necrotic damage. A successful save halves the damage."
         },
         "regenerate": {
             "name": "Regenerate",
-            "level": 7,
+            "cost": 7,
             "dice": "4d8+{level}",
             "type": "heal",
+            "ranged": true,
             "hot" : true,
             "hot_dice": "4d8",
             "duration": 3,
-            "description": "The target regains 4d8 + 15 hit points. For the duration, the target regains 4d8 hit points at the start of each of its turns."
+            "description": "Stimulate a target's natural healing to superhuman levels. Instantly restores {dice} HP, and continues to rapidly heal the target for {hot_dice} HP at the start of each turn. Lasts for {duration} turns."
         },
         "fire_storm": {
             "name": "Fire Storm",
-            "level": 7,
+            "cost": 7,
             "dice": "7d10",
             "type": "save",
-            "aoe": true,
+            "saoe": true,
+            "ranged": true,
             "dot": true,
             "dot_dice": "4d10",
             "duration": 3,
-            "description": "A storm of fire appears. Each creature in the area must make a Dex save."
+            "description": "Summon a raging tempest of roaring flames that blankets the entire battlefield. Deals an initial {dice} fire damage to ALL enemies. Foes caught in the inferno continue to burn for {dot_dice} damage each turn. Lasts for {duration} turns."
         },
         "prismatic_spray": {
             "name": "Prismatic Spray",
-            "level": 7,
+            "cost": 7,
             "dice": "12d6",
             "type": "save",
             "aoe": true,
-            "effect": "varied",
+            "ranged": true,
+            "effect": "blind",
             "duration": 3,
-            "description": "Eight multicolored rays of light flash from your hand. Each ray has a different power and purpose."
+            "description": "Unleash a dazzling, chaotic array of multicolored light. Blasts targets in the area for {dice} magical damage and inflicts a {effect} status ailment depending on the color that strikes them. Status effects last for {duration} turns."
         },
         "sunburst": {
             "name": "Sunburst",
-            "level": 8,
+            "cost": 8,
             "dice": "12d6",
             "type": "save",
-            "aoe": true,
+            "saoe": true,
+            "ranged": true,
             "effect": "blind",
-            "description": "Brilliant sunlight flashes in a 60-foot radius. Con save for half damage and to avoid being blinded."
+            "description": "Unleash a brilliant flash of searing sunlight across the entire battlefield. Deals {dice} radiant damage to ALL enemies. Those who fail their save are rendered {effect}. A successful save halves the damage."
         },
         "power_word_stun": {
             "name": "Power Word Stun",
-            "level": 8,
+            "cost": 8,
             "type": "auto",
+            "ranged": true,
             "effect": "stunned",
-            "description": "You speak a word of power. If the target has 150 hit points or fewer, it is stunned."
+            "description": "Speak a single word of absolute, mind-shattering authority. Compels a creature with 150 hit points or fewer to instantly become {effect}."
         },
         "earthquake": {
             "name": "Earthquake",
-            "level": 8,
+            "cost": 8,
             "dice": "12d6",
             "type": "save",
-            "aoe": true,
+            "saoe": true,
+            "ranged": true,
             "effect": "stunned",
-            "description": "You create a seismic disturbance. Dealing damage and knocking targets prone or stunning them."
-        },
-        "foresight": {
-            "name": "Foresight",
-            "level": 8,
-            "type": "buff",
-            "effect": "advantage_next",
-            "power": 100,
-            "description": "You gain a limited ability to see into the immediate future. Gain advantage for this combat"
+            "description": "Trigger a massive seismic disturbance that violently tears the battlefield apart. Deals {dice} bludgeoning damage to ALL enemies and leaves those who fail their save {effect}."
         },
         "illusory_dragon": {
             "name": "Illusory Dragon",
-            "level": 8,
+            "cost": 8,
             "dice": "7d6",
             "type": "save",
+            "ranged": true,
             "effect": "frightened",
             "aoe": true,
             "dot": true,
             "dot_dice": "7d6",
             "duration": 3,
-            "description": "You create an illusory dragon that breathes energy."
+            "description": "Manifest a terrifying, semi-real illusion of a towering dragon. Its breath deals an initial {dice} damage to targets in the area, leaving them {effect}. The phantom beast continues to breathe for {dot_dice} damage each turn. Lasts for {duration} turns."
         },
         "meteor_swarm": {
             "name": "Meteor Swarm",
-            "level": 9,
+            "cost": 9,
             "dice": "40d6",
             "type": "save",
-            "aoe": true,
-            "description": "Blazing orbs of fire plummet to the ground at four different points. Dex save for half damage."
+            "saoe": true,
+            "ranged": true,
+            "vfx": {
+                "type": "meteor_storm"
+            },
+            "description": "Tear open the heavens and call down a cataclysmic shower of blazing meteors. Deals a devastating {dice} damage to ALL enemies on the battlefield. A successful save halves the damage."
         },
         "power_word_kill": {
             "name": "Power Word Kill",
-            "level": 9,
+            "cost": 9,
             "type": "auto",
+            "ranged": true,
             "hp_threshold": 100,
-            "threshold_damage": 100,
+            "threshold_damage": 150,
             "else_damage": 50,
-            "description": "You utter a word of power that can compel one creature you can see within range to die instantly if it has 100 HP or less. Otherwise, it takes 50 damage."
+            "description": "Utter a word of ultimate, lethal power. If the target has {hp_threshold} HP or less, they are instantly slain (taking {threshold_damage} damage). Otherwise, the sheer force of the word deals {else_damage} damage."
         },
         "mass_heal": {
             "name": "Mass Heal",
-            "level": 9,
+            "cost": 9,
             "dice": "200",
             "type": "heal",
-            "aoe" : true,
+            "saoe" : true,
+            "ranged": true,
             "effect": "remove_conditions",
-            "description": "Heal all allies for 200 hit points and remove any conditions."
-        },
-        "animate_dead": {
-            "name": "Animate Dead",
-            "level": 3,
-            "type": "summon",
-            "summon_type": ["ghoul"],
-            "summon_count": "level/5",
-            "description": "Create an undead servant from the remains of the fallen."
+            "description": "Unleash a boundless torrent of divine restorative magic. Restores a massive {dice} HP to all allies in the area and instantly applies {effect}."
         },
         "conjure_animals": {
             "name": "Conjure Animals",
-            "level": 3,
+            "cost": 3,
             "type": "summon",
+            "ranged": true,
             "summon_type": ["owlbear"],
-            "summon_count": "level/5",
-            "description": "Summon fey spirits that take the form of an Owlbear."
+            "summon_count": "{level}/5",
+            "description": "Call upon fey beasts of the wild to aid you in battle. Summons {summon_count} Owlbear(s) to fight alongside your party."
         },
         "conjure_woodland_beings": {
             "name": "Conjure Woodland Beings",
-            "level": 4,
+            "cost": 4,
             "type": "summon",
+            "ranged": true,
             "summon_type": ["dryad"],
-            "summon_count": "level/6",
-            "description": "Summon fey spirits that take the form of a Dryad."
-        },
-        "summon_greater_undead": {
-            "name": "Summon Greater Undead",
-            "level": 5,
-            "type": "summon",
-            "summon_type": ["ghast", "ghoul"],
-            "summon_count": "level/8",
-            "description": "Summon a powerful undead ghoul to serve you."
+            "summon_count": "{level}/6",
+            "description": "Call upon the spirits of the forest to aid you in battle. Summons {summon_count} Dryad(s) to fight alongside your party."
         },
         "draconic_spirit": {
             "name": "Draconic Spirit",
-            "level": 5,
+            "cost": 5,
             "type": "summon",
+            "ranged": true,
             "summon_type": ["wyrmling"],
-            "summon_count": "level/7",
-            "description": "Summon a draconic spirit in the form of a wyrmling."
+            "summon_count": "{level}/7",
+            "description": "Manifest the ancient power of dragons. Summons {summon_count} Wyrmling(s) to burn your enemies."
         },
         "summon_dragon": {
             "name": "Summon Dragon",
-            "level": 9,
+            "cost": 9,
             "type": "summon",
+            "ranged": true,
             "summon_type": ["young_dragon"],
-            "summon_count": "level/11",
-            "description": "Summon a powerful young dragon to devastate your foes."
+            "summon_count": "{level}/11",
+            "description": "Manifest the ancient power of dragons. Summons a Young Dragon to incinerate your enemies."
         }
     }
 }

@@ -1,146 +1,186 @@
 {
-    "wolf": {
-        "name_template": "{s_name}'s Wolf",
-        "sprites": ["wolf1.png", "wolf2.png"],
-        "stats": {
-            "hp": "8 + {s_level}",
-            "ac": "8 + {s_level}//2",
-            "proficiency_bonus": "{s_prof}",
-            "weapon_bonus": "{s_level} // 2",
-            "damage_die": 6,
-            "bonus_dmg": "{s_level} // 4",
-            "attack_count": "1 + ({s_level} // 10)",
-            "max_sp": 10,
-            "max_mp": 10
-        }
-    },
-    "skeleton": {
-        "name_template": "{s_name}'s Skeleton",
-        "sprites": ["skeleton1.png", "skeleton2.png", "skeleton3.png"],
-        "stats": {
-            "hp": "10 + {s_level}",
-            "ac": "12",
-            "proficiency_bonus": "2",
-            "weapon_bonus": 2,
-            "damage_die": "2d6",
-            "bonus_dmg": "2",
-            "attack_count": "2",
-            "max_sp": 10,
-            "max_mp": 10
-        }
-    },
-    "zombie": {
-        "name_template": "{s_name}'s Zombie",
-        "sprites": ["zombie1.png", "zombie2.png"],
-        "stats": {
-            "hp": "15 + {s_level} * 2",
-            "ac": "8",
-            "proficiency_bonus": "2",
-            "weapon_bonus": 2,
-            "damage_die": "2d8",
-            "bonus_dmg": "2",
-            "attack_count": "2",
-            "max_sp": 10,
-            "max_mp": 10
-        }
-    },
-    "ghoul": {
-        "name_template": "{s_name}'s Ghoul",
-        "sprites": ["ghoul1.png", "ghoul2.png"],
-        "stats": {
-            "hp": "20 + {s_level}",
-            "ac": "12",
-            "proficiency_bonus": "3",
-            "weapon_bonus": 3,
-            "damage_die": "1d10",
-            "bonus_dmg": "3",
-            "attack_count": "2",
-            "on_hit_effect": "sap",
-            "max_sp": 10,
-            "max_mp": 10
-        }
-    },
-    "dryad": {
-        "name_template": "{s_name}'s Dryad",
-        "sprites": ["dryad1.png", "dryad2.png"],
-        "stats": {
-            "hp": "25 + {s_level}",
-            "ac": "13",
-            "proficiency_bonus": "{s_prof}",
-            "weapon_bonus": "4",
-            "damage_die": "1d8",
-            "bonus_dmg": "2",
-            "attack_count": "1",
-            "spell_dc": "10 + {s_prof}",
-            "spells": ["entangle", "lesser_heal"],
-            "max_sp": 20,
-            "max_mp": 20
-        }
-    },
-    "vine_blight": {
-        "name_template": "{s_name}'s Vine Blight",
-        "sprites": ["vine_blight1.png", "vine_blight2.png", "vine_blight3.png"],
-        "stats": {
-            "hp": "20 + {s_level} * 1.5",
-            "ac": "12",
-            "proficiency_bonus": "2",
-            "weapon_bonus": 2,
-            "damage_die": "1d8",
-            "bonus_dmg": "2",
-            "attack_count": "1",
-            "spells": ["entangle"],
-            "max_sp": 10,
-            "max_mp": 10
-        }
-    },
-    "owlbear": {
-        "name_template": "{s_name}'s Owlbear",
-        "sprites": ["owlbear1.png", "owlbear2.png"],
-        "stats": {
-            "hp": "40 + {s_level} * 2",
-            "ac": "13",
-            "proficiency_bonus": "{s_prof}",
-            "weapon_bonus": "5",
-            "damage_die": "2d8",
-            "bonus_dmg": "5",
-            "attack_count": "2",
-            "skills": ["swift_strikes", "gore"],
-            "max_sp": 20,
-            "max_mp": 10
-        }
-    },
-    "wyrmling": {
-        "name_template": "{s_name}'s Wyrmling",
-        "sprites": ["wyrmling1.png", "wyrmling2.png"],
-        "stats": {
-            "hp": "30 + {s_level} * 1.5",
-            "ac": "14",
-            "proficiency_bonus": "{s_prof}",
-            "weapon_bonus": "6",
-            "damage_die": "1d10",
-            "bonus_dmg": "4",
-            "attack_count": "2",
-            "spell_dc": "12 + {s_prof}",
-            "spells": ["fire_breath"],
-            "max_sp": 10,
-            "max_mp": 20
-        }
-    },
-    "young_dragon": {
-        "name_template": "{s_name}'s Young Dragon",
-        "sprites": ["young_dragon1.png", "young_dragon2.png"],
-        "stats": {
-            "hp": "80 + {s_level} * 3",
-            "ac": "16",
-            "proficiency_bonus": "{s_prof}",
-            "weapon_bonus": "8",
-            "damage_die": "2d10",
-            "bonus_dmg": "6",
-            "attack_count": "3",
-            "spell_dc": "14 + {s_prof}",
-            "spells": ["fire_breath", "heal"],
-            "max_sp": 20,
-            "max_mp": 30
+    "summon_list": {
+        "wolf": {
+            "name_template": "{s_name}'s Wolf",
+            "sprites": ["wolf1.png", "wolf2.png"],
+            "category": "beast",
+            "sprite_folder": "assets/sprites/player_sprites/summons",
+            "stats": {
+                "hp": "8 + {s_level}",
+                "ac": "8 + {s_level}//3",
+                "proficiency_bonus": "{s_prof} // 2",
+                "weapon_bonus": "{s_prof} // 2",
+                "damage_die": 6,
+                "bonus_dmg": "{s_level} // 4",
+                "attack_count": "1 + ({s_level} // 10)",
+                "max_sp": 10,
+                "max_mp": 10
+            }
+        },
+        "skeleton": {
+            "name_template": "{s_name}'s Skeleton",
+            "sprites": ["skeleton1.png", "skeleton2.png", "skeleton3.png"],
+            "category": "undead",
+            "sprite_folder": "assets/sprites/player_sprites/summons",
+            "stats": {
+                "hp": "4 + {s_level}",
+                "ac": 12,
+                "proficiency_bonus": "{s_prof} // 2",
+                "weapon_bonus": "{s_prof} // 2",
+                "damage_die": "2d6",
+                "bonus_dmg": "{s_prof} // 2",
+                "attack_count": "{s_level} // 10",
+                "max_sp": 10,
+                "max_mp": 10
+            }
+        },
+        "zombie": {
+            "name_template": "{s_name}'s Zombie",
+            "sprites": ["zombie1.png", "zombie2.png"],
+            "category": "undead",
+            "sprite_folder": "assets/sprites/player_sprites/summons",
+            "stats": {
+                "hp": "7 + {s_level}",
+                "ac": 8,
+                "proficiency_bonus": "{s_prof} // 2",
+                "weapon_bonus": "{s_prof} // 2",
+                "damage_die": "2d6",
+                "bonus_dmg": "{s_prof} // 2",
+                "attack_count": "{s_level} // 10",
+                "max_sp": 10,
+                "max_mp": 10
+            }
+        },
+        "ghoul": {
+            "name_template": "{s_name}'s Ghoul",
+            "sprites": ["ghoul1.png", "ghoul2.png"],
+            "category": "undead",
+            "sprite_folder": "assets/sprites/player_sprites/summons",
+            "stats": {
+                "hp": "11 + {s_level}",
+                "ac": 12,
+                "proficiency_bonus": "{s_prof} // 3",
+                "weapon_bonus": "{s_prof} // 3",
+                "damage_die": "2d10",
+                "bonus_dmg": "{s_prof} // 3",
+                "attack_count": "{s_level} // 10",
+                "on_hit_effect": "sap",
+                "skills": ["putrid_claw"],
+                "max_sp": 10,
+                "max_mp": 10
+            }
+        },
+        "ghast": {
+            "name_template": "{s_name}'s Ghast",
+            "sprites": ["ghast1.png", "ghast2.png"],
+            "category": "undead",
+            "sprite_folder": "assets/sprites/player_sprites/summons",
+            "stats": {
+                "hp": "(18 + {s_level}) * 1.5",
+                "ac": 12,
+                "proficiency_bonus": "{s_prof} // 3",
+                "weapon_bonus": "{s_prof} // 3",
+                "damage_die": "1d12",
+                "bonus_dmg": "{s_prof} // 3",
+                "attack_count": "{s_level} // 10",
+                "on_hit_effect": "sap",
+                "skills": ["putrid_claw"],
+                "max_sp": 10,
+                "max_mp": 10
+            }
+        },
+        "dryad": {
+            "name_template": "{s_name}'s Dryad",
+            "sprites": ["dryad1.png", "dryad2.png"],
+            "category": "fae",
+            "sprite_folder": "assets/sprites/player_sprites/summons",
+            "stats": {
+                "hp": "(17 + {s_level}) * 1.5",
+                "ac": 13,
+                "proficiency_bonus": "{s_prof} // 3",
+                "weapon_bonus": "{s_prof} // 3",
+                "damage_die": "2d6",
+                "bonus_dmg": "{s_prof} // 3",
+                "attack_count": "{s_level} // 10",
+                "spell_dc": "10 + {s_prof}",
+                "spells": ["entangle"],
+                "max_sp": 10,
+                "max_mp": 10
+            }
+        },
+        "vine_blight": {
+            "name_template": "{s_name}'s Vine Blight",
+            "sprites": ["vine_blight1.png", "vine_blight2.png", "vine_blight3.png"],
+            "category": "beast",
+            "sprite_folder": "assets/sprites/player_sprites/summons",
+            "stats": {
+                "hp": "13 + {s_level}",
+                "ac": 12,
+                "proficiency_bonus": "{s_prof} // 2",
+                "weapon_bonus": "{s_prof} // 2",
+                "damage_die": "1d8",
+                "bonus_dmg": "{s_prof} // 2",
+                "attack_count": "{s_level} // 10",
+                "spells": ["entangle"],
+                "max_sp": 10,
+                "max_mp": 10
+            }
+        },
+        "owlbear": {
+            "name_template": "{s_name}'s Owlbear",
+            "sprites": ["owlbear1.png", "owlbear2.png"],
+            "category": "beast",
+            "sprite_folder": "assets/sprites/player_sprites/summons",
+            "stats": {
+                "hp": "(40 + {s_level}) * 2",
+                "ac": "10 + ({s_level} // 3)",
+                "proficiency_bonus": "{s_prof} // 3",
+                "weapon_bonus": "{s_prof} // 3",
+                "damage_die": "10",
+                "bonus_dmg": "{s_prof} // 3",
+                "attack_count": "1 + ({s_level} // 10)",
+                "skills": ["swift_strikes", "gore"],
+                "max_sp": 10,
+                "max_mp": 10
+            }
+        },
+        "wyrmling": {
+            "name_template": "{s_name}'s Wyrmling",
+            "sprites": ["wyrmling1.png", "wyrmling2.png"],
+            "category": "dragon",
+            "sprite_folder": "assets/sprites/player_sprites/summons",
+            "stats": {
+                "hp": "(25 + {s_level}) * 1.5",
+                "ac": 14,
+                "proficiency_bonus": "{s_prof}// 3",
+                "weapon_bonus": "{s_prof}// 3",
+                "damage_die": "1d10",
+                "bonus_dmg": "{s_prof}// 3",
+                "attack_count": "1 + ({s_level} // 10)",
+                "spell_dc": "12 + {s_prof}",
+                "spells": ["fire_breath"],
+                "max_sp": 10,
+                "max_mp": 10
+            }
+        },
+        "young_dragon": {
+            "name_template": "{s_name}'s Young Dragon",
+            "sprites": ["young_dragon1.png", "young_dragon2.png"],
+            "category": "dragon",
+            "sprite_folder": "assets/sprites/player_sprites/summons",
+            "stats": {
+                "hp": "(60 + {s_level}) * 2",
+                "ac": 16,
+                "proficiency_bonus": "{s_prof} // 3",
+                "weapon_bonus": "{s_prof} // 3",
+                "damage_die": "2d10",
+                "bonus_dmg": "{s_prof} // 3",
+                "attack_count": "1 + ({s_level} // 6)",
+                "spell_dc": "14 + {s_prof}",
+                "spells": ["fire_breath"],
+                "max_sp": 10,
+                "max_mp": 10
+            }
         }
     }
 }

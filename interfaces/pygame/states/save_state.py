@@ -1,7 +1,7 @@
 import pygame
 from .base_state import BaseState
 from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.ui.backgrounds import BackgroundManager
+from interfaces.pygame.graphics.backgrounds import BackgroundManager
 from interfaces.pygame.ui.panel import draw_text_outlined
 from core.game_rules.save_manager import SaveManager
 from core.game_rules.constants import scale_y, scale_x, COLOR_WHITE, COLOR_GOLD
@@ -84,6 +84,13 @@ class SaveState(BaseState):
         self.slot_options = [SaveManager.get_slot_info(s) for s in self.slots]
         self.slot_options.append("Back")
         self.menu.set_options(self.slot_options)
+
+    def handle_settings_input(self, events):
+        """Override to prevent opening settings while in the save menu."""
+        return False
+
+    def update(self, events, dt):
+        super().update(events, dt)
 
     def draw(self, screen):
         self.draw_background(screen)

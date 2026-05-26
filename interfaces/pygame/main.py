@@ -29,6 +29,7 @@ music_manager.play_state_music('title')
 game.change_state(TitleState(game, font))
 
 while True:
+    dt = clock.tick(60)
     events = pygame.event.get()
 
     for event in events:
@@ -44,8 +45,7 @@ while True:
 
     screen.fill((30,30,30))
 
-    game.update(events)
+    game.update(events, dt)
     game.draw(screen)
 
     pygame.display.flip()
-    clock.tick(60)

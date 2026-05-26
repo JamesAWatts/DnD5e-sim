@@ -3,7 +3,7 @@ import random
 from interfaces.pygame.states.base_state import BaseState
 from interfaces.pygame.ui.menu import Menu
 from interfaces.pygame.ui.dialogue_box import DialogueBox
-from interfaces.pygame.ui.backgrounds import BackgroundManager
+from interfaces.pygame.graphics.backgrounds import BackgroundManager
 
 from interfaces.pygame.ui.panel import Panel, draw_text_outlined
 from core.game_rules.constants import scale_y, scale_x, COLOR_GOLD, COLOR_WHITE, SCREEN_WIDTH, SCREEN_HEIGHT
@@ -52,7 +52,7 @@ class GameOverState(BaseState):
             pygame.quit()
             exit()
 
-    def update(self, events):
+    def update(self, events, dt):
         # Dialogue handling (same as combat)
         if self.dialogue.current_message:
             self.dialogue.update()
@@ -67,7 +67,7 @@ class GameOverState(BaseState):
             return
 
         # After dialogue → allow menu
-        super().update(events)
+        super().update(events, dt)
 
     def draw(self, screen):
         self.draw_background(screen)

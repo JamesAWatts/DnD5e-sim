@@ -17,7 +17,7 @@ class InventoryPanel:
         if not player: return
 
         # Panel Dimensions (RAW 800x600)
-        raw_pw, raw_ph = 250, 480
+        raw_pw, raw_ph = 250, 510
         # Panel Position (Right Side RAW)
         raw_px, raw_py = 520, 50
 
@@ -46,9 +46,13 @@ class InventoryPanel:
         draw_text_outlined(screen, class_str, self.font, COLOR_GOLD, center_x - cw // 2, curr_y)
         curr_y += line_h + scale_y(15)
 
-        # AC & Spell DC
+        # AC & Spell DC & Proficiency
         ac_str = f"Armor Class: {player.get('ac', 10)}"
         draw_text_outlined(screen, ac_str, self.font, COLOR_WHITE, rect.x + scale_x(15), curr_y)
+        curr_y += line_h
+
+        prof_str = f"Proficiency: +{player.get('proficiency_bonus', 2)}"
+        draw_text_outlined(screen, prof_str, self.font, COLOR_WHITE, rect.x + scale_x(15), curr_y)
         curr_y += line_h
 
         ss_str = f"Spell DC: +{player.get('spell_save', 0)}"

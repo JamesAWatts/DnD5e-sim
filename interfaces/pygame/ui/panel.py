@@ -51,6 +51,10 @@ class Panel:
         self.centered = centered
         self.alpha = alpha
 
+    @property
+    def rect(self):
+        return self.get_rect()
+
     def get_rect(self):
         # Scale EVERYTHING consistently
         sx, sy = scale_x(self.raw_x), scale_y(self.raw_y)

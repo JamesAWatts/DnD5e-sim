@@ -12,10 +12,11 @@ from core.players.player_inventory import create_inventory, add_gold, add_item, 
 from core.players.leveler import update_xp_and_level, xp_to_next_level, get_class_stats_at_level, load_player_classes, add_class_level
 from core.combat.attack_roller import attack_roll, damage_roll
 from core.combat.combat_engine import CombatEngine
+from core.combat.over_time import OverTimeProcessor
 from core.players.shop import visit_shop
 
 def choose_enemies(enemy_data, player_level=1):
-    enemies = get_scaled_enemies(enemy_data, player_level)
+    enemies, category = get_scaled_enemies(player_level, party_size=1)
     names = ", ".join([e['name'].title() for e in enemies])
     print(f"You encountered {names}!")
     input('Press Enter to Roll initiative!\n')
@@ -39,7 +40,16 @@ def simulate_combat(player_data, enemy_list, player_goes_first=True):
 
     # Condition tracking
     player_conditions = {}
-    for e in enemies: e['conditions'] = {}
+    player['active_effects'] = []
+    player['current_hp'] = player_hp
+    player['max_hp'] = player_max_hp
+    player['name'] = player.get('name', 'Player')
+
+    for e in enemies: 
+        e['conditions'] = {}
+        e['active_effects'] = []
+        e['current_hp'] = e.get('hp', 0)
+        e['max_hp'] = e.get('max_hp', e['current_hp'])
 
     consumables_db = load_consumables()
     spells_db = load_spells()
@@ -58,6 +68,18 @@ def simulate_combat(player_data, enemy_list, player_goes_first=True):
         def player_phase():
             nonlocal player_hp, player_advantage, enemy_advantage, p_attack_count, extra_damage_once
             
+            # --- Turn Start: Process Over-Time Effects ---
+            player['current_hp'] = player_hp
+            ot_results = OverTimeProcessor.process_effects(player)
+            for res in ot_results:
+                print(f"  [EFFECT] {res['msg']}")
+            player_hp = player['current_hp']
+            player['hp'] = player_hp
+
+            if player_hp <= 0:
+                print("You have succumbed to lingering damage!")
+                return "ok"
+
             if player_conditions.get('stunned', 0) > 0:
                 print("You are stunned and skip your turn!")
                 player_conditions['stunned'] -= 1
@@ -79,7 +101,10 @@ def simulate_combat(player_data, enemy_list, player_goes_first=True):
                 print("Enemies:")
                 for i, e in enumerate(alive_enemies, 1):
                     cond_str = f" [{', '.join(e['conditions'].keys())}]" if e['conditions'] else ""
-                    print(f"  {i}. {e['name'].title()} (HP: {e['hp']}){cond_str}")
+                    # Show active effects
+                    eff_list = [eff['name'] for eff in e.get('active_effects', [])]
+                    eff_str = f" (Effects: {', '.join(eff_list)})" if eff_list else ""
+                    print(f"  {i}. {e['name'].title()} (HP: {e['hp']}){cond_str}{eff_str}")
 
                 print("\n1. Attack")
                 print("2. Use Item")
@@ -111,16 +136,23 @@ def simulate_combat(player_data, enemy_list, player_goes_first=True):
                             total_damage += dmg
                             print(f"Player hits {target['name']} for {dmg} (roll {res['roll']})")
                             
-                            for effect, val in res['effects']:
-                                if effect == 'player_advantage': player_advantage = val; print("  Vex: Advantage on next attack!")
-                                elif effect == 'enemy_advantage': enemy_advantage = val; print("  Sap: Enemy disadvantage on next attack!")
-                                elif effect == 'heal_attacker':
+                            # Handle effects (Refactored for dicts)
+                            for effect_dict in res['effects']:
+                                e_type = effect_dict.get('type')
+                                val = effect_dict.get('value', 0)
+                                if e_type == 'vex': player_advantage = 1; print("  Vex: Advantage on next attack!")
+                                elif e_type == 'sap': enemy_advantage = -1; print("  Sap: Enemy disadvantage on next attack!")
+                                elif e_type == 'heal_attacker':
                                     player_hp = min(player_max_hp, player_hp + val)
                                     print(f"  Lifesteal: Healed for {val} HP!")
-                                elif effect == 'stunned':
-                                    target['conditions']['stunned'] = val
-                                    print(f"  Effect: {target['name']} is stunned!")
-                                elif effect == 'msg': print(f"  {val}")
+                                elif e_type == 'poisoned':
+                                    target['conditions']['poisoned'] = effect_dict.get('duration', 1)
+                                    print(f"  Effect: {target['name']} is poisoned!")
+                                elif e_type == 'dot' or e_type == 'hot':
+                                    refreshed = OverTimeProcessor.apply_effect(target, effect_dict)
+                                    verb = "refreshed on" if refreshed else "applied to"
+                                    print(f"  Effect: {effect_dict['name']} {verb} {target['name']}!")
+                                elif e_type == 'msg': print(f"  {val}")
                         else:
                             if dmg > 0:
                                 total_damage += dmg
@@ -129,6 +161,7 @@ def simulate_combat(player_data, enemy_list, player_goes_first=True):
                                 print(f"Player misses {target['name']} (roll {res['roll']})")
                     
                     target['hp'] = max(0, target['hp'] - total_damage)
+                    target['current_hp'] = target['hp']
                     print(f"Total damage to {target['name']}: {total_damage}. Remaining HP: {target['hp']}")
                     action_taken = True
                     
@@ -220,37 +253,36 @@ def simulate_combat(player_data, enemy_list, player_goes_first=True):
                                     continue
                                 targets = [alive_enemies[int(t_choice) - 1]]
 
-                            res = CombatEngine.resolve_ability(ability_data, player, targets)
-                            print(res['msg'])
-                            player[resource_key] = current_resource - res.get('mana_cost', cost)
+                            # Use resolve_action to match Pygame logic and get effects
+                            res_list = CombatEngine.resolve_action(player, ability_data, targets)
                             
-                            # Apply damage to targets
-                            dmg_map = res.get('damage_by_target', {})
-                            for target in targets:
-                                dmg = dmg_map.get(id(target), 0)
+                            for res in res_list:
+                                target = res['target']
+                                dmg = res['damage']
+                                heal = res['healing']
+                                
                                 if dmg > 0:
                                     target['hp'] = max(0, target['hp'] - dmg)
+                                    target['current_hp'] = target['hp']
                                     print(f"  {target['name']} took {dmg} damage! (HP: {target['hp']})")
-                            
-                            if res['healing'] > 0:
-                                player_hp = min(player_max_hp, player_hp + res['healing'])
-                                print(f"Ability healed you for {res['healing']} HP!")
                                 
-                            for effect, val in res['effects']:
-                                if effect == 'enemy_advantage':
-                                    enemy_advantage = val
-                                    print("Enemies are disadvantaged!")
-                                elif effect == 'extra_damage':
-                                    extra_damage_once += val
-                                    print(f"Effect: Next hit will deal +{val} damage!")
-                                elif effect == 'heal_attacker':
-                                    player_hp = min(player_max_hp, player_hp + val)
-                                    print(f"Effect: Healed for {val} HP!")
-                                elif effect == 'stunned':
-                                    for target in targets:
-                                        target['conditions']['stunned'] = val
-                                        print(f"Effect: {target['name']} is stunned!")
+                                if heal > 0:
+                                    # Healing in resolve_action targets the target, not necessarily player
+                                    target['hp'] = min(target.get('max_hp', 100), target.get('hp', 0) + heal)
+                                    target['current_hp'] = target['hp']
+                                    if target == player: player_hp = target['hp']
+                                    print(f"  {target['name']} healed for {heal} HP!")
                                 
+                                for effect_dict in res.get('effects', []):
+                                    e_type = effect_dict.get('type')
+                                    if e_type in ['dot', 'hot']:
+                                        if 'active_effects' not in target: target['active_effects'] = []
+                                        target['active_effects'].append(effect_dict)
+                                        print(f"  Effect: {effect_dict['name']} applied to {target['name']}!")
+                                    elif e_type == 'stunned':
+                                        target['conditions']['stunned'] = effect_dict.get('duration', 1)
+                                        print(f"  Effect: {target['name']} is stunned!")
+
                             action_taken = True
                         else:
                             print(f"You used {ability_name.title()}!")
@@ -274,9 +306,20 @@ def simulate_combat(player_data, enemy_list, player_goes_first=True):
             nonlocal player_hp, enemy_advantage
             total_damage = 0
             alive_enemies = get_alive_enemies()
-            from core.combat.enemy_ai import EnemyAI
+            from core.combat.combat_ai import CombatAI
             
             for enemy in alive_enemies:
+                # --- Turn Start: Process Over-Time Effects ---
+                enemy['current_hp'] = enemy['hp']
+                ot_results = OverTimeProcessor.process_effects(enemy)
+                for res in ot_results:
+                    print(f"  [{enemy['name'].upper()} EFFECT] {res['msg']}")
+                enemy['hp'] = enemy['current_hp']
+
+                if enemy['hp'] <= 0:
+                    print(f"{enemy['name'].title()} has succumbed to lingering damage!")
+                    continue
+
                 if enemy['conditions'].get('stunned', 0) > 0:
                     print(f"{enemy['name'].title()} is stunned and skips their turn!")
                     enemy['conditions']['stunned'] -= 1
@@ -292,70 +335,61 @@ def simulate_combat(player_data, enemy_list, player_goes_first=True):
                 attacks_made = 0
                 
                 while attacks_made < max_attacks:
-                    action = EnemyAI.decide_action(enemy)
+                    action = CombatAI.decide_action(enemy)
                     
-                    if action['type'] == 'ability':
-                        ability_data = action['data']
-                        
-                        # Target selection
-                        if ability_data.get('type') == 'heal':
-                            targets = [enemy]
-                        elif ability_data.get('aoe'):
-                            targets = [player] # In CLI 1v1, AOE is just player
-                        else:
-                            targets = [player]
+                    # Ensure Action Data is compatible with resolve_action
+                    action_data = action.get('data', {})
+                    if action['type'] == 'attack':
+                        from core.combat.action_builder import ActionBuilder
+                        action_data = ActionBuilder.build_basic_attack(enemy)
 
-                        res = CombatEngine.resolve_ability(ability_data, enemy, targets)
-                        print(f"{enemy['name']} " + res['msg'][0])
-                        
-                        # Deduct cost
-                        res_type = ability_data.get('resource', 'mp')
-                        enemy[f'current_{res_type}'] -= res.get('mana_cost', 0)
+                    # Target selection
+                    if action_data.get('type') == 'heal':
+                        targets = [enemy]
+                    else:
+                        targets = [player]
 
-                        if res['damage'] > 0:
-                            total_damage += res['damage']
+                    res_list = CombatEngine.resolve_action(enemy, action_data, targets)
+                    
+                    for res in res_list:
+                        target = res['target']
+                        dmg = res['damage']
+                        heal = res['healing']
+
+                        if dmg > 0:
+                            if target == player:
+                                player_hp = max(0, player_hp - dmg)
+                                player['current_hp'] = player_hp
+                                print(f"{enemy['name']} hits you for {dmg} damage!")
+                            else:
+                                target['hp'] = max(0, target['hp'] - dmg)
+                                print(f"{enemy['name']} hits {target['name']} for {dmg} damage!")
                         
-                        if res['healing'] > 0:
-                            enemy['hp'] = min(enemy.get('max_hp', enemy['hp']), enemy['hp'] + res['healing'])
+                        if heal > 0:
+                            target['hp'] = min(target.get('max_hp', 100), target.get('hp', 0) + heal)
+                            print(f"{enemy['name']} healed {target['name']} for {heal} HP!")
 
                         # Apply effects
-                        for effect, val in res['effects']:
-                            if effect == 'stunned':
-                                player_conditions['stunned'] = val
-                                print("  Effect: You are stunned!")
-                        
-                        if ability_data.get('use_attack_count'):
-                            attacks_made += 1
-                        else:
-                            break # Non-multi-hit ability ends turn
-                    else:
-                        # Basic Attack
-                        res = CombatEngine.resolve_attack(enemy, player, advantage=enemy_advantage)
-                        enemy_advantage = 0 
-                        
-                        dmg = max(0, res['damage'] - player.get('damage_resist', 0))
-                        if res['hit']:
-                            total_damage += dmg
-                            print(f"{enemy['name']} hits you for {dmg} damage! (roll {res['roll']})")
-                            
-                            for effect, val in res['effects']:
-                                if effect == 'heal_attacker':
-                                    enemy['hp'] = min(enemy.get('max_hp', enemy['hp']), enemy['hp'] + val)
-                                    print(f"  {enemy['name']} heals for {val} HP!")
-                                elif effect == 'stunned':
-                                    player_conditions['stunned'] = val
+                        for effect_dict in res.get('effects', []):
+                            e_type = effect_dict.get('type')
+                            if e_type in ['dot', 'hot']:
+                                if 'active_effects' not in target: target['active_effects'] = []
+                                target['active_effects'].append(effect_dict)
+                                print(f"  Effect: {effect_dict['name']} applied to {target['name']}!")
+                            elif e_type == 'stunned':
+                                if target == player:
+                                    player_conditions['stunned'] = effect_dict.get('duration', 1)
                                     print("  Effect: You are stunned!")
-                        else:
-                            if dmg > 0:
-                                total_damage += dmg
-                                print(f"{enemy['name']} grazes you for {dmg} damage! (roll {res['roll']})")
-                            else:
-                                print(f"{enemy['name']} misses you! (roll {res['roll']})")
+                                else:
+                                    target['conditions']['stunned'] = effect_dict.get('duration', 1)
                         
+                    if action_data.get('use_attack_count') or action['type'] == 'attack':
                         attacks_made += 1
+                    else:
+                        break # Non-multi-hit ability ends turn
 
             player_hp = max(0, player_hp - total_damage)
-            print(f"Total damage received: {total_damage}. Player HP: {player_hp}\n")
+            print(f"Total damage received this round: {total_damage}. Player HP: {player_hp}\n")
 
         if player_goes_first:
             res = player_phase()
@@ -377,6 +411,11 @@ def simulate_combat(player_data, enemy_list, player_goes_first=True):
     winner = 'player' if player_hp > 0 else 'enemy'
     print(f"Combat ends: {winner.upper()} wins")
     player['hp'] = player_hp 
+
+    # Cleanse party effects after combat
+    from core.combat.combat_resolver import CombatResolver
+    CombatResolver.cleanse_party([player])
+
     return {'winner': winner, 'player_hp': player_hp, 'turns': turn}
 
 

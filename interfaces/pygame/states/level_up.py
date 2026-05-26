@@ -1,7 +1,7 @@
 import os
 from interfaces.pygame.states.base_state import BaseState
 from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.ui.backgrounds import BackgroundManager
+from interfaces.pygame.graphics.backgrounds import BackgroundManager
 from interfaces.pygame.ui.inventory_panel import InventoryPanel
 from core.players.leveler import load_player_classes, add_class_level
 from core.players.player import load_weapons, load_armor, load_shields, load_trinkets
@@ -91,6 +91,9 @@ class LevelUpState(BaseState):
         else:
             from interfaces.pygame.states.hub import HubState
             self.game.change_state(HubState(self.game, self.font))
+
+    def update(self, events, dt):
+        super().update(events, dt)
 
     def draw(self, screen):
         # Draw background manually to avoid super().draw() centering the menu

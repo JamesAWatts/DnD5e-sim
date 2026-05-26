@@ -2,7 +2,7 @@ import pygame
 import os
 from .base_state import BaseState
 from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.ui.backgrounds import BackgroundManager
+from interfaces.pygame.graphics.backgrounds import BackgroundManager
 from interfaces.pygame.ui.panel import draw_text_outlined
 from core.game_rules.constants import scale_y, scale_x, COLOR_WHITE, COLOR_GOLD, SCREEN_WIDTH, SCREEN_HEIGHT
 from core.game_rules.path_utils import get_resource_path
@@ -11,6 +11,9 @@ class TitleState(BaseState):
     def __init__(self, game, font):
         super().__init__(game, font)
         self.background = BackgroundManager.get_title_bg()
+        
+        # Exclude saving from title menu settings
+        self.settings_excluded_options = ["Save Game"]
         
         # Use get_resource_path for dynamic banner loading
         banner_path = get_resource_path(os.path.join("assets", "banner", "Banner_noBG.png"))
@@ -24,14 +27,14 @@ class TitleState(BaseState):
         self.fade_speed = 2
         self.title_pos = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4)
         
-        self.menu = Menu(["New Game", "Load Game", "Settings"], font, width=200, pos=(400, 400))
+        self.menu = Menu(["New Game", "Load Game"], font, width=200, pos=(400, 400))
         self.active_menu = None 
         
         self.state = "FADING" # FADING, PRESS_START, MENU, NAMING
         self.player_name = ""
         self.pulse_time = 0
 
-    def update(self, events):
+    def update(self, events, dt):
         if self.state == "FADING":
             self.title_alpha += self.fade_speed
             if self.title_alpha >= 255:
@@ -56,11 +59,8 @@ class TitleState(BaseState):
                         if self.player_name.strip():
                             # Transition to ClassSelectState with the name
                             from .class_select import ClassSelectState
-                            # We'll store the name temporarily in game.player or similar
-                            # But wait, ClassSelectState creates the player profile.
-                            # I'll modify ClassSelectState to accept a name.
                             self.game.player_name = self.player_name
-                            self.game.change_state(ClassSelectState(self.game, self.font))
+                            self.game.change_state(ClassSelectState(self.game, self.font), transition_type='growth')
                     elif event.key == pygame.K_BACKSPACE:
                         self.player_name = self.player_name[:-1]
                     elif event.unicode.isalnum() or event.unicode in " _-":
@@ -68,7 +68,7 @@ class TitleState(BaseState):
                             self.player_name += event.unicode
             return # Don't update menu if naming
 
-        super().update(events)
+        super().update(events, dt)
 
     def on_select(self, option):
         if option == "New Game":
@@ -77,12 +77,10 @@ class TitleState(BaseState):
         elif option == "Load Game":
             from .save_state import SaveState
             self.game.change_state(SaveState(self.game, self.font, mode="LOAD"))
-        elif option == "Settings":
-            from .settings_state import SettingsState
-            self.game.change_state(SettingsState(self.game, self.font, previous_state=self))
 
     def draw(self, screen):
         self.draw_background(screen)
+        self.draw_settings_button(screen)
         
         # Draw "Valor" title with alpha
         title_font = pygame.font.SysFont(None, scale_y(150))

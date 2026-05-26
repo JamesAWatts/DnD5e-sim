@@ -3,31 +3,26 @@ import os
 import random
 from core.game_rules.path_utils import get_resource_path
 
+from core.game_rules.database_manager import db
+
 def load_enemy_data(category=None):
     """
-    Loads enemy data. 
-    If category is provided (e.g. 'undead'), loads that specific file.
-    If None, can return all or handle as needed. 
+    Loads enemy data from DatabaseManager cache. 
     """
     if category:
-        json_path = get_resource_path(os.path.join('data', 'creatures', f'{category}.json'))
+        return db.get_creatures(category)
     else:
-        # Legacy fallback
-        json_path = get_resource_path(os.path.join('data', 'creatures', 'enemies.json'))
-        
-    try:
-        with open(json_path, 'r', encoding='utf-8-sig') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
+        # Fallback to humanoid if no category provided
+        return db.get_creatures('humanoid')
 
-def get_scaled_enemies(player_level=1, battle_count=0, category=None):
+def get_scaled_enemies(player_level=1, battle_count=0, category=None, party_size=1):
     """
     Phased Budget Encounter System:
     PHASE 1: CATEGORY selection.
     PHASE 2: BUDGET determination.
     PHASE 3: LEADER selection (Every 5th battle).
     PHASE 4: MINION filling.
+    PHASE 5: DENSITY check (Ensures at least 1 enemy per 2 party members).
     """
     # PHASE 1: CATEGORY
     if category is None:
@@ -52,6 +47,7 @@ def get_scaled_enemies(player_level=1, battle_count=0, category=None):
     
     # PHASE 2: BUDGET
     budget = player_level
+    min_density = max(1, party_size // 2)
     encounter = []
 
     # Decide if this is a Boss Fight (Every 5th battle)
@@ -102,6 +98,25 @@ def get_scaled_enemies(player_level=1, battle_count=0, category=None):
         encounter.append(minion)
         current_budget -= m_stats.get('level', 1)
 
+    # PHASE 5: DENSITY CHECK
+    # If the budget ran out but we haven't met minimum density, force-spawn low-cost fillers.
+    if len(encounter) < min_density:
+        # Get tier 1 (Level 1) enemies for this category
+        tier_1 = [e for e in all_enemies if e[1].get('level', 1) <= 1]
+        if not tier_1:
+            # Absolute fallback: Sort by level and take the weakest 3
+            tier_1 = sorted(all_enemies, key=lambda x: x[1].get('level', 1))[:3]
+            
+        while len(encounter) < min_density and len(encounter) < max_enemies:
+            m_name, m_stats = random.choice(tier_1)
+            minion = m_stats.copy()
+            minion['base_name'] = m_name
+            minion['name'] = m_name.replace('_', ' ').title()
+            minion['is_leader'] = False
+            minion['category'] = category
+            encounter.append(minion)
+            print(f"[DEBUG] Density rule forced spawn: {m_name}")
+
     # Safety check: if somehow empty, add at least one
     if not encounter:
         m_name, m_stats = all_enemies[0]
@@ -113,5 +128,5 @@ def get_scaled_enemies(player_level=1, battle_count=0, category=None):
         encounter.append(minion)
 
     battle_type = "BOSS" if is_boss_fight else "STANDARD"
-    print(f"[DEBUG] Generated {battle_type} encounter (Battle #{battle_count}) from '{category}' category. Budget: {budget}")
-    return encounter
+    print(f"[DEBUG] Generated {battle_type} encounter (Battle #{battle_count}) from '{category}' category. Budget: {budget}, Density: {len(encounter)}")
+    return encounter, category

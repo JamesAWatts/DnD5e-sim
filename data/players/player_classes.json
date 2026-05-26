@@ -139,9 +139,9 @@
             "14": { "proficiency_bonus": 5, "cantrip_dice_rolled": 3 },
             "15": { "proficiency_bonus": 5, "cantrip_dice_rolled": 3, "spells": ["fire_storm"] },
             "16": { "proficiency_bonus": 5, "cantrip_dice_rolled": 3 },
-            "17": { "proficiency_bonus": 6, "cantrip_dice_rolled": 4, "spells": ["sunburst"] },
+            "17": { "proficiency_bonus": 6, "cantrip_dice_rolled": 4, "spells": ["meteor_swarm"] },
             "18": { "proficiency_bonus": 6, "cantrip_dice_rolled": 4 },
-            "19": { "proficiency_bonus": 6, "cantrip_dice_rolled": 4, "spells": ["meteor_swarm"] },
+            "19": { "proficiency_bonus": 6, "cantrip_dice_rolled": 4, "spells": ["sunburst"] },
             "20": { "proficiency_bonus": 6, "cantrip_dice_rolled": 4 }
         }
     },
@@ -166,7 +166,7 @@
             "12": { "proficiency_bonus": 4, "cantrip_dice_rolled": 3 },
             "13": { "proficiency_bonus": 5, "cantrip_dice_rolled": 3, "spells": ["prismatic_spray"] },
             "14": { "proficiency_bonus": 5, "cantrip_dice_rolled": 3 },
-            "15": { "proficiency_bonus": 5, "cantrip_dice_rolled": 3, "spells": ["power_word_stun"] },
+            "15": { "proficiency_bonus": 5, "cantrip_dice_rolled": 3, "spells": ["illusory_dragon"] },
             "16": { "proficiency_bonus": 5, "cantrip_dice_rolled": 3 },
             "17": { "proficiency_bonus": 6, "cantrip_dice_rolled": 4, "spells": ["summon_dragon"] },
             "18": { "proficiency_bonus": 6, "cantrip_dice_rolled": 4 },
@@ -197,7 +197,7 @@
             "14": { "proficiency_bonus": 5, "cantrip_dice_rolled": 3 },
             "15": { "proficiency_bonus": 5, "cantrip_dice_rolled": 3, "spells": ["earthquake"]},
             "16": { "proficiency_bonus": 5, "cantrip_dice_rolled": 3 },
-            "17": { "proficiency_bonus": 6, "cantrip_dice_rolled": 4, "spells": ["foresight"]},
+            "17": { "proficiency_bonus": 6, "cantrip_dice_rolled": 4, "spells": ["mass_heal"]},
             "18": { "proficiency_bonus": 6, "cantrip_dice_rolled": 4 },
             "19": { "proficiency_bonus": 6, "cantrip_dice_rolled": 4 , "spells": ["meteor_swarm"]},
             "20": { "proficiency_bonus": 6, "cantrip_dice_rolled": 4 }

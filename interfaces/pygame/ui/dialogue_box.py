@@ -48,13 +48,15 @@ class DialogueBox:
                 self.is_typing = True
         else:
             self.finished = True
-            self.current_message = ""
+            self.current_message = None # Explicitly None to clear 'busy' state
+            self.is_typing = False
 
     # =========================
     # UPDATE
     # =========================
     def update(self):
-        if not self.is_typing:
+        if not self.is_typing or not self.current_message:
+            self.is_typing = False
             return
 
         self.index += self.speed
@@ -69,8 +71,10 @@ class DialogueBox:
     # INPUT HANDLING
     # =========================
     def handle_event(self, event):
+        if not self.current_message: return # Safety
+
         if event.type == pygame.KEYDOWN:
-            if event.key in [pygame.K_RETURN, pygame.K_SPACE]:
+            if event.key in [pygame.K_RETURN, pygame.K_SPACE, pygame.K_KP_ENTER]:
                 if self.is_typing:
                     # Skip to full text
                     self.index = len(self.current_message)
@@ -93,11 +97,11 @@ class DialogueBox:
     # =========================
     def wrap_text(self, text, max_width):
         if not isinstance(text, str): text = str(text)
-        
+
         # Support explicit newlines
         paragraphs = text.split("\n")
         all_lines = []
-        
+
         for para in paragraphs:
             words = para.split(" ")
             current_line = ""
@@ -121,11 +125,10 @@ class DialogueBox:
     # DRAW
     # =========================
     def draw(self, screen):
-        if not self.current_message:
-            return
-
+        # The Panel (the UI box itself) should ALWAYS be drawn 
+        # to act as a consistent visual anchor.
         from core.game_rules.constants import COLOR_GOLD, COLOR_WHITE
-        # Use RAW coordinates (Base Res: 800x600)
+
         panel = Panel(
             400, # Center X
             450, # Near Bottom Y (600 - 150)
@@ -139,22 +142,21 @@ class DialogueBox:
 
         rect = panel.draw(screen)
 
-        max_width = rect.width - scale_y(40)
-        lines = self.wrap_text(self.visible_text, max_width)
+        # Only draw text/indicators if a message is actually active
+        if self.current_message:
+            max_width = rect.width - scale_y(40)
+            lines = self.wrap_text(self.visible_text, max_width)
+            line_height = self.font.get_height()
 
-        line_height = self.font.get_height()
+            from interfaces.pygame.ui.panel import draw_text_outlined
+            max_lines = 8 if getattr(self, 'skip_typing', False) else 3
+            for i, line in enumerate(lines[:max_lines]): 
+                text_x = rect.x + scale_y(20)
+                text_y = rect.y + scale_y(15) + i * line_height
+                draw_text_outlined(screen, line, self.font, COLOR_WHITE, text_x, text_y)
 
-        from interfaces.pygame.ui.panel import draw_text_outlined
-        # Increased line limit for results
-        max_lines = 8 if getattr(self, 'skip_typing', False) else 3
-        for i, line in enumerate(lines[:max_lines]): 
-            text_x = rect.x + scale_y(20)
-            text_y = rect.y + scale_y(15) + i * line_height
-
-            draw_text_outlined(screen, line, self.font, COLOR_WHITE, text_x, text_y)
-
-        # --- Continue indicator ---
-        if not self.is_typing:
-            prompt_x = rect.right - scale_y(40)
-            prompt_y = rect.bottom - scale_y(30)
-            draw_text_outlined(screen, ">>", self.font, COLOR_WHITE, prompt_x, prompt_y)
+            # --- Continue indicator ---
+            if not self.is_typing:
+                prompt_x = rect.right - scale_y(40)
+                prompt_y = rect.bottom - scale_y(30)
+                draw_text_outlined(screen, ">>", self.font, COLOR_WHITE, prompt_x, prompt_y)
