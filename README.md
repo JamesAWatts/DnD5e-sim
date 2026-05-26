@@ -1,7 +1,7 @@
 # Valor
 This project started as a proof of concept for my python studies and has quickly grown into a passion project.
-What started as a dice roller for DnD, turned into a hit calculator, then became a CLI game. Check previous Commits for Simulator.py if you want to play the CLI version!
-Now I'm migrating to Pygame, and creating something I can also plug API's into as a learning experience.
+What started as a dice roller for DnD, has turned into a hybrid of classic JRPG gamplay with D&D combat systems.
+The 1st official alpha of the game will be up on itch.io soon!
 
 # Screenshots
 Title
@@ -18,21 +18,21 @@ Combat
 
 
 #   --- CURRENT FEATURES ---
-1. Implimented a class system similar to Dnd, Multiclassing friendly!
-2. Dice based combat with status effects like Advantage, and much more!
-3. Random encounters that get progressivly more dificult as you level up!
-4. Adventure hub shows party memebers and offers simple navigation to destinations like the shop, tavern, and fights.
-5. Shop & Blacksmith for item progression
-6. Party up with hirable allies from the Tavern
-7. A save system, complete with three slots
-8. HIGH SCORE! > Key actions are tracked and at the end of the game, a score is given
-9. Sprites and light animations ... more to come
-11. Enemies getting smarter, able to use ablities and planning their usage.
-12. Encounters scale with party level, pulling up to 4 enemies into the fray.
-13. valor.exe now available here: https://drive.google.com/drive/folders/17YxxzoRTFG2VOok3hbmiT4EYTFhUklKF (version 0.1.0 > Latest update is version 0.1.1, and not in exe yet)
-    
+1. Dice based combat > Make attack rolls and saving throws with D20's. Damage calculated by dice roll with modifiers added.
+2. Multi-classing > Player characters choose what class to start as, and at level up can stay mono-class, or take a dip into any of the currently availabe classes
+3. Combat animations > Various particel effects for all actions a player can take in comabat. And a bit of screen shake for big hits.
+4. Expanding Hub > The Hub town *grows* as the player's party level increases
+   - Better items at the shop
+   - Improved Tavern Services
+   - Bestiary data/buffs
+5. Push your luck > Consecutive battles without resting will grant some neat bonues
+6. Save / Load > Configured the save mechanic to check if the game is in browser or running locally and save accordingly.
+   - **WARNING** BROWSER BASED SAVES WILL BE DELETED IF YOU CLEAR YOUR CACHE **WARNING**
+  
 #   --- FUTURE LAND ---
 
-1. ANIMATIONS > Looking to add sprites & animations for abilites, stay tuned ...
-2. API INTEGRATION > learning more about APIs and applying it to this game, stay tuned ...
-3. Sprite selection after class selection for player character OR a system that changes the sprite based on armor and weapon, stay tuned...
+1. ANIMATIONS > Looking to expand upon my custopm aniamtions to give all abilies a more unique p[resentation
+2. MOAR DICE > You D&D dice goblins are never satisfied with 1 set of dice. I'll be adding **several** more dice sets.
+3. API INTEGRATION > learning more about APIs and applying it to this game, stay tuned ...
+4. CONTEXTUAL SPRITES > I'd like to make a system that updates the player sprite based on armor and weapon, stay tuned...
+5. GAME WORLD > If the alpha goes well, and generates enough interest, I'll use Godot to make the game world for players to travel in (Concepts for the world map and story have been drafted)
