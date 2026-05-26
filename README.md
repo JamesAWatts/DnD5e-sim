@@ -5,16 +5,19 @@ The 1st official alpha of the game will be up on itch.io soon!
 
 # Screenshots
 Title
-<img width="1276" height="719" alt="image" src="https://github.com/user-attachments/assets/d10072b6-fcfb-4c0c-8161-d7db76e13482" />
+<img width="1282" height="752" alt="image" src="https://github.com/user-attachments/assets/61aa3fa1-50a1-48df-b16b-65b2c3a7bcfe" />
 
 Adventure Hub
-<img width="1277" height="718" alt="image" src="https://github.com/user-attachments/assets/7c5d18e3-8388-4cfb-a7a3-200381b7ea70" />
+<img width="1282" height="752" alt="image" src="https://github.com/user-attachments/assets/e627b468-7e69-4150-88f0-237d218ac89c" />
 
 Tavern
-<img width="1275" height="718" alt="image" src="https://github.com/user-attachments/assets/a6afb41c-ac82-46db-b65a-fdcbaf953cef" />
+<img width="1282" height="752" alt="image" src="https://github.com/user-attachments/assets/c205b820-22a7-4e0f-971e-9ca8c9a3e07b" />
+
+Bestiary
+<img width="1282" height="752" alt="image" src="https://github.com/user-attachments/assets/922220ea-083b-46f6-bcb8-e7c9bf2e5415" />
 
 Combat
-<img width="1276" height="722" alt="image" src="https://github.com/user-attachments/assets/0853fa5e-9b2e-4889-b639-07075ceea24a" />
+<img width="960" height="1032" alt="image" src="https://github.com/user-attachments/assets/a264f48b-c4f3-4b2c-93bf-576db6ba7158" />
 
 
 #   --- CURRENT FEATURES ---
