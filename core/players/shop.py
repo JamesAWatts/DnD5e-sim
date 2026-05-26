@@ -9,36 +9,17 @@ def is_item_unlocked(category, item, party_level):
     bonus = item.get('bonus', 0)
     
     if category == "weapons":
-        # 1. UPPER BOUNDS: Prevent buying overpowered weapons too early
-        # Thresholds: 15 (party lvl 4), 30 (party lvl 8), 45 (party lvl 12)
-        if bonus >= 3 and party_level < 45: return False
-        if bonus >= 2 and party_level < 30: return False
-        if bonus >= 1 and party_level < 15: return False
-        
-        # 2. LOWER BOUNDS: Hide obsolete lower-tier weapons to declutter the shop
-        w_class = item.get('weapon_class', 'simple').lower() 
-        
-        if party_level >= 45:
-            # Hide +1 and below
-            if bonus < 2: return False
-            if w_class == "simple" and cost <= 900: return False
-            if w_class == "martial" and cost <= 1500: return False
-            if w_class == "caster" and cost <= 2000: return False
-            
+        # Strict Tiered Brackets
+        if party_level >= 60:
+            return bonus == 3 # End-game: Legendaries only
+        elif party_level >= 45:
+            return 2 <= bonus <= 3 # High-tier: +2 and +3
         elif party_level >= 30:
-            # Hide base weapons
-            if bonus < 1: return False
-            if w_class == "simple" and cost <= 400: return False
-            if w_class == "martial" and cost <= 800: return False
-            if w_class == "caster" and cost <= 1000: return False
-            
+            return 1 <= bonus <= 2 # Mid-tier: +1 and +2
         elif party_level >= 15:
-            # Hide very cheap base weapons
-            if w_class == "simple" and cost <= 200: return False
-            if w_class == "martial" and cost <= 300: return False
-            if w_class == "caster" and cost <= 400: return False
-            
-        return True # If it passes both upper and lower bounds, show it!
+            return 0 <= bonus <= 1 # Early-Mid: Base and +1
+        else:
+            return bonus == 0 # Early game: Base gear only
         
     elif category == "armor":
         if party_level >= 36: return True # All armor
