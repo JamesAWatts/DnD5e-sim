@@ -6,19 +6,19 @@ import random
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from core.combat.enemy_ai import EnemyAI
+from core.combat.combat_ai import CombatAI
 
 def test_skeleton_turn_1():
     print("\n--- Testing Skeleton Turn 1 (Bone Toss) ---")
     # Skeleton is level 1, starting SP should be (1+3)//4 = 1
-    # Turn 1 regen +1 = 2 SP. Bone Toss cost is 2.
+    # Turn 1 regen +1 = 3 SP (if starting at 2). Bone Toss cost is 3.
     enemy = {
         "name": "skeleton",
         "level": 1,
         "hp": 6, "max_hp": 6, "current_hp": 6,
         "skills": ["bone_toss"],
         "spells": [],
-        "current_sp": 1, "max_sp": 10,
+        "current_sp": 2, "max_sp": 10,
         "current_mp": 1, "max_mp": 10,
         "heal_available": True
     }
@@ -29,7 +29,7 @@ def test_skeleton_turn_1():
     
     print(f"Skeleton resources after regen: SP={enemy['current_sp']}")
     
-    action = EnemyAI.decide_action(enemy)
+    action = CombatAI.decide_action(enemy)
     print(f"Skeleton Action: {action['type']} - {action.get('name', 'N/A')}")
     
     assert action['type'] == 'ability'
@@ -56,7 +56,7 @@ def test_medusa_priority():
     enemy['current_sp'] += 1
     enemy['current_mp'] += 1
     
-    action = EnemyAI.decide_action(enemy)
+    action = CombatAI.decide_action(enemy)
     print(f"Medusa Action (both ready): {action.get('name')}")
     assert action['name'] == 'petrifying_gaze'
     print("SUCCESS: Medusa prioritized higher cost spell.")
@@ -75,13 +75,13 @@ def test_healing_priority():
         "heal_available": True
     }
     
-    action = EnemyAI.decide_action(enemy)
+    action = CombatAI.decide_action(enemy)
     print(f"Harpy Action (HP 50%): {action.get('name')}")
     assert action['name'] == 'lesser_heal'
     assert enemy['heal_available'] == False
     
     # Next turn, heal should be unavailable even if low HP
-    action2 = EnemyAI.decide_action(enemy)
+    action2 = CombatAI.decide_action(enemy)
     print(f"Harpy Action (Next Turn, HP 50%): {action2.get('name')}")
     assert action2['name'] != 'lesser_heal'
     print("SUCCESS: Healing prioritized and consumed correctly.")
@@ -101,22 +101,22 @@ def test_resource_saving():
     }
     
     # Mock ability cost to 5
-    original_get_data = EnemyAI.get_ability_data
+    original_get_data = CombatAI.get_ability_data
     def mock_get_data(name):
         data = original_get_data(name).copy()
         if name == 'heavy_strikes': data['cost'] = 5
         return data
     
-    EnemyAI.get_ability_data = mock_get_data
+    CombatAI.get_ability_data = mock_get_data
     
     # Turn 1: Regen to 1 SP. Need 5. Should attack.
     enemy['current_sp'] += 1
-    action = EnemyAI.decide_action(enemy)
+    action = CombatAI.decide_action(enemy)
     print(f"Goblin Action (1/5 SP): {action['type']}")
     assert action['type'] == 'attack'
     
     # Restore original method
-    EnemyAI.get_ability_data = original_get_data
+    CombatAI.get_ability_data = original_get_data
     print("SUCCESS: Goblin saved resources correctly.")
 
 if __name__ == "__main__":

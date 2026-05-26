@@ -75,7 +75,10 @@ class BatchSimulator:
             else:
                 encounter_level = total_level
             
-            enemies = get_scaled_enemies(encounter_level, category=self.category, battle_count=game.battle_counter)
+            enemies, _ = get_scaled_enemies(encounter_level, 
+                                          category=self.category, 
+                                          battle_count=game.battle_counter,
+                                          party_size=len(game.party))
             game.battle_counter += 1
             
             # Combat loop (Simplified for batch)

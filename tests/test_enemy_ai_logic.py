@@ -5,8 +5,7 @@ import sys
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from core.combat.enemy_ai import EnemyAI
-from core.combat.combat_engine import CombatEngine
+from core.combat.combat_ai import CombatAI
 
 def run_enemy_tests():
     # 1. Load Enemy Data
@@ -53,7 +52,7 @@ def run_enemy_tests():
                 enemy['current_hp'] = enemy['max_hp'] // 3
             
             # AI Decision
-            action = EnemyAI.decide_action(enemy)
+            action = CombatAI.decide_action(enemy)
             
             if action['type'] == 'ability':
                 abilities_triggered.append(action['name'])

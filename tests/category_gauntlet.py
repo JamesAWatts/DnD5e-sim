@@ -79,7 +79,10 @@ class CategorySimulator:
             encounter_level = total_level
         
         # FORCED CATEGORY HERE
-        enemies = get_scaled_enemies(encounter_level, category=self.category, battle_count=self.game.battle_counter)
+        enemies, _ = get_scaled_enemies(encounter_level, 
+                                      category=self.category, 
+                                      battle_count=self.game.battle_counter,
+                                      party_size=len(self.game.party))
         self.game.battle_counter += 1
         
         self.log(f"\n--- {self.category.upper()} COMBAT #{self.game.battle_counter} ---")
