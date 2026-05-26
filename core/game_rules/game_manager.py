@@ -1,6 +1,6 @@
 import pygame
-from interfaces.pygame.ui.debug_overlay import DebugOverlay
-from interfaces.pygame.graphics.transition_manager import TransitionManager
+from ui.debug_overlay import DebugOverlay
+from graphics.transition_manager import TransitionManager
 
 pygame.init()
 
@@ -15,6 +15,7 @@ class GameManager:
         self.music_manager = music_manager
         self.transition_mgr = TransitionManager()
         self.capture_for_flash = False
+        self.running = True # Control flag for the main loop
         
         self.party_member_name = None # Used during hiring process
         self.battle_counter = 0
@@ -142,6 +143,10 @@ class GameManager:
             features += ["Level Up", "Invincible"]
             
         return features
+
+    def quit(self):
+        """Signals the main loop to terminate gracefully."""
+        self.running = False
 
     def draw(self, screen):
         if self.capture_for_flash:
