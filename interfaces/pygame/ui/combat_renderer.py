@@ -1,8 +1,8 @@
 import pygame
 import math
 from core.game_rules.constants import scale_x, scale_y, COLOR_GOLD, COLOR_WHITE, COLOR_GREEN, COLOR_BLUE, COLOR_YELLOW, COLOR_RED
-from interfaces.pygame.ui.bars import draw_bar
-from interfaces.pygame.ui.panel import draw_text_outlined
+from ui.bars import draw_bar
+from ui.panel import draw_text_outlined
 
 class CombatRenderer:
     """

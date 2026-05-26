@@ -1,6 +1,6 @@
 import pygame
 from core.game_rules.constants import scale_x, scale_y, SCREEN_WIDTH, SCREEN_HEIGHT, COLOR_GOLD, COLOR_WHITE
-from interfaces.pygame.ui.panel import Panel, draw_text_outlined
+from ui.panel import Panel, draw_text_outlined
 
 from core.players.player import get_weapon_display_name, get_armor_display_name
 

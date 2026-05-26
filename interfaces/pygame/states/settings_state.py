@@ -1,7 +1,7 @@
 import pygame
 from .base_state import BaseState
-from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.ui.panel import Panel, draw_text_outlined
+from ui.menu import Menu
+from ui.panel import Panel, draw_text_outlined
 from core.game_rules.constants import (
     scale_x, scale_y, SCREEN_WIDTH, SCREEN_HEIGHT, 
     COLOR_WHITE, COLOR_GOLD, COLOR_RED, COLOR_MIDNIGHT_BLUE
@@ -87,9 +87,7 @@ class SettingsState(BaseState):
                 from .title import TitleState
                 self.game.change_state(TitleState(self.game, self.font))
         elif option == "Exit Game":
-            pygame.quit()
-            import sys
-            sys.exit()
+            self.game.quit()
 
     def draw(self, screen):
         # Background

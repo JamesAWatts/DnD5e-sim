@@ -5,23 +5,23 @@ import copy
 import json
 import math
 
-from interfaces.pygame.states.base_state import BaseState
-from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.ui.panel import Panel
-from interfaces.pygame.ui.dialogue_box import DialogueBox
-from interfaces.pygame.ui.bars import draw_bar
+from states.base_state import BaseState
+from ui.menu import Menu
+from ui.panel import Panel
+from ui.dialogue_box import DialogueBox
+from ui.bars import draw_bar
 from core.game_rules.constants import SCREEN_WIDTH, SCREEN_HEIGHT, scale_x, scale_y
 from core.combat.attack_roller import attack_roll, damage_roll
 from core.combat.combat_engine import CombatEngine
 from core.players.player import load_consumables, load_spells, load_skills, validate_player_data
 from core.game_rules.mana_check import ManaCheck
-from interfaces.pygame.ui.backgrounds import BackgroundManager
-from interfaces.pygame.graphics.sprite_manager import SpriteManager
-from interfaces.pygame.ui.floating_text import FloatingTextManager
-from interfaces.pygame.ui.dice_animation import DiceAnimation
-from interfaces.pygame.ui.projectile_manager import ProjectileManager
-from interfaces.pygame.graphics.vfx_manager import VFXManager
-from interfaces.pygame.ui.combat_menus import CombatMenuManager
+from ui.backgrounds import BackgroundManager
+from graphics.sprite_manager import SpriteManager
+from ui.floating_text import FloatingTextManager
+from ui.dice_animation import DiceAnimation
+from ui.projectile_manager import ProjectileManager
+from graphics.vfx_manager import VFXManager
+from ui.combat_menus import CombatMenuManager
 from core.game_rules.path_utils import get_resource_path
 
 
@@ -441,7 +441,7 @@ class CombatState(BaseState):
                     if self.message_queue: self.start_next_message()
                     elif self.phase == "END_COMBAT": self.exit_to_hub()
                     elif self.phase == "LEVEL_UP":
-                        from interfaces.pygame.states.level_up import LevelUpState
+                        from states.level_up import LevelUpState
                         self.game.change_state(LevelUpState(self.game, self.font, player=getattr(self, '_levelup_starter', None)))
 
     def _trigger_post_dialogue_dice(self, pending):
@@ -1035,7 +1035,7 @@ class CombatState(BaseState):
 
         for p in self.party: validate_player_data(p)
         if all(p['current_hp'] <= 0 for p in self.party):
-            from interfaces.pygame.states.game_over import GameOverState
+            from states.game_over import GameOverState
             self.game.change_state(GameOverState(self.game, self.font))
         else:
             from .hub import HubState
@@ -1064,7 +1064,7 @@ class CombatState(BaseState):
 
     def draw(self, screen):
         screen.blit(self.background, (0, 0))
-        from interfaces.pygame.ui.panel import draw_text_outlined
+        from ui.panel import draw_text_outlined
         from core.game_rules.constants import COLOR_WHITE, COLOR_GOLD, COLOR_BLUE, COLOR_YELLOW
         
         if self.phase == "PLAYER_TURN" and self.menu_state == "TARGET_COLUMN":

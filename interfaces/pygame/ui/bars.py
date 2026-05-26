@@ -35,7 +35,7 @@ def draw_bar(screen, x, y, w, h, current, max_val, color, font=None, border_radi
         # Use draw_text_outlined if available for maximum contrast, 
         # or simple render if we need to respect the global alpha
         if alpha == 255:
-            from interfaces.pygame.ui.panel import draw_text_outlined
+            from ui.panel import draw_text_outlined
             draw_text_outlined(screen, text_str, font, (255, 255, 255), tx, ty)
         else:
             txt = font.render(text_str, True, (255, 255, 255))

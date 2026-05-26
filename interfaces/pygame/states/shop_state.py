@@ -1,9 +1,9 @@
 import pygame
-from interfaces.pygame.states.base_state import BaseState
-from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.graphics.backgrounds import BackgroundManager
-from interfaces.pygame.ui.dialogue_box import DialogueBox
-from interfaces.pygame.ui.panel import draw_text_outlined
+from states.base_state import BaseState
+from ui.menu import Menu
+from graphics.backgrounds import BackgroundManager
+from ui.dialogue_box import DialogueBox
+from ui.panel import draw_text_outlined
 from core.game_rules.constants import scale_y, SCREEN_WIDTH, COLOR_GOLD
 from core.players.player import (
     load_weapons, load_armor, load_trinkets, load_shields, 
@@ -202,7 +202,7 @@ class ShopState(BaseState):
                 self.mode = "SELL_CAT"
                 self.refresh_sell_menu()
             elif option == "Back":
-                from interfaces.pygame.states.hub import HubState
+                from states.hub import HubState
                 self.game.change_state(HubState(self.game, self.font))
 
         elif self.mode == "BUY_CAT":

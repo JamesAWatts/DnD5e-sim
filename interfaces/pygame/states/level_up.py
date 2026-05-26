@@ -1,8 +1,8 @@
 import os
-from interfaces.pygame.states.base_state import BaseState
-from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.graphics.backgrounds import BackgroundManager
-from interfaces.pygame.ui.inventory_panel import InventoryPanel
+from states.base_state import BaseState
+from ui.menu import Menu
+from graphics.backgrounds import BackgroundManager
+from ui.inventory_panel import InventoryPanel
 from core.players.leveler import load_player_classes, add_class_level
 from core.players.player import load_weapons, load_armor, load_shields, load_trinkets
 from core.game_rules.constants import COLOR_BG, COLOR_LIGHT_GRAY, SCREEN_WIDTH, scale_x, scale_y
@@ -89,7 +89,7 @@ class LevelUpState(BaseState):
             # Re-init this state with the next player
             self.game.change_state(LevelUpState(self.game, self.font, player=next_player, is_dev_mode=self.is_dev_mode))
         else:
-            from interfaces.pygame.states.hub import HubState
+            from states.hub import HubState
             self.game.change_state(HubState(self.game, self.font))
 
     def update(self, events, dt):
@@ -99,7 +99,7 @@ class LevelUpState(BaseState):
         # Draw background manually to avoid super().draw() centering the menu
         self.draw_background(screen)
 
-        from interfaces.pygame.ui.panel import draw_text_outlined
+        from ui.panel import draw_text_outlined
         title_text = f"Level Up: {self.player.get('name', 'Adventurer')}!"
         tw, th = self.font.size(title_text)
         draw_text_outlined(screen, title_text, self.font, (255, 255, 0), (SCREEN_WIDTH // 2) - (tw // 2), 50)

@@ -1,8 +1,8 @@
 import pygame
 from .base_state import BaseState
-from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.graphics.backgrounds import BackgroundManager
-from interfaces.pygame.ui.panel import draw_text_outlined
+from ui.menu import Menu
+from graphics.backgrounds import BackgroundManager
+from ui.panel import draw_text_outlined
 from core.game_rules.save_manager import SaveManager
 from core.game_rules.constants import scale_y, scale_x, COLOR_WHITE, COLOR_GOLD
 

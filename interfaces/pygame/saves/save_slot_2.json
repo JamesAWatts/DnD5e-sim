@@ -1,0 +1,119 @@
+{
+    "is_party_save": true,
+    "party": [
+        {
+            "hp": 130,
+            "armor": "unarmored",
+            "weapon": "unarmed",
+            "armor_proficiencies": [
+                "none",
+                "shield",
+                "robe"
+            ],
+            "weapon_proficiencies": [
+                "simple"
+            ],
+            "proficiency_bonus": 6,
+            "attack_count": 5,
+            "damage_die": 12,
+            "skills": [
+                "flurry_of_blows",
+                "flowing_strikes",
+                "stunning_strike",
+                "wholeness_of_body",
+                "chakra_blocking",
+                "evasion",
+                "ki_wave",
+                "quivering_palm"
+            ],
+            "class": "monk",
+            "name": "Duke",
+            "xp": 6525,
+            "level": 20,
+            "kill_count": 0,
+            "total_gold_spent": 0,
+            "max_hp": 175,
+            "current_hp": 130,
+            "base_hp": 14,
+            "max_mp": 0,
+            "current_mp": 0,
+            "max_sp": 20,
+            "current_sp": 0,
+            "spells": [],
+            "class_levels": {
+                "monk": 20
+            },
+            "max_hp_base": 175,
+            "max_mp_base": 0,
+            "max_sp_base": 20,
+            "cantrip_dice_rolled": 1,
+            "spell_save_base": 19,
+            "on_hit_effect": "swift",
+            "weapon_bonus": 0,
+            "weapon_range": 1,
+            "weapon_enchantment": null,
+            "crit_on_19": false,
+            "crit_on_18": false,
+            "ac": 8,
+            "armor_base": 8,
+            "armor_bonus": 0,
+            "shield_bonus": 0,
+            "trinket_ac_bonus": 0,
+            "equipment_atk_bonus": 0,
+            "equipment_dmg_bonus": 0,
+            "damage_resist": 0,
+            "initiative_boost": 0,
+            "spell_save": 0,
+            "spell_resist": 2,
+            "inventory_ref": {
+                "gold": 462,
+                "weapon": {},
+                "armor": {},
+                "shield": {},
+                "trinket": {},
+                "consumable": {
+                    "mana_potion": 2
+                },
+                "junk": {
+                    "captain_badge": 1
+                },
+                "key_items": {}
+            },
+            "weapon_upgrades": {},
+            "rest_count": 3,
+            "hub_background": "d:\\GitHub\\python_games\\Valor\\assets\\backgrounds\\hub\\hub_3.png",
+            "screen_pos": [
+                20,
+                200
+            ],
+            "max_hp_combat": 39,
+            "conditions": {},
+            "flash_frames": 0,
+            "flash_type": "damage",
+            "tavern_stats": {
+                "feast_used": false,
+                "drinks_count": 0
+            },
+            "dice_style": "gothic",
+            "dot": false,
+            "dot_dice": 0,
+            "duration": 0,
+            "weapon_type": "melee",
+            "critical": 20,
+            "is_enemy": false,
+            "faction": "party",
+            "is_alive": true,
+            "mp": false,
+            "sp": true,
+            "grid_x": 0,
+            "grid_y": 0,
+            "_combat_pos": [
+                20,
+                200
+            ],
+            "tile_size": [
+                206,
+                106
+            ],
+            "initiative_roll": 3,
+            "_visual_rect": 

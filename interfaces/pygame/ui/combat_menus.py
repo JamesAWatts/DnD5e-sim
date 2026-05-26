@@ -1,8 +1,8 @@
 from click import option
 import pygame
 import os
-from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.ui.panel import Panel, draw_text_outlined
+from ui.menu import Menu
+from ui.panel import Panel, draw_text_outlined
 from core.game_rules.constants import scale_x, scale_y, COLOR_WHITE, COLOR_GOLD, COLOR_ROYAL_BLUE
 from core.combat.ability_baker import AbilityBaker
 

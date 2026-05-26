@@ -1,9 +1,9 @@
 import pygame
 import os
 from .base_state import BaseState
-from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.graphics.backgrounds import BackgroundManager
-from interfaces.pygame.ui.panel import draw_text_outlined
+from ui.menu import Menu
+from graphics.backgrounds import BackgroundManager
+from ui.panel import draw_text_outlined
 from core.game_rules.constants import scale_y, scale_x, COLOR_WHITE, COLOR_GOLD, SCREEN_WIDTH, SCREEN_HEIGHT
 from core.game_rules.path_utils import get_resource_path
 
@@ -109,7 +109,7 @@ class TitleState(BaseState):
         
         # draw_text_outlined doesn't support alpha easily. 
         # I'll draw it to a surface and then blit the surface with alpha.
-        from interfaces.pygame.ui.panel import draw_text_outlined
+        from ui.panel import draw_text_outlined
         # Actually draw_text_outlined draws directly to screen.
         
         # Let's just draw simple text for the fade
@@ -139,7 +139,7 @@ class TitleState(BaseState):
             
         elif self.state == "NAMING":
             # Draw name input box
-            from interfaces.pygame.ui.panel import Panel
+            from ui.panel import Panel
             # Panel expects RAW coordinates (800x600 base)
             from core.game_rules.constants import BASE_WIDTH, BASE_HEIGHT
             panel_w = 400

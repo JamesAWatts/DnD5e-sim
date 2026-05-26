@@ -4,7 +4,7 @@ import random
 import math
 from core.game_rules.path_utils import get_resource_path
 from core.game_rules.constants import scale_x, scale_y, COLOR_RED, COLOR_BLUE, COLOR_YELLOW
-from interfaces.pygame.ui.bars import draw_bar
+from ui.bars import draw_bar
 
 class SpriteManager:
     """
@@ -236,7 +236,7 @@ class SpriteManager:
 
     def _draw_entity_bars(self, screen, entity, pos, size, font, is_party=False):
         """Helper to draw HP and secondary resource bars beneath an entity."""
-        from interfaces.pygame.ui.bars import draw_bar
+        from ui.bars import draw_bar
         from core.game_rules.constants import COLOR_RED, COLOR_BLUE, COLOR_YELLOW, scale_x, scale_y
 
         # Don't draw bars for dead entities

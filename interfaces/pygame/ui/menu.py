@@ -1,6 +1,6 @@
 import pygame
 from core.game_rules.constants import scale_y, scale_x, COLOR_ROYAL_BLUE, COLOR_GOLD
-from interfaces.pygame.ui.panel import Panel
+from ui.panel import Panel
 
 class Menu:
     def __init__(self, options, font, pos=(0, 0), header=None, disabled_indices=None, bg_color=(30, 30, 50), border_color=COLOR_GOLD, alpha=220, width = 100, descriptions=None, initial_selection=0, columns=None):
@@ -208,7 +208,7 @@ class Menu:
         rect = panel.draw(screen) 
         
         self.option_rects = []
-        from interfaces.pygame.ui.panel import draw_text_outlined
+        from ui.panel import draw_text_outlined
         
         # Draw Content (Screen Space from rect)
         draw_center_x = rect.centerx
@@ -273,7 +273,7 @@ class Menu:
 
     def draw_description(self, screen, x, y, raw_w, text, centered=True):
         from core.game_rules.constants import SCALE_X, SCALE_Y, scale_y, scale_x
-        from interfaces.pygame.ui.panel import draw_text_outlined
+        from ui.panel import draw_text_outlined
         
         scaled_w = raw_w * SCALE_X
         words = str(text).split(' ')

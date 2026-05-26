@@ -1,25 +1,25 @@
 import pygame
 import random
-from interfaces.pygame.states.base_state import BaseState
-from interfaces.pygame.ui.combat_menus import CombatMenuManager
-from interfaces.pygame.ui.combat_dialogue import CombatDialogueManager
-from interfaces.pygame.ui.dialogue_box import DialogueBox
+from states.base_state import BaseState
+from ui.combat_menus import CombatMenuManager
+from ui.combat_dialogue import CombatDialogueManager
+from ui.dialogue_box import DialogueBox
 from core.combat.combat_engine import CombatEngine
-from interfaces.pygame.graphics.vfx_manager import VFXManager
+from graphics.vfx_manager import VFXManager
 from core.combat.targeting import TargetingHelper
 from core.players.player import load_consumables, load_spells, load_skills, load_summons
 from core.combat.summoning_helper import SummoningHelper
 from core.creatures.enemies import load_enemy_data
 
 # Visual Managers
-from interfaces.pygame.graphics.backgrounds import BackgroundManager
-from interfaces.pygame.graphics.sprite_manager import SpriteManager
-from interfaces.pygame.graphics.floating_text import FloatingTextManager
-from interfaces.pygame.graphics.dice_animation import DiceAnimation
-from interfaces.pygame.graphics.projectile_manager import ProjectileManager
-from interfaces.pygame.graphics.combat_grid import CombatGridManager
-from interfaces.pygame.graphics.screen_shake import ScreenShake
-from interfaces.pygame.ui.combat_renderer import CombatRenderer
+from graphics.backgrounds import BackgroundManager
+from graphics.sprite_manager import SpriteManager
+from graphics.floating_text import FloatingTextManager
+from graphics.dice_animation import DiceAnimation
+from graphics.projectile_manager import ProjectileManager
+from graphics.combat_grid import CombatGridManager
+from graphics.screen_shake import ScreenShake
+from ui.combat_renderer import CombatRenderer
 from core.combat.action_executor import ActionExecutor
 from core.combat.action_builder import ActionBuilder
 from core.combat.combat_ai import CombatAI
@@ -265,7 +265,7 @@ class CombatStateNew(BaseState):
             if a.get('flash_frames', 0) > 0: a['flash_frames'] -= 1
 
         # 3. Terminal Transitions (High Priority)
-        if self.phase == 'VICTORY_DIALOGUE':
+        if self.phase in ['VICTORY_DIALOGUE', 'ESCAPE_DIALOGUE']:
             if not self.dialogue_mgr.is_busy():
                 self.phase = 'TRANSITIONING' # Lockout to prevent multiple calls
                 from .hub import HubState
@@ -554,6 +554,52 @@ class CombatStateNew(BaseState):
         elif action_type == "CANCEL":
             self.pending_action_data = None
             self._change_menu_state("MAIN")
+
+        elif action_type == "RUN":
+            self._handle_run_attempt()
+
+    def _handle_run_attempt(self):
+        """Calculates and resolves an escape attempt based on party/enemy strength."""
+        living_party = [p for p in self.party if p.get('current_hp', 0) > 0 and not p.get('is_summon')]
+        living_enemies = [e for e in self.enemies if e.get('current_hp', 0) > 0]
+        
+        if not living_party or not living_enemies:
+            self.phase = "END_TURN"
+            return
+
+        # 1. Calculate Totals
+        tpl = sum(p.get('level', 1) for p in living_party)
+        tel = sum(e.get('level', 1) for e in living_enemies)
+        
+        # 2. Base Chance
+        run_chance = 40.0
+        run_lvl = tpl - tel
+        
+        # 3. Apply Scaling if party is stronger/equal or as per formula
+        if run_lvl > 0:
+            # run_scale = enemy_count / living_party_members
+            run_scale = len(living_enemies) / len(living_party)
+            run_chance += (run_lvl * run_scale)
+        
+        # Clamp chance
+        run_chance = min(95.0, run_chance)
+        
+        print(f"[COMBAT] Run Attempt: TPL {tpl}, TEL {tel}, Scale {len(living_enemies)}/{len(living_party)}. Chance: {run_chance:.1f}%")
+
+        # 4. Resolve
+        roll = random.random() * 100
+        if roll < run_chance:
+            self.dialogue_mgr.queue_message("Successful escape! The party fled the battle.")
+            self.phase = 'VICTORY_DIALOGUE' # Reuse victory transition to return to hub
+            # Set a flag or ensure rewards are skipped? 
+            # Actually VICTORY_DIALOGUE calls CombatResolver.apply_victory_rewards in _handle_victory.
+            # I should probably use a dedicated ESCAPE_DIALOGUE or flag it.
+            self.combat_is_resolved = True
+            # Transition to Hub directly after dialogue
+            self.phase = 'ESCAPE_DIALOGUE'
+        else:
+            self.dialogue_mgr.queue_message("Escape failed! The enemies block your path.")
+            self.phase = 'DIALOGUE' # Ends turn after message
 
     def _change_menu_state(self, new_state):
         """Handles transitions between different menu levels."""

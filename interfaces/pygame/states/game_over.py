@@ -1,11 +1,11 @@
 import pygame
 import random
-from interfaces.pygame.states.base_state import BaseState
-from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.ui.dialogue_box import DialogueBox
-from interfaces.pygame.graphics.backgrounds import BackgroundManager
+from states.base_state import BaseState
+from ui.menu import Menu
+from ui.dialogue_box import DialogueBox
+from graphics.backgrounds import BackgroundManager
 
-from interfaces.pygame.ui.panel import Panel, draw_text_outlined
+from ui.panel import Panel, draw_text_outlined
 from core.game_rules.constants import scale_y, scale_x, COLOR_GOLD, COLOR_WHITE, SCREEN_WIDTH, SCREEN_HEIGHT
 
 class GameOverState(BaseState):
@@ -45,12 +45,11 @@ class GameOverState(BaseState):
 
     def on_select(self, option):
         if option == "Play Again":
-            from interfaces.pygame.states.title import TitleState
+            from states.title import TitleState
             self.game.reset_game()
             self.game.change_state(TitleState(self.game, self.font))
         elif option == "Quit":
-            pygame.quit()
-            exit()
+            self.game.quit()
 
     def update(self, events, dt):
         # Dialogue handling (same as combat)

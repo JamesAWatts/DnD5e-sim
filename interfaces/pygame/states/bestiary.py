@@ -3,10 +3,10 @@ import os
 import json
 import random
 from .base_state import BaseState
-from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.graphics.backgrounds import BackgroundManager
-from interfaces.pygame.ui.panel import Panel, draw_text_outlined
-from interfaces.pygame.graphics.sprite_manager import SpriteManager
+from ui.menu import Menu
+from graphics.backgrounds import BackgroundManager
+from ui.panel import Panel, draw_text_outlined
+from graphics.sprite_manager import SpriteManager
 from core.game_rules.path_utils import get_resource_path
 from core.game_rules.constants import SCREEN_WIDTH, SCREEN_HEIGHT, scale_x, scale_y, COLOR_GOLD, COLOR_WHITE, COLOR_GRAY
 
@@ -231,7 +231,7 @@ class BestiaryState(BaseState):
         
         # 3. Draw Sprite safely
         sz = scale_x(180)
-        from interfaces.pygame.graphics.sprite_manager import SpriteManager
+        from graphics.sprite_manager import SpriteManager
         raw_sprite = SpriteManager.get_enemy_sprite(c, size=(sz, sz))
         sprite_surface = None
         

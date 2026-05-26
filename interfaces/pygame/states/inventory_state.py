@@ -1,10 +1,10 @@
 import pygame
 import json
 import os
-from interfaces.pygame.states.base_state import BaseState
-from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.graphics.backgrounds import BackgroundManager
-from interfaces.pygame.ui.dialogue_box import DialogueBox
+from states.base_state import BaseState
+from ui.menu import Menu
+from graphics.backgrounds import BackgroundManager
+from ui.dialogue_box import DialogueBox
 from core.players.player import apply_weapon_to_player, apply_armor_to_player, apply_trinket_to_player, apply_shield_to_player, load_weapons, load_armor, load_trinkets, load_shields, can_equip_armor, get_weapon_display_name, get_armor_display_name, load_consumables
 from core.players.shop import visit_shop
 
@@ -45,7 +45,7 @@ class InventoryState(BaseState):
         # ROOT
         if len(self.menus) == 1:
             if option == "Back":
-                from interfaces.pygame.states.hub import HubState
+                from states.hub import HubState
                 self.game.change_state(HubState(self.game, self.font))
                 return
 
@@ -295,7 +295,7 @@ class InventoryState(BaseState):
                 if result == "BACK" and len(self.menus) > 1:
                     self.menus.pop()
                 elif result == "BACK" and len(self.menus) == 1:
-                    from interfaces.pygame.states.hub import HubState
+                    from states.hub import HubState
                     self.game.change_state(HubState(self.game, self.font))
                 else:
                     self.handle_selection(result)
@@ -308,7 +308,7 @@ class InventoryState(BaseState):
 
         self.draw_settings_button(screen)
 
-        from interfaces.pygame.ui.panel import draw_text_outlined
+        from ui.panel import draw_text_outlined
         from core.game_rules.constants import SCREEN_WIDTH
         
         title_text = "Inventory"

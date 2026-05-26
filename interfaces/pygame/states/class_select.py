@@ -1,10 +1,10 @@
 import pygame
-from interfaces.pygame.states.base_state import BaseState
-from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.graphics.backgrounds import BackgroundManager
-from interfaces.pygame.ui.panel import Panel, draw_text_outlined
+from states.base_state import BaseState
+from ui.menu import Menu
+from graphics.backgrounds import BackgroundManager
+from ui.panel import Panel, draw_text_outlined
 from core.players.player import classes
-from interfaces.pygame.graphics.sprite_manager import SpriteManager
+from graphics.sprite_manager import SpriteManager
 
 class ClassSelectState(BaseState):
     def __init__(self, game, font, hiring=False):

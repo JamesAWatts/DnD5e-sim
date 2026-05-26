@@ -1,6 +1,6 @@
 import pygame
-from interfaces.pygame.ui.panel import Panel
-from interfaces.pygame.ui.icons import draw_cog_icon
+from ui.panel import Panel
+from ui.icons import draw_cog_icon
 
 class BaseState:
     def __init__(self, game, font):

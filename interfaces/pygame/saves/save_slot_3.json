@@ -1,0 +1,91 @@
+{
+    "is_party_save": true,
+    "party": [
+        {
+            "hp": 21,
+            "armor": "unarmored",
+            "weapon": "orb",
+            "armor_proficiencies": [
+                "none",
+                "shield",
+                "robe"
+            ],
+            "weapon_proficiencies": [
+                "simple",
+                "caster"
+            ],
+            "proficiency_bonus": 2,
+            "cantrip_dice_rolled": 1,
+            "spells": [
+                "magic_missile"
+            ],
+            "class": "wizard",
+            "name": "Merlin",
+            "xp": 0,
+            "level": 1,
+            "kill_count": 0,
+            "total_gold_spent": 0,
+            "max_hp": 21,
+            "current_hp": 21,
+            "base_hp": 12,
+            "max_mp": 1,
+            "current_mp": 1,
+            "max_sp": 0,
+            "current_sp": 0,
+            "skills": [],
+            "class_levels": {
+                "wizard": 1
+            },
+            "dice_style": "gothic",
+            "max_hp_base": 21,
+            "max_mp_base": 1,
+            "max_sp_base": 0,
+            "attack_count": 1,
+            "spell_save_base": 10,
+            "damage_die": 4,
+            "on_hit_effect": "vex",
+            "weapon_bonus": 0,
+            "weapon_range": 3,
+            "weapon_enchantment": null,
+            "crit_on_19": false,
+            "crit_on_18": false,
+            "ac": 8,
+            "armor_base": 8,
+            "armor_bonus": 0,
+            "shield_bonus": 0,
+            "trinket_ac_bonus": 0,
+            "equipment_atk_bonus": 0,
+            "equipment_dmg_bonus": 0,
+            "damage_resist": 0,
+            "initiative_boost": 0,
+            "spell_save": 1,
+            "spell_resist": 2,
+            "inventory_ref": {
+                "gold": 0,
+                "weapon": {},
+                "armor": {},
+                "shield": {},
+                "trinket": {},
+                "consumable": {},
+                "junk": {},
+                "key_items": {}
+            },
+            "weapon_upgrades": {},
+            "rest_count": 0,
+            "hub_background": "d:\\GitHub\\python_games\\Valor\\assets\\backgrounds\\hub\\hub_2.png"
+        }
+    ],
+    "inventory": {
+        "gold": 0,
+        "weapon": {},
+        "armor": {},
+        "shield": {},
+        "trinket": {},
+        "consumable": {},
+        "junk": {},
+        "key_items": {}
+    },
+    "battle_counter": 0,
+    "name": "Merlin",
+    "level": 1
+}

@@ -1,10 +1,10 @@
 import pygame
 import random
 from .base_state import BaseState
-from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.graphics.backgrounds import BackgroundManager
-from interfaces.pygame.ui.panel import draw_text_outlined
-from interfaces.pygame.ui.dialogue_box import DialogueBox
+from ui.menu import Menu
+from graphics.backgrounds import BackgroundManager
+from ui.panel import draw_text_outlined
+from ui.dialogue_box import DialogueBox
 from core.game_rules.constants import scale_x, scale_y, SCREEN_WIDTH, SCREEN_HEIGHT, COLOR_GOLD
 from core.players.player import validate_player_data
 from core.players.tavern import (

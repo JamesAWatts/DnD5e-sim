@@ -1,5 +1,5 @@
 import pygame
-from interfaces.pygame.ui.panel import Panel
+from ui.panel import Panel
 from core.game_rules.constants import SCREEN_WIDTH, SCREEN_HEIGHT, scale_y
 
 class DialogueBox:
@@ -148,7 +148,7 @@ class DialogueBox:
             lines = self.wrap_text(self.visible_text, max_width)
             line_height = self.font.get_height()
 
-            from interfaces.pygame.ui.panel import draw_text_outlined
+            from ui.panel import draw_text_outlined
             max_lines = 8 if getattr(self, 'skip_typing', False) else 3
             for i, line in enumerate(lines[:max_lines]): 
                 text_x = rect.x + scale_y(20)

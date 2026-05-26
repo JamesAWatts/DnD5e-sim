@@ -1,10 +1,10 @@
 import pygame
 import random
 from .base_state import BaseState
-from interfaces.pygame.ui.menu import Menu
-from interfaces.pygame.graphics.backgrounds import BackgroundManager
-from interfaces.pygame.ui.panel import Panel, draw_text_outlined
-from interfaces.pygame.ui.inventory_panel import InventoryPanel
+from ui.menu import Menu
+from graphics.backgrounds import BackgroundManager
+from ui.panel import Panel, draw_text_outlined
+from ui.inventory_panel import InventoryPanel
 from core.game_rules.constants import scale_x, scale_y, SCREEN_WIDTH, SCREEN_HEIGHT, COLOR_GOLD, COLOR_WHITE
 from core.players.player import load_weapons, load_armor, load_trinkets, load_shields, validate_player_data
 
@@ -104,7 +104,7 @@ class HubState(BaseState):
             self.game.consecutive_combats = getattr(self.game, 'consecutive_combats', 0) + 1
             self.game.enemies = enemies
             
-            from interfaces.pygame.states.combat_state import CombatStateNew
+            from states.combat_state import CombatStateNew
             self.game.change_state(CombatStateNew(self.game, self.font, player_data=p, enemy_data=enemies), transition_type='random')
 
         elif option == "Shop":
@@ -135,7 +135,7 @@ class HubState(BaseState):
             self.menu_state = "MAIN"
             self.active_menu = self.menu
         else:
-            from interfaces.pygame.Dev_Mode import DevTools
+            from Dev_Mode import DevTools
             # Apply to selected character
             msg = DevTools.apply_dev_action(option, self.game)
             if msg:
@@ -173,7 +173,7 @@ class HubState(BaseState):
         draw_text_outlined(screen, gold_str, self.font, COLOR_GOLD, width // 2 - gw // 2, gold_y)
 
         # --- Player Bars (Top Center) ---
-        from interfaces.pygame.ui.bars import draw_bar
+        from ui.bars import draw_bar
 
         if p:
             bx = width // 2 - scale_x(100)
@@ -222,7 +222,7 @@ class HubState(BaseState):
                          xp_in_level, xp_needed_in_level, (0, 128, 128), self.font)
 
         # --- Draw Party Characters (Rotating Dish) ---
-        from interfaces.pygame.graphics.sprite_manager import SpriteManager
+        from graphics.sprite_manager import SpriteManager
         num_party = len(self.game.party)
         
         # Shift the entire platter left by 50px
