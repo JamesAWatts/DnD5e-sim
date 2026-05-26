@@ -17,8 +17,7 @@ Bestiary
 <img width="1282" height="752" alt="image" src="https://github.com/user-attachments/assets/922220ea-083b-46f6-bcb8-e7c9bf2e5415" />
 
 Combat
-<img width="960" height="1032" alt="image" src="https://github.com/user-attachments/assets/a264f48b-c4f3-4b2c-93bf-576db6ba7158" />
-
+<img width="1282" height="752" alt="image" src="https://github.com/user-attachments/assets/63899b8f-e68c-4725-be6b-4fd950d706ea" />
 
 #   --- CURRENT FEATURES ---
 1. Dice based combat > Make attack rolls and saving throws with D20's. Damage calculated by dice roll with modifiers added.
