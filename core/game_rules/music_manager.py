@@ -22,6 +22,7 @@ class MusicManager:
         self.FADE_DURATION = 0.75 # Seconds per phase (total 1.5s transition)
         self.target_track = None
         self.target_loops = -1
+        self._track_lists = {}
 
         # 2. Force a clean mixer initialization
         if not pygame.mixer.get_init():
@@ -46,11 +47,17 @@ class MusicManager:
             pygame.mixer.music.set_volume(current_vol)
 
             if progress >= 1.0:
-                # Switch tracks
-                self._execute_play(self.target_track, self.target_loops)
-                self.fade_state = 'FADING_IN'
-                self.fade_timer = 0.0
-                pygame.mixer.music.set_volume(0.0)
+                if self.target_track:
+                    # Switch tracks and start fade in
+                    self._execute_play(self.target_track, self.target_loops)
+                    self.fade_state = 'FADING_IN'
+                    self.fade_timer = 0.0
+                    pygame.mixer.music.set_volume(0.0)
+                else:
+                    # Just stop and stay idle at 0 volume
+                    pygame.mixer.music.stop()
+                    self.current_track = None
+                    self.fade_state = 'IDLE'
 
         elif self.fade_state == 'FADING_IN':
             self.fade_timer += dt_ms / 1000.0
@@ -64,6 +71,13 @@ class MusicManager:
                 pygame.mixer.music.set_volume(self.volume)
                 self.fade_state = 'IDLE'
                 self.target_track = None
+
+    def fade_out(self, duration=None):
+        """Initiates a volume fade out of the current music."""
+        if duration: self.FADE_DURATION = duration
+        if self.current_track and pygame.mixer.music.get_busy():
+            self.fade_state = 'FADING_OUT'
+            self.fade_timer = 0.0
 
     def set_volume(self, value):
         """Sets the target volume (0.0 to 1.0)."""
@@ -91,11 +105,11 @@ class MusicManager:
 
         # 1. Map states to their music files/folders
         if 'title' in s_name:
-            new_path = os.path.join(self.music_dir, 'title', 'theme - into the throne v3.mid')
-        elif 'hub' in s_name:
-            new_path = os.path.join(self.music_dir, 'hub', 'scene - prepare for tomorrow.mid')
+            new_path = os.path.join(self.music_dir, 'title', 'theme - into the throne v3.ogg')
+        elif any(x in s_name for x in ['hub', 'shop', 'tavern', 'bestiary', 'inventory']):
+            new_path = os.path.join(self.music_dir, 'hub', 'scene - prepare for tomorrow.ogg')
         elif any(x in s_name for x in ['level_up', 'levelup', 'victory']):
-            new_path = os.path.join(self.music_dir, 'level_up', 'jingle - win.mid')
+            new_path = os.path.join(self.music_dir, 'level_up', 'jingle - win.ogg')
         elif 'combat' in s_name:
             if is_boss:
                 new_path = self._get_random_track('boss')
@@ -108,21 +122,34 @@ class MusicManager:
 
         # 3. Check if we're already playing or transitioning to this exact track
         if new_path == self.current_track or new_path == self.target_track:
+            # If we are the same track, but we've been told to fade out (or are already low volume),
+            # we should start a fade-in to "resume" the audio experience.
+            if self.fade_state == 'FADING_OUT' or pygame.mixer.music.get_volume() < self.volume:
+                self.fade_state = 'FADING_IN'
+                self.fade_timer = 0.0
+                # Ensure we start from 0 to get the full fade-in effect
+                pygame.mixer.music.set_volume(0.0)
             return
 
         # 4. Initiate Fade Transition
         loops = 0 if any(x in s_name for x in ['level_up', 'levelup', 'victory']) else -1
         
-        if self.current_track is None or not pygame.mixer.music.get_busy():
-            # Quick start if nothing is playing
+        # Prepare target
+        self.target_track = new_path
+        self.target_loops = loops
+
+        # Check if we should jump straight to fade-in
+        is_playing = pygame.mixer.music.get_busy()
+        is_faded_out = pygame.mixer.music.get_volume() < 0.02
+        
+        if self.current_track is None or not is_playing or is_faded_out:
+            # Quick start if nothing is playing or already silent
             self._execute_play(new_path, loops)
             self.fade_state = 'FADING_IN'
             self.fade_timer = 0.0
             pygame.mixer.music.set_volume(0.0)
         else:
             # Fade out current, then fade in new
-            self.target_track = new_path
-            self.target_loops = loops
             self.fade_state = 'FADING_OUT'
             self.fade_timer = 0.0
 
@@ -138,12 +165,17 @@ class MusicManager:
             print(f"MusicManager Error: Could not play {path}: {e}")
 
     def _get_random_track(self, folder_name):
-        """Picks a random track from the specified bgm subfolder."""
+        """Picks a random track from the specified bgm subfolder, using caching."""
         folder_path = os.path.join(self.music_dir, folder_name)
-        if not os.path.exists(folder_path):
-            return None
-            
-        tracks = [f for f in os.listdir(folder_path) if f.endswith('.mid')]
+        
+        if folder_path not in self._track_lists:
+            if not os.path.exists(folder_path):
+                self._track_lists[folder_path] = []
+                return None
+            tracks = [f for f in os.listdir(folder_path) if f.endswith('.ogg')]
+            self._track_lists[folder_path] = tracks
+        
+        tracks = self._track_lists[folder_path]
         if not tracks: return None
         if len(tracks) == 1: return os.path.join(folder_path, tracks[0])
 

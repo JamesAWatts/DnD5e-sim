@@ -1,11 +1,11 @@
 {
     "blink_dog": {
         "level": 1,
-        "hp": 12,
+        "hp": 8,
         "armor": 6,
         "die": 6,
         "proficiency_bonus": 2,
-        "crit+": 2,
+        "crit+": 1,
         "attack_range": 1,
         "attack_count": 1,
         "xp": 100,
@@ -21,7 +21,7 @@
         "armor": 5,
         "die": 4,
         "proficiency_bonus": 1,
-        "crit+": 2,
+        "crit+": 1,
         "attack_range": 3,
         "attack_count": 1,
         "xp": 100,
@@ -34,7 +34,7 @@
     "darkling": {
         "level": 2,
         "hp": 15,
-        "armor": 8,
+        "armor": 6,
         "die": 6,
         "proficiency_bonus": 3,
         "crit+": 3,
@@ -46,13 +46,16 @@
         "sneak_attack_rolls": 2,
         "reward": {
             "gold": 15,
-            "items": [{"name": "dark_cloth", "type": "junk"}]
+            "items": [
+                {"name": "dark_cloth", "type": "junk"},
+                {"name": "dagger", "type": "weapon"}
+            ]
         }
     },
     "vine_blight": {
         "level": 3,
         "hp": 26,
-        "armor": 12,
+        "armor": 6,
         "die": 8,
         "proficiency_bonus": 4,
         "crit+": 2,
@@ -63,7 +66,7 @@
         "spells": ["entangle"],
         "reward": {
             "gold": 10,
-            "items": [{"name": "sturdy_vine", "type": "junk"}]
+            "items": [{"name": "staff", "type": "weapon"}]
         }
     },
     "quickling": {
@@ -79,7 +82,10 @@
         "skills": ["swift_strikes"],
         "reward": {
             "gold": 40,
-            "items": [{"name": "feather_of_speed", "type": "trinket"}]
+            "items": [
+                {"name": "feather_of_speed", "type": "trinket"},
+                {"name": "rapier", "type": "weapon"}
+            ]
         }
     },
     "darkling_elder": {
@@ -95,7 +101,10 @@
         "crit+": 3,
         "reward": {
             "gold": 60,
-            "items": [{"name": "eldritch_essence", "type": "junk"}]
+            "items": [
+                {"name": "eldritch_essence", "type": "junk"},
+                {"name": "rapier_1", "type": "weapon"}
+            ]
         }
     },
     "dryad": {
@@ -113,7 +122,10 @@
         "spells": ["entangle", "lesser_heal"],
         "reward": {
             "gold": 80,
-            "items": [{"name": "willow_bark", "type": "junk"}]
+            "items": [
+                {"name": "willow_bark", "type": "junk"},
+                {"name": "breastplate", "type": "armor"}
+            ]
         }
     },
     "green_hag": {
@@ -131,7 +143,10 @@
         "spells": ["darkness", "regenerate"],
         "reward": {
             "gold": 250,
-            "items": [{"name": "hags_eye", "type": "trinket"}]
+            "items": [
+                {"name": "hags_eye", "type": "trinket"},
+                {"name": "staff_1", "type": "weapon"}
+            ]
         }
     },
     "redcap": {
@@ -147,7 +162,10 @@
         "skills": ["swift_strikes"],
         "reward": {
             "gold": 200,
-            "items": [{"name": "bloody_cap", "type": "junk"}]
+            "items": [
+                {"name": "bloody_cap", "type": "junk"},
+                {"name": "dagger_1", "type": "weapon"}
+            ]
         }
     },
     "yeth_hound": {
@@ -164,7 +182,10 @@
         "spells": ["darkness"],
         "reward": {
             "gold": 0,
-            "items": [{"name": "hounds_tooth", "type": "junk"}]
+            "items": [
+                {"name": "hounds_tooth", "type": "junk"},
+                {"name": "kite_shield", "type": "shield"}
+            ]
         }
     },
     "yggdrasti": {
@@ -182,7 +203,10 @@
         "spells": ["entangle", "regenerate"],
         "reward": {
             "gold": 1200,
-            "items": [{"name": "world_tree_leaf", "type": "trinket"}]
+            "items": [
+                {"name": "world_tree_leaf", "type": "trinket"},
+                {"name": "wand_2", "type": "weapon"}
+            ]
         }
     },
     "shambling_mound": {
@@ -199,7 +223,10 @@
         "spells": ["regenerate","charge"],
         "reward": {
             "gold": 500,
-            "items": [{"name": "swamp_core", "type": "trinket"}]
+            "items": [
+                {"name": "swamp_core", "type": "trinket"},
+                {"name": "essence_of_shadow", "type": "junk"}
+            ]
         }
     },
     "treant": {
@@ -216,7 +243,10 @@
         "spells": ["entangle", "regenerate"],
         "reward": {
             "gold": 5000,
-            "items": [{"name": "ancient_amber", "type": "trinket"}]
+            "items": [
+                {"name": "ancient_amber", "type": "trinket"},
+                {"name": "wand_3", "type": "weapon"}
+            ]
         }
     }
 }

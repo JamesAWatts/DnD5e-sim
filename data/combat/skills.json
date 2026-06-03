@@ -95,8 +95,8 @@
             "type": "attack",
             "dice": "2d{damage_die}+{prof}",
             "use_attack_count": true,
-            "attack_count_overide": "+2",
-            "description": "Channel your ki to unleash a blindingly fast barrage of strikes. Modifies your standard attack count by {attack_count_overide}, with each rapid blow dealing {dice} physical damage."
+            "attack_count_override": "+2",
+            "description": "Channel your ki to unleash a blindingly fast barrage of strikes. Modifies your standard attack count by {attack_count_override}, with each rapid blow dealing {dice} physical damage."
         },
         "flowing_strikes": {
             "name": "Flowing Strikes",
@@ -135,10 +135,10 @@
             "type": "attack",
             "dice": "2d{damage_die}+{prof}",
             "use_attack_count": true,
-            "attack_count_overide": "+2",
+            "attack_count_override": "+2",
             "effect": "disadvantage",
             "duration": 3,
-            "description": "Unleash a relentless flurry of targeted strikes to seal the enemy's chakras. Modifies your standard attack count by {attack_count_overide}, with each strike dealing {dice} physical damage. Hits inflict a {power} penalty to the target's rolls ({effect})."
+            "description": "Unleash a relentless flurry of targeted strikes to seal the enemy's chakras. Modifies your standard attack count by {attack_count_override}, with each strike dealing {dice} physical damage. Hits inflict a {power} penalty to the target's rolls ({effect})."
         },
         "evasion": {
             "name": "Evasion",
@@ -312,8 +312,8 @@
             "type": "attack",
             "dice": "2d{damage_die}+{prof}",
             "use_attack_count": true,
-            "attack_count_overide": "*2",
-            "description": "Unleash a blistering volley of arrows in the blink of an eye. Make {attack_count_overide} ranged attacks, each dealing {dice} damage."
+            "attack_count_override": "*2",
+            "description": "Unleash a blistering volley of arrows in the blink of an eye. Make {attack_count_override} ranged attacks, each dealing {dice} damage."
         },
         "explosive_arrow": {
             "name": "Explosive Arrow",

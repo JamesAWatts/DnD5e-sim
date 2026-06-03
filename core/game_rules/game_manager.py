@@ -70,11 +70,34 @@ class GameManager:
         self.debug_overlay = DebugOverlay()
 
     def change_state(self, new_state, transition_type='fade'):
+        # --- 1. LEVEL UP INTERCEPT ---
+        # Check if any party member needs to level up before changing to a non-special state.
+        # This allows us to "pause" the flow to handle character progression.
+        from core.players.leveler import needs_level_up
+        state_name = type(new_state).__name__
+        
+        # We don't intercept if we're already going to LevelUp, Title, or ClassSelect
+        if state_name not in ["LevelUpState", "TitleState", "ClassSelectState"]:
+            levelup_p = next((p for p in self.party if needs_level_up(p)), None)
+            if levelup_p:
+                from states.level_up import LevelUpState
+                # Grab fonts from current state if possible
+                fonts = getattr(self.state, 'fonts', None)
+                if fonts:
+                    print(f"[GAME] Intercepting {state_name} -> LevelUpState for {levelup_p.get('name')}")
+                    new_state = LevelUpState(self, fonts, player=levelup_p)
+                    # Re-check transition type or use default fade
+                    transition_type = 'fade'
+
         # If we already have a state, use a transition
         if self.state and self.transition_mgr:
             self.pending_state = new_state
             self.pending_transition_type = transition_type
             
+            # Start audio fade out early to avoid pops/glitches during transition
+            if self.music_manager:
+                self.music_manager.fade_out()
+
             # Check if this is a combat transition with a leader
             is_combat = type(new_state).__name__ == "CombatState"
             is_leader = any(e.get('is_leader') for e in self.enemies) if is_combat else False
@@ -94,6 +117,18 @@ class GameManager:
             self.transition_mgr.start_transition(is_closing=False, transition_type=t_type)
 
     def _apply_state_change(self, new_state):
+        # Capture previous state name before switching
+        if self.state:
+            previous_name = type(self.state).__name__
+            # Normalize names for consistency
+            if "CombatState" in previous_name: previous_name = "COMBAT_STATE"
+            elif "LevelUpState" in previous_name: previous_name = "LEVEL_UP_STATE"
+            elif "HubState" in previous_name: previous_name = "HUB_STATE"
+            elif "AutoSaveNoticeState" in previous_name: previous_name = "AUTOSAVE_NOTICE"
+            self.previous_state_name = previous_name
+        else:
+            self.previous_state_name = None
+
         self.state = new_state
         # Automatically update music when state changes
         if self.music_manager and new_state:

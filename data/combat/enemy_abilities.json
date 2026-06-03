@@ -90,7 +90,7 @@
             "resource": "mp",
             "type": "save",
             "ranged": true,
-            "effect": "stunned",
+            "effect": "petrified",
             "duration": "{prof/2}",
             "description": "Lock eyes with a target to turn their flesh to stone. The target must succeed on a save or become {effect} for {duration} turns."
         },
@@ -109,9 +109,9 @@
             "resource": "sp",
             "type": "attack",
             "dice": "{prof}d{damage_die}+{prof}",
-            "on_hit_effect": "petrify",
+            "effect": "petrified",
             "duration": "({level}/2)+1",
-            "description": "Slash with a rotting, disease-ridden claw. Deals {dice} necrotic damage. On a hit, inflicts the {on_hit_effect} status for {duration} turns."
+            "description": "Slash with a rotting, disease-ridden claw. Deals {dice} necrotic damage. On a hit, inflicts the {effect} status for {duration} turns."
         },
         "drain_life": {
             "name": "Drain Life",

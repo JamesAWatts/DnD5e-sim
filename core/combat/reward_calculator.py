@@ -15,7 +15,7 @@ def calculate_combat_rewards(defeated_enemies):
         defeated_enemies (list): A list of enemy dictionaries.
         
     Returns:
-        dict: {"total_xp": int, "total_gold": int, "items": [list of item names]}
+        dict: {"total_xp": int, "total_gold": int, "items": [{"name": str, "type": str}]}
     """
     total_xp = 0
     total_gold = 0
@@ -33,26 +33,21 @@ def calculate_combat_rewards(defeated_enemies):
         reward_items = reward_data.get('items', [])
         roll = random.random() * 100
         
-        def get_item_name(item):
-            if isinstance(item, dict):
-                return item.get('name')
-            return item
-
         if len(reward_items) >= 2:
             # 60% chance for Gold, 25% for Item 1, 15% for Item 2
             if roll < 60:
                 total_gold += base_gold
             elif roll < 85:
-                dropped_items.append(get_item_name(reward_items[0]))
+                dropped_items.append(_get_item_info(reward_items[0]))
             else:
-                dropped_items.append(get_item_name(reward_items[1]))
+                dropped_items.append(_get_item_info(reward_items[1]))
                 
         elif len(reward_items) == 1:
             # 60% chance for Gold, 40% for Item 1
             if roll < 60:
                 total_gold += base_gold
             else:
-                dropped_items.append(get_item_name(reward_items[0]))
+                dropped_items.append(_get_item_info(reward_items[0]))
                 
         else:
             # 0 items: Guaranteed extra Gold drop
@@ -61,5 +56,17 @@ def calculate_combat_rewards(defeated_enemies):
     return {
         "total_xp": total_xp,
         "total_gold": total_gold,
-        "items": dropped_items
+        "items": dropped_items # List of {"name": str, "type": str}
+    }
+
+def _get_item_info(item):
+    """Helper to extract name and type from a reward item (string or dict)."""
+    if isinstance(item, dict):
+        return {
+            "name": item.get('name'),
+            "type": item.get('type', 'junk')
+        }
+    return {
+        "name": item,
+        "type": "junk"
     }

@@ -1,60 +1,45 @@
 {
     "goblin": {
-        "level": 2,
-        "hp": 10,
-        "armor": 7,
+        "level": 1,
+        "hp": 8,
+        "armor": 5,
         "die": 6,
         "proficiency_bonus": 2,
-        "crit+": 1,
+        "crit+": 0,
         "attack_range": 1,
         "attack_count": 1,
-        "xp": 150,
-        "skills": ["swift_strikes"],
+        "xp": 100,
         "reward": {
             "gold": 10,
             "items": [
-                {
-                    "name": "dagger",
-                    "type": "weapon"
-                },
-                {
-                    "name": "broken_shield",
-                    "type": "junk"
-                }
+                {"name": "dagger","type": "weapon"},
+                {"name": "broken_shield","type": "junk"}
             ]
         }
     },
     "goblin_archer": {
         "level": 2,
-        "hp": 8,
-        "armor": 8,
+        "hp": 10,
+        "armor": 6,
         "die": 6,
         "proficiency_bonus": 2,
         "crit+": 2,
         "attack_range": 5,
         "attack_count": 1,
         "xp": 150,
-        "skills": [
-            "volley"
-        ],
+        "skills": ["volley"],
         "reward": {
             "gold": 10,
             "items": [
-                {
-                    "name": "shortbow",
-                    "type": "weapon"
-                },
-                {
-                    "name": "tattered_cloak",
-                    "type": "junk"
-                }
+                {"name": "shortbow","type": "weapon"},
+                {"name": "tattered_cloak","type": "junk"}
             ]
         }
     },
     "worg": {
         "level": 3,
         "hp": 26,
-        "armor": 13,
+        "armor": 8,
         "die": 12,
         "proficiency_bonus": 4,
         "crit+": 1,
@@ -65,17 +50,14 @@
         "reward": {
             "gold": 0,
             "items": [
-                {
-                    "name": "worg_fur",
-                    "type": "junk"
-                }
+                {"name": "worg_fur","type": "junk"}
             ]
         }
     },
     "hobgoblin": {
         "level": 3,
         "hp": 25,
-        "armor": 15,
+        "armor": 12,
         "die": 8,
         "proficiency_bonus": 4,
         "crit+": 2,
@@ -86,10 +68,8 @@
         "reward": {
             "gold": 25,
             "items": [
-                {
-                    "name": "chainmail_scrap",
-                    "type": "junk"
-                }
+                {"name": "chainmail_scrap","type": "junk"},
+                {"name": "shield","type": "shield"}
             ]
         }
     },
@@ -103,18 +83,14 @@
         "attack_range": 2,
         "attack_count": 1,
         "xp": 450,
-        "skills": [
-            "sneak_attack"
-        ],
+        "skills": ["sneak_attack"],
         "sneak_attack_die": 6,
         "sneak_attack_rolls": 2,
         "reward": {
             "gold": 30,
             "items": [
-                {
-                    "name": "morningstar",
-                    "type": "weapon"
-                }
+                {"name": "mace","type": "weapon"},
+                {"name": "rabbits_foot","type": "trinket"}
             ]
         }
     },
@@ -133,14 +109,8 @@
         "reward": {
             "gold": 35,
             "items": [
-                {
-                    "name": "axe",
-                    "type": "weapon"
-                },
-                {
-                    "name": "shield",
-                    "type": "shield"
-                }
+                {"name": "axe","type": "weapon"},
+                {"name": "soldiers_mark","type": "trinket"}
             ]
         }
     },
@@ -158,10 +128,8 @@
         "reward": {
             "gold": 50,
             "items": [
-                {
-                    "name": "goblin_lance",
-                    "type": "weapon"
-                }
+                {"name": "goblin_lance","type": "weapon"},
+                {"name": "worg_fur","type": "junk"}
             ]
         }
     },
@@ -179,10 +147,8 @@
         "reward": {
             "gold": 75,
             "items": [
-                {
-                    "name": "giant_club",
-                    "type": "junk"
-                }
+                {"name": "giant_club","type": "junk"},
+                {"name": "amulet_of_health","type": "trinket"}
             ]
         }
     },
@@ -200,14 +166,8 @@
         "reward": {
             "gold": 100,
             "items": [
-                {
-                    "name": "greataxe_1",
-                    "type": "weapon"
-                },
-                {
-                    "name": "chainmail",
-                    "type": "armor"
-                }
+                {"name": "greataxe_1","type": "weapon"},
+                {"name": "splint","type": "armor"}
             ]
         }
     },
@@ -225,10 +185,8 @@
         "reward": {
             "gold": 150,
             "items": [
-                {
-                    "name": "captain_badge",
-                    "type": "trinket"
-                }
+                {"name": "captain_badge","type": "trinket"},
+                {"name": "breastplate","type": "armor"}
             ]
         }
     },
@@ -247,10 +205,8 @@
         "reward": {
             "gold": 200,
             "items": [
-                {
-                    "name": "troll_fat",
-                    "type": "junk"
-                }
+                {"name": "troll_fat","type": "junk"},
+                {"name": "troll_bone_armor","type": "armor"}
             ]
         }
     },
@@ -268,10 +224,8 @@
         "reward": {
             "gold": 400,
             "items": [
-                {
-                    "name": "warlords_banner",
-                    "type": "trinket"
-                }
+                {"name": "warlords_banner","type": "trinket"},
+                {"name": "greataxe_2","type": "weapon"}
             ]
         }
     },
@@ -290,10 +244,8 @@
         "reward": {
             "gold": 600,
             "items": [
-                {
-                    "name": "oni_mask",
-                    "type": "trinket"
-                }
+                {"name": "oni_mask","type": "trinket"},
+                {"name": "naginata","type": "weapon"}
             ]
         }
     },
@@ -311,10 +263,8 @@
         "reward": {
             "gold": 1000,
             "items": [
-                {
-                    "name": "evil_eye_gem",
-                    "type": "trinket"
-                }
+                {"name": "evil_eye_gem","type": "trinket"},
+                {"name": "giant_club","type": "junk"}
             ]
         }
     },
@@ -333,10 +283,8 @@
         "reward": {
             "gold": 2500,
             "items": [
-                {
-                    "name": "troll_bone_armor",
-                    "type": "armor"
-                }
+                {"name": "troll_bone_armor","type": "armor"},
+                {"name": "troll_fat","type": "junk"}
             ]
         }
     }

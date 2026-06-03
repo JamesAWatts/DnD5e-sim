@@ -1,8 +1,8 @@
 {
     "kobold": {
         "level": 1,
-        "hp": 6,
-        "armor": 6,
+        "hp": 8,
+        "armor": 5,
         "die": 4,
         "proficiency_bonus": 1,
         "attack_range": 1,
@@ -17,8 +17,8 @@
     },
     "kobold_slinger": {
         "level": 1,
-        "hp": 4,
-        "armor": 5,
+        "hp": 6,
+        "armor": 4,
         "die": 4,
         "proficiency_bonus": 1,
         "attack_range": 5,
@@ -35,8 +35,8 @@
     },
     "kobold_inventor": {
         "level": 2,
-        "hp": 15,
-        "armor": 8,
+        "hp": 12,
+        "armor": 6,
         "die": 6,
         "proficiency_bonus": 2,
         "crit+": 1,
@@ -116,7 +116,7 @@
     "wyrmling": {
         "level": 6,
         "hp": 55,
-        "armor": 13,
+        "armor": 11,
         "die": 8,
         "proficiency_bonus": 6,
         "crit+": 2,
@@ -168,7 +168,8 @@
         "reward": {
             "gold": 500,
             "items": [
-                {"name": "dragon_hide", "type": "armor"}
+                {"name": "dragon_hide", "type": "armor"},
+                {"name": "dragon_scale", "type": "junk"}
             ]
         }
     },
@@ -208,7 +209,8 @@
         "reward": {
             "gold": 1200,
             "items": [
-                {"name": "dragon_blood", "type": "consumable"}
+                {"name": "dragon_blood", "type": "consumable"},
+                {"name": "glaive_3", "type": "weapon"}
             ]
         }
     },
@@ -227,7 +229,8 @@
         "reward": {
             "gold": 1500,
             "items": [
-                {"name": "massive_shell", "type": "armor"}
+                {"name": "massive_shell", "type": "armor"},
+                {"name": "dragon_scale_shield", "type": "shield"}
             ]
         }
     },
@@ -247,7 +250,8 @@
         "reward": {
             "gold": 2500,
             "items": [
-                {"name": "dragons_claw", "type": "trinket"}
+                {"name": "dragons_claw", "type": "trinket"},
+                {"name": "warhammer_3", "type": "weapon"}
             ]
         }
     },
@@ -267,7 +271,8 @@
         "reward": {
             "gold": 10000,
             "items": [
-                {"name": "orb_of_dragonkind", "type": "trinket"}
+                {"name": "orb_of_dragonkind", "type": "trinket"},
+                {"name": "dragon_scale_shield", "type": "shield"}
             ]
         }
     }

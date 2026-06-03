@@ -7,7 +7,37 @@ class SaveManager:
     _storage = StorageManager()
 
     @staticmethod
+    async def save_game_async(slot, party, inventory=None, battle_counter=0, bestiary_rp=None):
+        """Asynchronous version of save_game for Web/Wasm compatibility."""
+        from core.players.player import serialize_player
+        from core.players.player_inventory import serialize_inventory
+        
+        if not isinstance(party, list):
+            party = [party]
+        lead = party[0] if party else {}
+        if inventory is None and lead:
+            inventory = lead.get('inventory_ref', {})
+
+        serialized_party = [serialize_player(p) for p in party]
+        serialized_inventory = serialize_inventory(inventory)
+
+        raw_save_data = {
+            "is_party_save": True,
+            "party": serialized_party,
+            "inventory": serialized_inventory,
+            "battle_counter": battle_counter,
+            "bestiary_rp": bestiary_rp or {},
+            "name": lead.get('name', 'Unknown'),
+            "level": lead.get('level', 1)
+        }
+        
+        return await SaveManager._storage.save_async(slot, raw_save_data)
+
+    @staticmethod
     def save_game(slot, party, inventory=None, battle_counter=0, bestiary_rp=None):
+        from core.players.player import serialize_player
+        from core.players.player_inventory import serialize_inventory
+        
         # Ensure it's a list
         if not isinstance(party, list):
             party = [party]
@@ -18,17 +48,21 @@ class SaveManager:
         if inventory is None and lead:
             inventory = lead.get('inventory_ref', {})
 
+        # Use explicit serialize methods
+        serialized_party = [serialize_player(p) for p in party]
+        serialized_inventory = serialize_inventory(inventory)
+
         raw_save_data = {
             "is_party_save": True,
-            "party": party,
-            "inventory": inventory, # Global Inventory
+            "party": serialized_party,
+            "inventory": serialized_inventory, # Global Inventory
             "battle_counter": battle_counter,
             "bestiary_rp": bestiary_rp or {},
             "name": lead.get('name', 'Unknown'),
             "level": lead.get('level', 1)
         }
         
-        # Use StorageManager to serialize and save
+        # Use StorageManager to serialize (final pass) and save
         return SaveManager._storage.save(slot, raw_save_data)
 
     @staticmethod

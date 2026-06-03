@@ -113,8 +113,8 @@
             "name": "Minotaur's horn",
             "class": "martial",
             "cost": 1400,
-            "bonus_hp": 20,
-            "bonus_sp": 4,
+            "bonus_hp": 30,
+            "bonus_sp": 5,
             "bonus_atk": 2,
             "bonus_dmg": 2,
             "description": "A horn from a mighty minotaur. +2 to hit and damage, +4 Max Stamina and +20 Max HP."
@@ -153,18 +153,33 @@
             "class": "martial",
             "cost": 800,
             "in_shop": false,
+             "bonus_hp": 15,
+            "bonus_sp": 3,
             "bonus_atk": 2,
-            "bonus_sp": 2,
+            "bonus_dmg": 2,
             "description": "A badge of office for a military captain. +2 to hit, +2 Max Stamina."
+        },
+        "gladiators_belt": {
+            "name": "Gladiator's Belt",
+            "class": "martial",
+            "cost": 1500,
+            "in_shop": false,
+            "bonus_hp": 25,
+            "bonus_sp": 4,
+            "bonus_atk": 2,
+            "bonus_dmg": 2,
+            "description": "A heavy belt awarded to great gladiators. +25 Max HP, +4 SP, and +2 to attack & damage."
         },
         "champions_belt": {
             "name": "Champion's Belt",
             "class": "martial",
             "cost": 2200,
             "in_shop": false,
-            "bonus_hp": 40,
-            "bonus_dmg": 4,
-            "description": "A heavy belt awarded to great gladiators. +40 Max HP, +4 damage."
+            "bonus_hp": 60,
+            "bonus_sp": 5,
+            "bonus_atk": 3,
+            "bonus_dmg": 3,
+            "description": "A heavy belt awarded to great gladiators. +60 Max HP, +5 SP, and +3 to attack & damage."
         },
         "crown_of_skulls": {
             "name": "Crown of Skulls",
@@ -242,8 +257,9 @@
             "cost": 5000,
             "in_shop": false,
             "spell_save": 5,
+            "bonus_atk": 5,
             "bonus_mp": 10,
-            "description": "An artifact of immense draconic power. +5 Spell DC, +10 Max MP."
+            "description": "An artifact of immense draconic power. +5 Spell DC and Attack, +10 Max MP."
         },
         "phylactery": {
             "name": "Phylactery",
@@ -288,9 +304,12 @@
             "class": "all",
             "cost": 3500,
             "in_shop": false,
+            "on_hit_effect": "lifesteal",
+            "bonus_atk": 5,
+            "bonus_dmg": 5,
             "damage_resist": 5,
             "spell_resist": 5,
-            "description": "A core of pure nothingness. +5 Damage Resist, +5 Spell Resist."
+            "description": "A dark core, consuming all it comes in contact with. +5 to Attack, Damage, Damage Resist, and Spell Resist."
         },
         "warlords_banner": {
             "name": "Warlord's Banner",

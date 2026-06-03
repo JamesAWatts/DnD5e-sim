@@ -43,9 +43,9 @@ class CombatMenuController:
     def _handle_action_selection(self, event):
         """Logic for navigating the base action menu."""
         if event.type == pygame.KEYDOWN:
-            if event.key in [pygame.K_UP, pygame.K_w]:
+            if event.key in [pygame.K_UP, pygame.K_w, pygame.K_LEFT, pygame.K_a]:
                 self.action_index = (self.action_index - 1) % len(self.actions)
-            elif event.key in [pygame.K_DOWN, pygame.K_s]:
+            elif event.key in [pygame.K_DOWN, pygame.K_s, pygame.K_RIGHT, pygame.K_d]:
                 self.action_index = (self.action_index + 1) % len(self.actions)
             elif event.key in [pygame.K_RETURN, pygame.K_SPACE]:
                 return self._confirm_action(self.actions[self.action_index])

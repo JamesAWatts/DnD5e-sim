@@ -148,6 +148,15 @@ def display_inventory(inventory):
             print(f"{category_key.title()}: {', '.join(item_strings)}")
     print("-----------------\n")
 
+def serialize_inventory(inventory):
+    """
+    Returns a copy of inventory containing only primitives.
+    """
+    if not inventory: return {}
+    from core.game_rules.storage_adapter import StorageManager
+    sm = StorageManager()
+    return sm.serialize(inventory)
+
 def manage_inventory(player_profile, inventory):
     # Interactive inventory manager for Hub.
     from core.players.player import apply_weapon_to_player, apply_armor_to_player, apply_shield_to_player, apply_trinket_to_player

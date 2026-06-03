@@ -66,14 +66,14 @@ def apply_feast(party, party_level):
     Applies the feast buff to all party members. 
     Restores resources and provides a level-scaled HP buff and stat bonus.
     """
-    # Feast scaling: Level 26 (base), 41 (+1), 51 (+2)
-    mult = 5
+    # Feast scaling: Level 25 (base), 35 (+1), 50 (+2)
+    mult = 3
     stat_bonus = 0
-    if party_level >= 51:
-        mult = 15
+    if party_level >= 50:
+        mult = 5
         stat_bonus = 2
-    elif party_level >= 41:
-        mult = 10
+    elif party_level >= 35:
+        mult = 4
         stat_bonus = 1
         
     for p in party:

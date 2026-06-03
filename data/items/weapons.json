@@ -1076,7 +1076,7 @@
             "crit+": 1,
             "cost": 1500,
             "in_shop": false,
-            "description": "A darkened blade that reeks of evil. +2 bonus, Sap on hit."
+            "description": "A darkened blade that reeks of evil. +3 bonus, Sap on hit."
         },
         "wight_blade": {
             "name": "Wight Blade",
@@ -1104,6 +1104,82 @@
             "cost": 1200,
             "in_shop": false,
             "description": "A weapon crafted from a wyvern's tail. +2 bonus, deals Poison damage."
+        },
+        "vampire_sword": {
+            "name": "Vampire Sword",
+            "type": "melee",
+            "weapon_class": "martial",
+            "attack_range": 1,
+            "die": "2d12",
+            "on_hit_effect": "lifesteal",
+            "bonus": 3,
+            "crit+": 1,
+            "cost": 1500,
+            "in_shop": false,
+            "description": "A cursed blade that drains the life of its victims. +3 bonus, Lifesteal on hit."
+        },
+        "naginata": {
+            "name": "Naginata",
+            "type": "melee",
+            "weapon_class": "martial",
+            "attack_range": 2,
+            "die": "2d10",
+            "on_hit_effect": "graze",
+            "bonus": 2,
+            "cost": 900,
+            "in_shop": false,
+            "description": "A polearm with a curved blade, used by samurai. +2 bonus."
+        },
+        "champion_sword":{
+            "name": "Champion's Sword",
+            "type": "melee",
+            "weapon_class": "martial",
+            "attack_range": 1,
+            "die": "3d8",
+            "on_hit_effect": "vex",
+            "bonus": 3,
+            "crit+": 2,
+            "cost": 2000,
+            "description": "A finely crafted longsword, awarded to champions. It feels perfectly balanced in your hand."
+        },
+        "rod_of_the_archmage": {
+            "name": "Rod of the Archmage",
+            "type": "ranged",
+            "weapon_class": "caster",
+            "attack_range": 3,
+            "die": "2d10",
+            "on_hit_effect": "vex",
+            "bonus": 3,
+            "crit+": 1,
+            "spell_save": 4,
+            "cost": 2500,
+            "description": "A rod imbued with the essence of an archmage. +3 bonus, +4 Spell DC."
+        },
+        "warloards_glaive": {
+            "name": "Warlord's Glaive",
+            "type": "melee",
+            "weapon_class": "martial",
+            "attack_range": 2,
+            "die": "4d10",
+            "on_hit_effect": "graze",
+            "bonus": 3,
+            "crit+": 2,
+            "cost": 2000,
+            "description": "A massive glaive wielded by a legendary warlord. +4 bonus."
+        },
+        "shadow_dagger": {
+            "name": "Shadow Dagger",
+            "type": "melee",
+            "weapon_class": "simple",
+            "attack_range": 1,
+            "die": "2d8",
+            "on_hit_effect": "vex",
+            "bonus": 3,
+            "crit+": 3,
+            "spell_save": 3,
+            "cost": 500,
+            "description": "A dagger forged from shadow, it seems to absorb light. +3 to bonus and +3 Spell DC."
         }
+
     }
 }

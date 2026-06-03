@@ -38,7 +38,15 @@ COLOR_GOLD = (255, 215, 0)
 # =========================
 # FONT
 # =========================
-DEFAULT_FONT_SIZE = 32
+FONT_SIZE_SMALL = 12
+FONT_SIZE_MEDIUM = 26
+FONT_SIZE_LARGE = 38
+FONT_SIZE_XLARGE = 46
+FONT_SIZE_TITLE = 60
+
+
+DEFAULT_FONT_SIZE = FONT_SIZE_MEDIUM
+FONT_PATH = "assets/fonts/Wiltype.ttf"
 
 
 # =========================

@@ -1,7 +1,7 @@
 {
     "cockatrice": {
         "level": 1,
-        "hp": 12,
+        "hp": 8,
         "armor": 5,
         "die": 4,
         "proficiency_bonus": 2,
@@ -12,18 +12,13 @@
         "spells": ["petrifying_gaze"],
         "reward": {
             "gold": 5,
-            "items": [
-                {
-                    "name": "cockatrice_feather",
-                    "type": "junk"
-                }
-            ]
+            "items": [{"name": "cockatrice_feather", "type": "junk"}]
         }
     },
     "deep_roathe": {
         "level": 3,
-        "hp": 40,
-        "armor": 8,
+        "hp": 30,
+        "armor": 7,
         "die": 6,
         "proficiency_bonus": 3,
         "attack_range": 1,
@@ -32,12 +27,7 @@
         "skills": ["gore"],
         "reward": {
             "gold": 5,
-            "items": [
-                {
-                    "name": "roathe_meat",
-                    "type": "consumable"
-                }
-            ]
+            "items": [{"name": "roathe_meat","type": "consumable"}]
         }
     },
     "brown_bear": {
@@ -53,12 +43,7 @@
         "skills": ["cleave"],
         "reward": {
             "gold": 12,
-            "items": [
-                {
-                    "name": "bear_pelt",
-                    "type": "junk"
-                }
-            ]
+            "items": [{"name": "bear_pelt","type": "junk"}]
         }
     },
     "harpy": {
@@ -77,14 +62,8 @@
         "reward": {
             "gold": 20,
             "items": [
-                {
-                    "name": "harpy_feather",
-                    "type": "junk"
-                },
-                {
-                    "name": "ring_of_health",
-                    "type": "trinket"
-                }
+                {"name": "harpy_feather","type": "junk"},
+                {"name": "ring_of_health","type": "trinket"}
             ]
         }
     },
@@ -101,12 +80,7 @@
         "skills": ["swift_strikes"],
         "reward": {
             "gold": 30,
-            "items": [
-                {
-                    "name": "griffon_claw",
-                    "type": "junk"
-                }
-            ]
+            "items": [{"name": "griffon_claw","type": "junk"}]
         }
     },
     "owlbear": {
@@ -122,12 +96,7 @@
         "skills": ["swift_strikes"],
         "reward": {
             "gold": 50,
-            "items": [
-                {
-                    "name": "owlbear_beak",
-                    "type": "junk"
-                }
-            ]
+            "items": [{"name": "owlbear_beak","type": "junk"}]
         }
     },
     "manticore": {
@@ -143,12 +112,7 @@
         "skills": ["stinger_strike"],
         "reward": {
             "gold": 80,
-            "items": [
-                {
-                    "name": "manticore_spine",
-                    "type": "weapon"
-                }
-            ]
+            "items": [{"name": "manticore_spine","type": "weapon"}]
         }
     },
     "bulette": {
@@ -165,10 +129,8 @@
         "reward": {
             "gold": 150,
             "items": [
-                {
-                    "name": "bulette_plate",
-                    "type": "armor"
-                }
+                {"name": "bulette_plate","type": "armor"},
+                {"name": "chainmail_scrap","type": "junk"}
             ]
         }
     },
@@ -187,14 +149,8 @@
         "reward": {
             "gold": 400,
             "items": [
-                {
-                    "name": "greataxe_1",
-                    "type": "weapon"
-                },
-                {
-                    "name": "minotaurs_horn",
-                    "type": "trinket"
-                }
+                {"name": "greataxe_1","type": "weapon"},
+                {"name": "minotaurs_horn","type": "trinket"}
             ]
         }
     },
@@ -218,14 +174,8 @@
         "reward": {
             "gold": 680,
             "items": [
-                {
-                    "name": "snake_scale",
-                    "type": "junk"
-                },
-                {
-                    "name": "archmage_crystal",
-                    "type": "trinket"
-                }
+                {"name": "snake_scale","type": "junk"},
+                {"name": "archmage_crystal","type": "trinket"}
             ]
         }
     },
@@ -244,10 +194,8 @@
         "reward": {
             "gold": 800,
             "items": [
-                {
-                    "name": "hydra_tooth",
-                    "type": "trinket"
-                }
+                {"name": "hydra_tooth","type": "trinket"},
+                {"name": "adamantine_claw","type": "weapon"}
             ]
         }
     },
@@ -266,10 +214,8 @@
         "reward": {
             "gold": 1200,
             "items": [
-                {
-                    "name": "remorhaz_carapace",
-                    "type": "armor"
-                }
+                {"name": "remorhaz_carapace","type": "armor"},
+                {"name": "ancient_amber","type": "trinket"}
             ]
         }
     },
@@ -295,14 +241,8 @@
         "reward": {
             "gold": 1000,
             "items": [
-                {
-                    "name": "minotaurs_horn",
-                    "type": "trinket"
-                },
-                {
-                    "name": "snake_scale",
-                    "type": "junk"
-                }
+                {"name": "minotaurs_horn","type": "trinket"},
+                {"name": "snake_scale","type": "junk"}
             ]
         }
     },
@@ -321,10 +261,8 @@
         "reward": {
             "gold": 2000,
             "items": [
-                {
-                    "name": "worm_toxin",
-                    "type": "consumable"
-                }
+                {"name": "worm_toxin","type": "consumable"},
+                {"name": "adamantite_breastplate", "type": "armor"}
             ]
         }
     },
@@ -344,10 +282,8 @@
         "reward": {
             "gold": 5000,
             "items": [
-                {
-                    "name": "kraken_ink",
-                    "type": "junk"
-                }
+                {"name": "kraken_ink","type": "junk"},
+                {"name": "adamantite_studded_leather","type": "armor"}
             ]
         }
     },
@@ -368,10 +304,8 @@
         "reward": {
             "gold": 25000,
             "items": [
-                {
-                    "name": "tarrasque_heart",
-                    "type": "trinket"
-                }
+                {"name": "tarrasque_heart","type": "trinket"},
+                {"name": "adamantite_plate","type": "armor"}
             ]
         }
     }

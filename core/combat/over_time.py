@@ -38,6 +38,8 @@ class OverTimeProcessor:
             if existing.get('name') == name:
                 existing['duration'] = duration
                 if source_id: existing['source_id'] = source_id
+                if new_effect.get('source_ability'):
+                    existing['source_ability'] = new_effect['source_ability']
                 # Sync conditions dict: (source_id, duration)
                 actor['conditions'][eff_type] = (existing.get('source_id'), duration)
                 return True

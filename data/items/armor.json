@@ -123,7 +123,7 @@
             "damage_resist": 4,
             "description": "Many shaped, interlocking metal plates cover the entire body. +4 Damage Resistance."
         },
-        "plate_armor":{
+        "layered_plate":{
             "type": "heavy",
             "ac":16,
             "cost":2500,
@@ -227,10 +227,22 @@
         "troll_bone_armor":{
             "type": "medium",
             "ac": 13,
+            "damage_resist": 2,
+            "spell_resist": 2,
             "cost": 1500,
             "in_shop": false,
             "bonus_hp": 30,
             "description": "Armor reinforced with troll bones. It seems to pulse with vitality. +30 Max HP."
+        },
+        "dire_troll_bone_armor":{
+            "type": "medium",
+            "ac": 15,
+            "damage_resist": 3,
+            "spell_resist": 3,
+            "cost": 1500,
+            "in_shop": false,
+            "bonus_hp": 50,
+            "description": "Armor reinforced with dire troll bones. +50 Max HP."
         },
         "adamantite_studded_leather": {
             "name": "Adamantite Studded Leather",

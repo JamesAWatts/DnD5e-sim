@@ -55,39 +55,41 @@ class DesktopStorage(StorageBackend):
         return False
 
 class WebStorage(StorageBackend):
-    """File I/O with asyncio synchronization for Emscripten/Pygbag."""
+    """Bypasses Emscripten MEMFS to use browser localStorage directly."""
     def save(self, path, data):
         try:
-            with open(path, 'w', encoding='utf-8') as f:
-                json.dump(data, f, indent=4)
-            
-            # Critical for Emscripten: yield to browser to flush VFS to localStorage
-            # Note: In a sync context, this might need to be handled differently 
-            # if we can't 'await'. For Pygbag, standard open() often works 
-            # if the event loop is allowed to run.
+            import platform
+            platform.window.localStorage.setItem(path, json.dumps(data))
             return True
         except Exception as e:
-            print(f"[STORAGE] Web Save Error: {e}")
+            print(f"[STORAGE] Web Save Error (localStorage): {e}")
             return False
 
     def load(self, path):
-        if not os.path.exists(path):
-            return None
         try:
-            with open(path, 'r', encoding='utf-8') as f:
-                return json.load(f)
+            import platform
+            saved_str = platform.window.localStorage.getItem(path)
+            if saved_str is not None:
+                return json.loads(saved_str)
+            return None
         except Exception as e:
-            print(f"[STORAGE] Web Load Error: {e}")
+            print(f"[STORAGE] Web Load Error (localStorage): {e}")
             return None
 
     def exists(self, path):
-        return os.path.exists(path)
+        try:
+            import platform
+            return platform.window.localStorage.getItem(path) is not None
+        except:
+            return False
 
     def delete(self, path):
-        if os.path.exists(path):
-            os.remove(path)
+        try:
+            import platform
+            platform.window.localStorage.removeItem(path)
             return True
-        return False
+        except:
+            return False
 
 class StorageManager:
     """Adapter that selects the appropriate backend based on platform."""
@@ -106,6 +108,7 @@ class StorageManager:
             os.makedirs(self.save_dir)
 
     def get_path(self, slot):
+        # We keep the path format as the key for localStorage
         return os.path.join(self.save_dir, f"save_slot_{slot}.json")
 
     def serialize(self, data):
@@ -148,7 +151,7 @@ class StorageManager:
         success = self.backend.save(path, serialized)
         
         if self.is_web:
-            # Force browser VFS sync
+            # localStorage is synchronous, but we yield to the browser loop anyway
             await asyncio.sleep(0)
             
         return success

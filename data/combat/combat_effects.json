@@ -1,28 +1,23 @@
 {
-    "Weapon_effects":{
-        "vex": "hits grant self advantage on next attack",
-        "sap": "hits give enemy disadvantage on their next attack",
-        "push": "hits push enemy away by 2",
-        "slow": "hits reduce enemy movement by 2",
-        "graze": "missed attacks deal your bonus in damage",
-        "lifesteal": "hits heal you for half the damage dealt",
-        "swift": "attack_count +=1"
+    "weapon_effects":{
+        "vex": "Hitting a target grants Actor advantage on next attack.", 
+        "sap": "Hitting a target gives target disadvantage on their attacks during their next turn. Sap can only be triggered once per turn, and does not stack.",
+        "slow": "Hitting a target reduces target's attack_count by 1 during their next turn. Slow can only be triggered once per turn, and does not stack.",
+        "graze": "A missed attacks deal actor's {total_bonus} damage to target",
+        "lifesteal": "Hitting a target heals actor for half of total_damage.",
+        "swift": "Hitting a target increases actor's attack_count by 1. Swift can only be triggered once per turn, and does not stack."
     },
-    "Conditions": {
-        "stunned": "skip next turn",
-        "restrained": "cannot move",
-        "swift": "attack_count +=1",
-        "disadvantage":"compares 2 d20 rolls and takes lesser",
-        "advantage":"compares 2 d20 rolls and takes greater",
-        "poisoned": "disadvantage on attack rolls",
-        "blinded": "disadvantage on attack rolls and can't see",
-        "charmed": "can't attack charmer, ends if charmer attacks you",
-        "frightened": "disadvantage on attacks while enemy is in sight",
-        "grappled": "speed becomes 0, can't benefit from bonus to speed",
-        "incapacitated": "can't take actions or reactions",
-        "invisible": "can't be seen without magic, advantage on attack rolls against you",
-        "paralyzed": "incapacitated, can't move, meleeattack rolls against you have advantage, any hit is a critical hit",
-        "petrified": "turns to stone, incapacitated, can't move, can't speak, and is unaware of surroundings",
-        "taunted": "enemies must target caster until effect ends"
+    "conditions": {
+        "stunned": "Target skips their turn for {duration} turns",
+        "disadvantage":"Actor compares 2 d20 rolls and uses the lesser roll",
+        "advantage":"Actor compares 2 d20 rolls and uses the greater roll",
+        "poisoned": "Actor has disadvantage on attack rolls",
+        "blinded": "Actor has disadvantage on attack rolls and cannot use AoE abilities. Attacks against actor have advantage.",
+        "charmed": "Actor can't attack charmer for {duration} turns, ends if charmer attacks you",
+        "frightened": "Actor has disadvantage on attacks against source of fear. Source of fear has advantage on attack rolls against actor.",
+        "invisible": "Actor can't be seen or targeted, and has advantage on attack rolls. Invisibily ends when actor deals damage.",
+        "paralyzed": "Actor is stunned and attack rolls against you have advantage, any hit is a critical hit",
+        "petrified": "Actor is stunned and has double AC for {duration} turns. They are turned to stone for the duration (sprite becomes greyscale).",
+        "taunted": "Actor must target taunter for {duration} turns."
     }
 }

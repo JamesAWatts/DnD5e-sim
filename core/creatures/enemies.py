@@ -83,12 +83,18 @@ def get_scaled_enemies(player_level=1, battle_count=0, category=None, party_size
     # PHASE 4: MINIONS
     # Fill remaining budget with up to 7 more minions (max 8 total)
     max_enemies = 8
+    # SAFETY: Sort affordable to avoid checking non-affordable in a tight loop if logic fails
+    all_enemies_sorted = sorted(all_enemies, key=lambda x: x[1].get('level', 1))
+    
     while current_budget > 0 and len(encounter) < max_enemies:
-        affordable = [e for e in all_enemies if e[1].get('level', 1) <= current_budget]
+        affordable = [e for e in all_enemies_sorted if e[1].get('level', 1) <= current_budget]
         if not affordable:
             break
             
         m_name, m_stats = random.choice(affordable)
+        # Ensure we are actually reducing budget or meeting a termination condition
+        m_lvl = max(1, m_stats.get('level', 1))
+        
         minion = m_stats.copy()
         minion['base_name'] = m_name
         minion['name'] = m_name.replace('_', ' ').title()
@@ -96,7 +102,7 @@ def get_scaled_enemies(player_level=1, battle_count=0, category=None, party_size
         minion['category'] = category
         
         encounter.append(minion)
-        current_budget -= m_stats.get('level', 1)
+        current_budget -= m_lvl
 
     # PHASE 5: DENSITY CHECK
     # If the budget ran out but we haven't met minimum density, force-spawn low-cost fillers.

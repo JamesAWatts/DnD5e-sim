@@ -221,19 +221,26 @@ def apply_armor_to_player(player_data):
     trinket_stats = get_trinket_stats(trinket_name)
 
     armor_type = armor_stats.get('type', 'none')
-    base_ac = armor_stats.get('ac', 10)
-    shield_ac = shield_stats.get('ac', 0)
-    trinket_ac = trinket_stats.get('bonus_ac', 0)
+    base_ac = int(armor_stats.get('ac', 10))
+    shield_ac = int(shield_stats.get('ac', 0))
+    trinket_ac = int(trinket_stats.get('bonus_ac', 0))
 
     proficiency = int(player_data.get('proficiency_bonus', 0))
 
+    # Calculate Proficiency Bonus based on Armor Type
+    # Heavy: No prof bonus to AC (but high base)
+    # Medium: prof/4 (max 2)
+    # Light/None/Robe: prof/2 (max 4)
     bonus = 0
-    if armor_type == 'light':
-        bonus = max(0, proficiency - 1)
+    if armor_type == 'light' or armor_type == 'none' or armor_type == 'robe':
+        bonus = min(4, proficiency // 2)
     elif armor_type == 'medium':
-        bonus = max(0, proficiency - 2)
+        bonus = min(2, proficiency // 4)
+    elif armor_type == 'heavy':
+        bonus = 0
     
-    player_data['ac'] = base_ac + bonus + shield_ac + trinket_ac
+    total_ac = base_ac + bonus + shield_ac + trinket_ac
+    player_data['ac'] = total_ac
     player_data['armor_base'] = base_ac
     player_data['armor_bonus'] = bonus
     player_data['shield_bonus'] = shield_ac
@@ -326,6 +333,19 @@ def apply_armor_to_player(player_data):
 
     return player_data
 
+def serialize_player(player_data):
+    """
+    Returns a copy of player_data containing only primitives (strings, ints, lists, dicts).
+    Ensures Web/Wasm compatibility by stripping runtime-only objects like Surfaces.
+    """
+    if not player_data: return {}
+    
+    # We use a whitelist of keys to be safe, or just filter out non-primitives.
+    # Given the project structure, filtering out '_' keys and non-primitives is best.
+    from core.game_rules.storage_adapter import StorageManager
+    sm = StorageManager()
+    return sm.serialize(player_data)
+
 def apply_shield_to_player(player_data, shield_name=None):
     if shield_name:
         player_data['shield'] = shield_name
@@ -338,28 +358,35 @@ def apply_trinket_to_player(player_data, trinket_name=None):
 
 def apply_consumable_effect(player, item_res):
     """
-    Applies the results of a consumable item (from CombatEngine.resolve_item) to a player.
+    Applies the results of a consumable item (from CombatEngine.resolve_item or resolve_action) to a player.
     """
-    if item_res.get('hp_gain', 0) > 0:
+    hp_gain = item_res.get('hp_gain', item_res.get('healing', 0))
+    if hp_gain > 0:
         max_hp = player.get('max_hp_combat', player.get('max_hp', 10))
-        player['current_hp'] = min(max_hp, player.get('current_hp', 0) + item_res['hp_gain'])
+        player['current_hp'] = min(max_hp, player.get('current_hp', 0) + hp_gain)
         player['hp'] = player['current_hp']
         
-    if item_res.get('mana_gain', 0) > 0:
+    mana_gain = item_res.get('mana_gain', 0)
+    if mana_gain > 0:
         max_mp = player.get('max_mp', 0)
-        player['current_mp'] = min(max_mp, player.get('current_mp', 0) + item_res['mana_gain'])
+        player['current_mp'] = min(max_mp, player.get('current_mp', 0) + mana_gain)
         
-    if item_res.get('stamina_gain', 0) > 0:
+    stamina_gain = item_res.get('stamina_gain', 0)
+    if stamina_gain > 0:
         max_sp = player.get('max_sp', 0)
-        player['current_sp'] = min(max_sp, player.get('current_sp', 0) + item_res['stamina_gain'])
+        player['current_sp'] = min(max_sp, player.get('current_sp', 0) + stamina_gain)
         
-    if item_res.get('bonus_gain', 0) > 0:
+    bonus_gain = item_res.get('bonus_gain', 0)
+    if bonus_gain > 0:
         # Buffs like Grind Stone
-        player['weapon_bonus'] = player.get('weapon_bonus', 0) + item_res['bonus_gain']
+        player['weapon_bonus'] = player.get('weapon_bonus', 0) + bonus_gain
+        # Also apply to damage if appropriate
+        player['weapon_dmg_bonus'] = player.get('weapon_dmg_bonus', 0) + bonus_gain
         
-    if item_res.get('attack_gain', 0) > 0:
+    attack_gain = item_res.get('attack_gain', 0)
+    if attack_gain > 0:
         # Extra attacks (temporary)
-        player['attack_count'] = player.get('attack_count', 1) + item_res['attack_gain']
+        player['attack_count'] = player.get('attack_count', 1) + attack_gain
 
 def choose_player_class(class_data):
     class_names = list(class_data.keys())

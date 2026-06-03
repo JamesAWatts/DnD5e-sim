@@ -34,6 +34,7 @@ class DatabaseManager:
         self._data['shields'] = self._load_json('items', 'shields.json', 'shield_list')
         self._data['trinkets'] = self._load_json('items', 'trinkets.json', 'trinket_list')
         self._data['consumables'] = self._load_json('items', 'consumables.json', 'consumable_list')
+        self._data['junk'] = self._load_json('items', 'junk.json', 'junk_list')
 
         # Player Data
         self._data['classes'] = self._load_json('players', 'player_classes.json')
@@ -75,6 +76,7 @@ class DatabaseManager:
     def get_shields(self): return self.get_data('shields')
     def get_trinkets(self): return self.get_data('trinkets')
     def get_consumables(self): return self.get_data('consumables')
+    def get_junk(self): return self.get_data('junk')
     def get_classes(self): return self.get_data('classes')
     def get_creatures(self, category): return self.get_data('creatures', category)
 

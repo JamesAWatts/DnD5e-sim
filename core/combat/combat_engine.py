@@ -100,6 +100,11 @@ class CombatEngine:
             damage_formula = action_data.get('damage', action_data.get('dice', 0))
             healing_formula = action_data.get('healing', 0)
 
+        mana_gain_formula = action_data.get('mana_gain', 0)
+        stamina_gain_formula = action_data.get('stamina_gain', 0)
+        bonus_gain_formula = action_data.get('bonus_gain', 0)
+        attack_gain_formula = action_data.get('attack_gain', 0)
+
         # 3. Deduct Cost
         cost_raw = action_data.get('cost', 0)
         cost = 0
@@ -167,7 +172,7 @@ class CombatEngine:
                 # Saves always "hit" but damage may be halved later
                 is_hit = True
 
-            # --- 5. DAMAGE / HEALING RESOLUTION ---
+            # --- 5. DAMAGE / HEALING / RESOURCE RESOLUTION ---
             damage = 0
             if is_hit:
                 if damage_formula:
@@ -189,6 +194,26 @@ class CombatEngine:
                 h_form = CombatEngine._resolve_math(str(healing_formula), placeholders)
                 h_form = CombatEngine.evaluate_dynamic_tags(h_form, actor, target)
                 healing = CombatEngine._parse_math_string(actor, h_form)
+
+            mana_gain = 0
+            if mana_gain_formula:
+                m_form = CombatEngine._resolve_math(str(mana_gain_formula), placeholders)
+                mana_gain = CombatEngine._parse_math_string(actor, m_form)
+
+            stamina_gain = 0
+            if stamina_gain_formula:
+                s_form = CombatEngine._resolve_math(str(stamina_gain_formula), placeholders)
+                stamina_gain = CombatEngine._parse_math_string(actor, s_form)
+
+            bonus_gain = 0
+            if bonus_gain_formula:
+                b_form = CombatEngine._resolve_math(str(bonus_gain_formula), placeholders)
+                bonus_gain = CombatEngine._parse_math_string(actor, b_form)
+
+            attack_gain = 0
+            if attack_gain_formula:
+                at_form = CombatEngine._resolve_math(str(attack_gain_formula), placeholders)
+                attack_gain = CombatEngine._parse_math_string(actor, at_form)
 
             # --- 6. EFFECTS (DOT/HOT) ---
             effects = []
@@ -253,6 +278,10 @@ class CombatEngine:
             res_payload.update({
                 "damage": damage,
                 "healing": healing,
+                "mana_gain": mana_gain,
+                "stamina_gain": stamina_gain,
+                "bonus_gain": bonus_gain,
+                "attack_gain": attack_gain,
                 "effects": effects
             })
             results.append(res_payload)
@@ -299,6 +328,47 @@ class CombatEngine:
         return res
 
     @staticmethod
+    def _trigger_on_hit_effects(attacker, target, damage, hit=True):
+        """Helper to collect on-hit (and on-miss) weapon effects."""
+        effects = []
+        messages = []
+        
+        effect_type = attacker.get('on_hit_effect', '').lower()
+        duration = int(attacker.get('duration', 1))
+        prof = int(attacker.get('proficiency_bonus', 0))
+        attacker_name = attacker.get('name', 'Attacker')
+        target_name = target.get('name', 'Target')
+
+        if hit:
+            if effect_type == 'vex':
+                # Vex: hits grant self advantage on next attack
+                effects.append({'name': 'Vex', 'type': 'advantage_next', 'duration': duration, 'target_source': True})
+                messages.append(f"Vex applied to {attacker_name}.")
+            elif effect_type == 'sap':
+                # Sap: hits give enemy disadvantage on their next attack
+                effects.append({'name': 'Sap', 'type': 'disadvantage_next', 'duration': duration})
+                messages.append(f"Sap applied to {target_name}.")
+            elif effect_type == 'poison':
+                effects.append({'name': 'Poisoned', 'type': 'poisoned', 'duration': duration})
+                messages.append(f"Poisoned applied to {target_name}.")
+            elif effect_type == 'lifesteal':
+                heal_amt = max(1, damage // 2)
+                effects.append({'name': 'Lifesteal', 'type': 'heal_attacker', 'value': heal_amt, 'target_source': True})
+                messages.append(f"Lifesteal applied to {attacker_name}.")
+            elif effect_type == 'swift':
+                # Swift: attack_count += 1, only triggers once per turn
+                effects.append({'name': 'Swift', 'type': 'swift', 'target_source': True})
+                messages.append(f"{attacker_name} gained an extra attack!")
+        else:
+            # Handle miss effects
+            if effect_type == 'graze':
+                graze_dmg = max(1, prof // 2)
+                effects.append({'name': 'Graze', 'type': 'immediate_damage', 'value': graze_dmg})
+                messages.append(f"Graze applied to {target_name}, dealing {graze_dmg} damage.")
+
+        return effects, messages
+
+    @staticmethod
     def resolve_attack(attacker, target, advantage=0, debug=None, float_mgr=None, extra_damage=0, crit_range=[]):
         """
         Resolves a single attack from attacker to target.
@@ -342,6 +412,11 @@ class CombatEngine:
             atk_adv += 1
             # Mark for removal after this resolution
             target['_consume_advantage_next'] = True
+            
+        if 'advantage_next' in attacker_conds:
+            atk_adv += 1
+            # Mark for removal after this resolution (applied to self)
+            attacker['_consume_advantage_next'] = True
 
         # 4. Standard Advantage/Disadvantage buffs
         if 'advantage' in attacker_conds: atk_adv += 1
@@ -417,24 +492,10 @@ class CombatEngine:
                 debug.set("Last Damage", damage)
                 debug.log(f"Hit! Roll: {res['roll']} vs AC {target_ac}")
 
-            # Handle standard on-hit effects
-            effect_type = attacker.get('on_hit_effect', '').lower()
-            duration = int(attacker.get('duration', 1))
-
-            if effect_type == 'vex':
-                effects.append({'name': 'Vex', 'type': 'vex', 'duration': duration})
-                msg += f" Vex applied to {attacker_name}."
-            elif effect_type == 'sap':
-                effects.append({'name': 'Sap', 'type': 'sap', 'duration': duration})
-                msg += f" Sap applied to {target_name}."
-            elif effect_type == 'poison':
-                effects.append({'name': 'Poisoned', 'type': 'poisoned', 'duration': duration})
-                msg += f" Poisoned applied to {target_name}."
-                if float_mgr: float_mgr.add("POISONED", target_pos, "effect")
-            elif effect_type == 'lifesteal':
-                heal_amt = max(1, damage // 2)
-                effects.append({'name': 'Lifesteal', 'type': 'heal_attacker', 'value': heal_amt})
-                msg += f" Lifesteal applied to {attacker_name}."
+            # Trigger On-Hit Weapon Effects
+            w_effects, w_msgs = CombatEngine._trigger_on_hit_effects(attacker, target, damage, hit=True)
+            effects.extend(w_effects)
+            messages.extend(w_msgs)
 
             # Handle weapon-based DOT
             if attacker.get('dot'):
@@ -754,8 +815,17 @@ class CombatEngine:
                     hits_by_target[tid] += 1
                     failed_saves_by_target[tid] += 1
                     if float_mgr: float_mgr.add(f"-{dmg}", target_pos, "hit")
+
+                    # Trigger Weapon On-Hit Effects for attack abilities
+                    w_effects, w_msgs = CombatEngine._trigger_on_hit_effects(caster, target, dmg, hit=True)
+                    all_effects.extend(w_effects)
+                    msg_parts.extend(w_msgs)
                 else:
                     if float_mgr: float_mgr.add("MISS", target_pos, "miss")
+                    # Handle graze on miss for abilities
+                    w_effects, w_msgs = CombatEngine._trigger_on_hit_effects(caster, target, 0, hit=False)
+                    all_effects.extend(w_effects)
+                    msg_parts.extend(w_msgs)
 
             elif spell_type == "save":
                 # Resolve ability-specific DC bonus

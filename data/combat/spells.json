@@ -72,7 +72,7 @@
             "name": "Hold Person",
             "cost": 2,
             "type": "save",
-            "effect": "stunned",
+            "effect": "paralyzed",
             "duration": 5,
             "ranged": true,
             "description": "Bind a humanoid foe with paralyzing, invisible chains. The target must succeed on a saving throw or become {effect} for {duration} turns."
@@ -285,15 +285,7 @@
             "effect": "blind",
             "description": "Unleash a brilliant flash of searing sunlight across the entire battlefield. Deals {dice} radiant damage to ALL enemies. Those who fail their save are rendered {effect}. A successful save halves the damage."
         },
-        "power_word_stun": {
-            "name": "Power Word Stun",
-            "cost": 8,
-            "type": "auto",
-            "ranged": true,
-            "effect": "stunned",
-            "description": "Speak a single word of absolute, mind-shattering authority. Compels a creature with 150 hit points or fewer to instantly become {effect}."
-        },
-        "earthquake": {
+       "earthquake": {
             "name": "Earthquake",
             "cost": 8,
             "dice": "12d6",
@@ -351,6 +343,7 @@
         "conjure_animals": {
             "name": "Conjure Animals",
             "cost": 3,
+            "resource": "mp",
             "type": "summon",
             "ranged": true,
             "summon_type": ["owlbear"],
@@ -360,6 +353,7 @@
         "conjure_woodland_beings": {
             "name": "Conjure Woodland Beings",
             "cost": 4,
+            "resource": "mp",
             "type": "summon",
             "ranged": true,
             "summon_type": ["dryad"],
@@ -369,6 +363,7 @@
         "draconic_spirit": {
             "name": "Draconic Spirit",
             "cost": 5,
+            "resource": "mp",
             "type": "summon",
             "ranged": true,
             "summon_type": ["wyrmling"],
@@ -378,6 +373,7 @@
         "summon_dragon": {
             "name": "Summon Dragon",
             "cost": 9,
+            "resource": "mp",
             "type": "summon",
             "ranged": true,
             "summon_type": ["young_dragon"],

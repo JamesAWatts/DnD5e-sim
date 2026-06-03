@@ -13,10 +13,13 @@ class AbilityBaker:
     def bake_ability(ability_data, actor):
         """
         Recursively searches ability_data for string formulas and resolves static placeholders.
+        Performs two passes to ensure cross-references like {duration} are resolved after 
+        their own formulas (e.g. {prof/2}) are calculated.
         """
         if not isinstance(ability_data, dict):
             return ability_data
 
+        # Pass 1: Resolve Character Stats (prof, level, etc.)
         baked = {}
         for key, value in ability_data.items():
             if isinstance(value, dict):
@@ -28,7 +31,21 @@ class AbilityBaker:
             else:
                 baked[key] = value
         
-        return baked
+        # Pass 2: Resolve Cross-References within the dict (e.g. {effect} in description)
+        # We only do this for top-level strings like 'description'
+        final_baked = baked.copy()
+        for key, value in baked.items():
+            if isinstance(value, str) and '{' in value:
+                # Use regex to find tags that match keys in our baked dict
+                def cross_ref_replacer(match):
+                    tag = match.group(1).lower().strip()
+                    if tag in baked:
+                        return str(baked[tag])
+                    return match.group(0)
+                
+                final_baked[key] = re.sub(r'\{([^{}]+)\}', cross_ref_replacer, value)
+
+        return final_baked
 
     @staticmethod
     def _bake_string(formula, actor):

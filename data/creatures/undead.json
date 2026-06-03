@@ -1,7 +1,7 @@
 {
     "skeleton": {
         "level": 1,
-        "hp": 8,
+        "hp": 6,
         "armor": 8,
         "die": 6,
         "proficiency_bonus": 2,
@@ -19,7 +19,7 @@
     },
     "zombie": {
         "level": 1,
-        "hp": 15,
+        "hp": 12,
         "armor": 4,
         "die": 6,
         "proficiency_bonus": 1,
@@ -51,7 +51,7 @@
     "ghast": {
         "level": 4,
         "hp": 36,
-        "armor": 9,
+        "armor": 8,
         "die": 12,
         "proficiency_bonus": 4,
         "crit+": 2,
@@ -95,7 +95,9 @@
         "spells": ["eldritch_smite", "necrosis"],
         "reward": {
             "gold": 75,
-            "items": [{"name": "spell_scroll", "type": "junk"}]
+            "items": [
+                {"name": "spell_scroll", "type": "junk"},
+                {"name": "staff_1", "type": "weapon"}]
         }
     },
     "necromancer": {
@@ -116,7 +118,7 @@
             "gold": 150,
             "items": [
                 {"name": "spell_book", "type": "trinket"},
-                {"name": "tattered_robe", "type": "junk"}
+                {"name": "orb_1", "type": "weapon"}
             ]
         }
     },
@@ -134,7 +136,10 @@
         "spells": ["darkness","heal"],
         "reward": {
             "gold": 120,
-            "items": [{"name": "silver_comb", "type": "junk"}]
+            "items": [
+                {"name": "silver_comb", "type": "junk"},
+                {"name": "mana_crystal", "type": "trinket"}
+            ]
         }
     },
     "vampire_spawn": {
@@ -151,7 +156,10 @@
         "skills": ["putrid_claw"],
         "reward": {
             "gold": 140,
-            "items": [{"name": "vampire_fang", "type": "junk"}]
+            "items": [
+                {"name": "vampire_fang", "type": "junk"},
+                {"name": "dark_leather", "type": "armor"}
+            ]
         }
     },
     "wraith": {
@@ -168,7 +176,10 @@
         "spells": ["eldritch_smite","heal"],
         "reward": {
             "gold": 180,
-            "items": [{"name": "essence_of_shadow", "type": "junk"}]
+            "items": [
+                {"name": "essence_of_shadow", "type": "junk"},
+                {"name": "sword_1", "type": "weapon"}
+            ]
         }
     },
     "deathlock_mastermind": {
@@ -186,7 +197,10 @@
         "spells": ["necrosis", "heal"],
         "reward": {
             "gold": 250,
-            "items": [{"name": "staff_of_power", "type": "weapon"}]
+            "items": [
+                {"name": "staff_of_power", "type": "weapon"},
+                {"name": "evil_eye_gem", "type": "trinket"}
+            ]
         }
     },
     "boneclaw": {
@@ -202,7 +216,10 @@
         "skills": ["gore"],
         "reward": {
             "gold": 400,
-            "items": [{"name": "adamantine_claw", "type": "weapon"}]
+            "items": [
+                {"name": "adamantine_claw", "type": "weapon"},
+                {"name": "dark_cloth", "type": "junk"}
+            ]
         }
     },
     "vampire": {
@@ -220,7 +237,10 @@
         "spells": ["darkness", "heal"],
         "reward": {
             "gold": 600,
-            "items": [{"name": "ring_of_protection", "type": "trinket"}]
+            "items": [
+                {"name": "ring_of_protection", "type": "trinket"},
+                {"name": "vampire_sword","type": "weapon"}
+            ]
         }
     },
     "death_knight": {
@@ -262,7 +282,10 @@
         "spells": ["necrosis", "greater_heal"],
         "reward": {
             "gold": 1000,
-            "items": [{"name": "crown_of_skulls", "type": "trinket"}]
+            "items": [
+                {"name": "crown_of_skulls", "type": "trinket"},
+                {"name": "vile_blade", "type": "weapon"}
+            ]
         }
     },
     "lich": {
@@ -283,7 +306,7 @@
             "gold": 900,
             "items": [
                 {"name": "phylactery", "type": "trinket"},
-                {"name": "spell_scroll", "type": "junk"}
+                {"name": "archmage_robe", "type": "robe"}
             ]
         }
     },
@@ -302,7 +325,10 @@
         "spells": ["dragon_breath", "necrosis"],
         "reward": {
             "gold": 2000,
-            "items": [{"name": "ghost_essence", "type": "junk"}]
+            "items": [
+                {"name": "ghost_essence", "type": "junk"},
+                {"name": "dragons_claw", "type": "trinket"}
+            ]
         }
     },
     "nightwalker": {

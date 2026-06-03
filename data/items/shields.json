@@ -50,8 +50,7 @@
             "bonus_mp": 2,
             "cost": 600,
             "description": "A shield etched with runes that improve spell success. +2 to AC and Mana, +1 to damage resistance, spell DC and spell resistance."
-        }
-,
+        },
         "sturdy_targe": {
             "name": "Sturdy Targe",
             "type": "shield",

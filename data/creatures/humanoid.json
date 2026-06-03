@@ -1,27 +1,22 @@
 {
     "bandit": {
         "level": 1,
-        "hp": 12,
-        "armor": 6,
+        "hp": 10,
+        "armor": 5,
         "die": 6,
         "proficiency_bonus": 2,
         "attack_range": 1,
         "attack_count": 1,
-        "xp": 100,
+        "xp": 120,
         "reward": {
             "gold": 5,
-            "items": [
-                {
-                    "name": "stolen_coin_purse",
-                    "type": "junk"
-                }
-            ]
+            "items": [{"name": "stolen_coin_purse","type": "junk"}]
         }
     },
     "scout": {
         "level": 2,
-        "hp": 16,
-        "armor": 8,
+        "hp": 14,
+        "armor": 6,
         "die": 6,
         "proficiency_bonus": 3,
         "crit+": 2,
@@ -32,10 +27,8 @@
         "reward": {
             "gold": 12,
             "items": [
-                {
-                    "name": "leather_armor",
-                    "type": "armor"
-                }
+                {"name": "leather_armor","type": "armor"},
+                {"name": "shortbow","type": "weapon"}
             ]
         }
     },
@@ -53,10 +46,8 @@
         "reward": {
             "gold": 25,
             "items": [
-                {
-                    "name": "longbow",
-                    "type": "weapon"
-                }
+                {"name": "longbow","type": "weapon"},
+                {"name": "soldiers_mark","type": "trinket"}
             ]
         }
     },
@@ -79,14 +70,8 @@
         "reward": {
             "gold": 15,
             "items": [
-                {
-                    "name": "mana_crystal",
-                    "type": "trinket"
-                },
-                {
-                    "name": "cracked_potion_bottle",
-                    "type": "junk"
-                }
+                {"name": "mana_crystal","type": "trinket"},
+                {"name": "cracked_potion_bottle","type": "junk"}
             ]
         }
     },
@@ -104,10 +89,8 @@
         "reward": {
             "gold": 35,
             "items": [
-                {
-                    "name": "bear_pelt",
-                    "type": "junk"
-                }
+                {"name": "bear_pelt","type": "junk"},
+                {"name": "Studded_hide_armor","type": "armor"}
             ]
         }
     },
@@ -127,14 +110,8 @@
         "reward": {
             "gold": 25,
             "items": [
-                {
-                    "name": "rabbits_foot",
-                    "type": "trinket"
-                },
-                {
-                    "name": "shiny_trinket",
-                    "type": "junk"
-                }
+                {"name": "rabbits_foot","type": "trinket"},
+                {"name": "shiny_trinket","type": "junk"}
             ]
         }
     },
@@ -152,10 +129,8 @@
         "reward": {
             "gold": 60,
             "items": [
-                {
-                    "name": "rapier",
-                    "type": "weapon"
-                }
+                {"name": "rapier_1","type": "weapon"},
+                {"name": "captain_badge","type": "trinket"}
             ]
         }
     },
@@ -176,14 +151,8 @@
         "reward": {
             "gold": 50,
             "items": [
-                {
-                    "name": "longbow",
-                    "type": "weapon"
-                },
-                {
-                    "name": "shiny_trinket",
-                    "type": "junk"
-                }
+                {"name": "longbow","type": "weapon"},
+                {"name": "dark_leather","type": "armor"}
             ]
         }
     },
@@ -203,14 +172,8 @@
         "reward": {
             "gold": 75,
             "items": [
-                {
-                    "name": "warhammer",
-                    "type": "weapon"
-                },
-                {
-                    "name": "breastplate",
-                    "type": "armor"
-                }
+                {"name": "warhammer_1","type": "weapon"},
+                {"name": "soldiers_mark","type": "trinket"}
             ]
         }
     },
@@ -229,10 +192,8 @@
         "reward": {
             "gold": 80,
             "items": [
-                {
-                    "name": "unholy_symbol",
-                    "type": "trinket"
-                }
+                {"name": "holy_symbol_1","type": "weapon"},
+                {"name": "tattered_robes","type": "junk"}
             ]
         }
     },
@@ -250,14 +211,8 @@
         "reward": {
             "gold": 150,
             "items": [
-                {
-                    "name": "plate_armor",
-                    "type": "armor"
-                },
-                {
-                    "name": "soldiers_mark",
-                    "type": "trinket"
-                }
+                {"name": "kite_shield","type": "shield"},
+                {"name": "captain_badge","type": "trinket"}
             ]
         }
     },
@@ -276,14 +231,8 @@
         "reward": {
             "gold": 250,
             "items": [
-                {
-                    "name": "glaive_1",
-                    "type": "weapon"
-                },
-                {
-                    "name": "soldiers_mark",
-                    "type": "trinket"
-                }
+                {"name": "glaive_1","type": "weapon"},
+                {"name": "captain_badge","type": "trinket"}
             ]
         }
     },
@@ -302,10 +251,8 @@
         "reward": {
             "gold": 250,
             "items": [
-                {
-                    "name": "spell_scroll",
-                    "type": "junk"
-                }
+                {"name": "spell_scroll","type": "junk"},
+                {"name": "mana_crystal","type": "trinket"}
             ]
         }
     },
@@ -323,10 +270,8 @@
         "reward": {
             "gold": 350,
             "items": [
-                {
-                    "name": "trident",
-                    "type": "weapon"
-                }
+                {"name": "trident","type": "weapon"},
+                {"name": "champions_belt","type": "trinket"}
             ]
         }
     },
@@ -346,10 +291,8 @@
         "reward": {
             "gold": 500,
             "items": [
-                {
-                    "name": "thieves_tools",
-                    "type": "junk"
-                }
+                {"name": "thieves_tools","type": "junk"},
+                {"name": "dagger_2","type": "weapon"}
             ]
         }
     },
@@ -369,10 +312,8 @@
         "reward": {
             "gold": 800,
             "items": [
-                {
-                    "name": "vile_blade",
-                    "type": "weapon"
-                }
+                {"name": "vile_blade","type": "weapon"},
+                {"name": "plate","type": "armor"}
             ]
         }
     },
@@ -390,13 +331,33 @@
         "reward": {
             "gold": 1200,
             "items": [
-                {
-                    "name": "champions_belt",
-                    "type": "trinket"
-                }
+                {"name": "champions_belt","type": "trinket"},
+                {"name": "champion_sword", "type": "weapon"}
             ]
         }
     },
+    "master_assassin": {
+        "level": 20,
+        "hp": 120,
+        "armor": 16,
+        "die": "2d8",
+        "proficiency_bonus": 11,
+        "crit+": 5,
+        "attack_range": 5,
+        "attack_count": 3,
+        "xp": 30000,
+        "skills": ["assassinate"],
+        "spells": ["darkness","greater_heal"],
+        "sneak_attack_die": 6,
+        "sneak_attack_rolls": 8,
+        "reward": {
+            "gold": 1500,
+            "items": [
+                {"name": "shadow_dagger","type": "weapon"},
+                {"name": "dark_leather","type": "armor"}
+            ]
+        }
+     },
     "archmage": {
         "level": 22,
         "hp": 150,
@@ -412,10 +373,8 @@
         "reward": {
             "gold": 2500,
             "items": [
-                {
-                    "name": "archmage_crystal",
-                    "type": "trinket"
-                }
+                {"name": "archmage_crystal","type": "trinket"},
+                {"name": "rod_of_the_archmage","type": "weapon"}
             ]
         }
     },
@@ -433,10 +392,8 @@
         "reward": {
             "gold": 5000,
             "items": [
-                {
-                    "name": "warlords_banner",
-                    "type": "trinket"
-                }
+                {"name": "warlords_banner","type": "trinket"},
+                {"name": "warloards_glaive","type": "weapon"}
             ]
         }
     }
