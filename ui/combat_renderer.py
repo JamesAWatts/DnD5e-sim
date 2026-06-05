@@ -10,6 +10,9 @@ class CombatRenderer:
         self.hovered_effects_actor = None
         self.hovered_effects_rect = None
         
+        # Wasm Optimization: Text Cache
+        self._text_cache = {}
+
         # Pre-render targeting cursors
         self.cursor_w = scale_x(120)
         self.cursor_h = scale_y(40)
@@ -24,6 +27,17 @@ class CombatRenderer:
         pygame.draw.ellipse(self.cursor_green, (50, 255, 50), self.cursor_green.get_rect())
         pygame.draw.ellipse(self.cursor_green, (255, 255, 255), self.cursor_green.get_rect(), 2)
 
+    def _get_cached_text(self, text, font, color):
+        """Retrieves or renders a text surface from cache."""
+        # Using id(font) as part of key to handle different font sizes
+        cache_key = f"{text}_{id(font)}_{color}"
+        if cache_key not in self._text_cache:
+            tw, th = font.size(text)
+            surf = pygame.Surface((tw + 10, th + 10), pygame.SRCALPHA)
+            draw_text_outlined(surf, text, font, color, 5, 5)
+            self._text_cache[cache_key] = surf
+        return self._text_cache[cache_key]
+
     def draw_turn_order(self, screen):
         """Displays the turn order using optimized Panel and text cache."""
         if not self.state.current_actor: return
@@ -36,24 +50,28 @@ class CombatRenderer:
         # 2. Layout
         padding = scale_x(10)
         line_spacing = scale_y(25)
-        base_x, base_y = scale_x(20), scale_y(20)
+        base_x, base_y = scale_x(10), scale_y(10)
         
         cur_text = f"Current: {current_name}"
         nxt_text = f"Next: {next_name}"
         
         font = self.state.font
-        cur_size = font.size(cur_text)
-        nxt_size = font.size(nxt_text)
-        panel_w_raw = max(cur_size[0], nxt_size[0]) / SCALE_X + 20
+        
+        # Use Cached Surfaces
+        cur_surf = self._get_cached_text(cur_text, font, COLOR_GOLD)
+        nxt_surf = self._get_cached_text(nxt_text, font, COLOR_WHITE)
+        
+        panel_w_raw = max(cur_surf.get_width(), nxt_surf.get_width()) / SCALE_X + 20
         panel_h_raw = 70
 
         # Use a temporary Panel for dynamic sizing, but it's much faster than raw drawing
         # Ideally, we'd cache this panel if the names don't change
-        panel = Panel(20, 20, panel_w_raw, panel_h_raw, bg_color=(30, 30, 50), border_color=COLOR_GOLD, alpha=200, border_radius=10)
+        panel = Panel(10, 10, panel_w_raw, panel_h_raw, bg_color=(30, 30, 50), border_color=COLOR_GOLD, alpha=200, border_radius=10)
         rect = panel.draw(screen)
 
-        draw_text_outlined(screen, cur_text, font, COLOR_GOLD, rect.x + padding, rect.y + padding - scale_y(5))
-        draw_text_outlined(screen, nxt_text, font, COLOR_WHITE, rect.x + padding, rect.y + padding + line_spacing - scale_y(5))
+        screen.blit(cur_surf, (rect.x + padding - 5, rect.y + padding - scale_y(10)))
+        screen.blit(nxt_surf, (rect.x + padding - 5, rect.y + padding + line_spacing - scale_y(10)))
+        
         # 5. Handle Hover Tooltip
         mouse_pos = pygame.mouse.get_pos()
         if rect.collidepoint(mouse_pos):
@@ -72,19 +90,20 @@ class CombatRenderer:
         effects = actor.get('active_effects', [])
         if not effects: return
         
-        lines = []
+        cached_lines = []
         max_w = 0
         for eff in effects:
             name = eff.get('name', 'Effect').replace('_', ' ').title()
             ability = eff.get('source_ability', 'Innate')
             duration = eff.get('duration', 0)
             text = f"{name} - {ability} - {duration} turns"
-            lines.append(text)
-            w = font.size(text)[0]
-            if w > max_w: max_w = w
+            
+            surf = self._get_cached_text(text, font, COLOR_WHITE)
+            cached_lines.append(surf)
+            if surf.get_width() > max_w: max_w = surf.get_width()
             
         tip_w_raw = (max_w + padding * 2) / SCALE_X
-        tip_h_raw = (len(lines) * line_h + padding * 2) / SCALE_Y
+        tip_h_raw = (len(cached_lines) * line_h + padding * 2) / SCALE_Y
         
         tx_raw = (mouse_pos[0] + 15) / SCALE_X
         ty_raw = (mouse_pos[1] + 15) / SCALE_Y
@@ -92,8 +111,8 @@ class CombatRenderer:
         tip_panel = Panel(tx_raw, ty_raw, tip_w_raw, tip_h_raw, bg_color=(20, 20, 30), border_color=COLOR_GOLD, alpha=240, border_radius=5)
         rect = tip_panel.draw(screen)
         
-        for i, text in enumerate(lines):
-            draw_text_outlined(screen, text, font, COLOR_WHITE, rect.x + padding, rect.y + padding + (i * line_h))
+        for i, surf in enumerate(cached_lines):
+            screen.blit(surf, (rect.x + padding - 5, rect.y + padding + (i * line_h) - 5))
 
     def _draw_turn_tooltip(self, screen, mouse_pos):
         """Displays the full turn order list with optimized rendering."""
@@ -101,18 +120,19 @@ class CombatRenderer:
         line_h = scale_y(22)
         font = self.state.font
         
-        lines = []
+        cached_lines = []
         max_w = 0
         for i, actor in enumerate(self.state.turn_queue, 1):
             name = actor.get('name', 'Unknown')
             text = f"{i}-{name}"
             color = COLOR_YELLOW if actor == self.state.current_actor else COLOR_WHITE
-            lines.append((text, color))
-            w = font.size(text)[0]
-            if w > max_w: max_w = w
+            
+            surf = self._get_cached_text(text, font, color)
+            cached_lines.append(surf)
+            if surf.get_width() > max_w: max_w = surf.get_width()
             
         tip_w_raw = (max_w + padding * 2) / SCALE_X
-        tip_h_raw = (len(lines) * line_h + padding * 2) / SCALE_Y
+        tip_h_raw = (len(cached_lines) * line_h + padding * 2) / SCALE_Y
         
         tx_raw = (mouse_pos[0] + 15) / SCALE_X
         ty_raw = (mouse_pos[1] + 15) / SCALE_Y
@@ -120,8 +140,8 @@ class CombatRenderer:
         tip_panel = Panel(tx_raw, ty_raw, tip_w_raw, tip_h_raw, bg_color=(20, 20, 30), border_color=COLOR_GOLD, alpha=240, border_radius=5)
         rect = tip_panel.draw(screen)
         
-        for i, (text, color) in enumerate(lines):
-            draw_text_outlined(screen, text, font, color, rect.x + padding, rect.y + padding + (i * line_h))
+        for i, surf in enumerate(cached_lines):
+            screen.blit(surf, (rect.x + padding - 5, rect.y + padding + (i * line_h) - 5))
 
     def draw_targeting_cursor(self, screen):
         """Renders pulsing cursors using pre-rendered surfaces and set_alpha."""
@@ -168,7 +188,9 @@ class CombatRenderer:
             if v_rect:
                 gx, gy = actor.get('grid_x', 0), actor.get('grid_y', 0)
                 debug_text = f"({gx},{gy})"
-                draw_text_outlined(screen, debug_text, self.state.font, (0, 255, 255), v_rect.centerx - scale_x(15), v_rect.top - scale_y(20))
+                
+                surf = self._get_cached_text(debug_text, self.state.font, (0, 255, 255))
+                screen.blit(surf, (v_rect.centerx - scale_x(20), v_rect.top - scale_y(25)))
 
     def draw_entity_bars(self, screen):
         """Renders resource bars (HP/MP/SP) and effect indicators for all living combatants."""

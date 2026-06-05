@@ -81,7 +81,7 @@ class CombatState(BaseState):
         self.dialogue_box = DialogueBox(self.fonts['large'])
         self.dialogue_mgr = CombatDialogueManager(self.dialogue_box)
 
-        self.float_mgr = FloatingTextManager(self.fonts['small'])
+        self.float_mgr = FloatingTextManager(self.fonts['large'])
         self.dice_anim = DiceAnimation()
         self.projectile_mgr = ProjectileManager()
         self.vfx_mgr = VFXManager()
@@ -446,17 +446,8 @@ class CombatState(BaseState):
                 if (gx, gy) in self.valid_target_tiles:
                     self.menu_controller.set_hover_grid(gx, gy)
 
-        # 2. Filter events for clicks in "dirt" (empty tiles)
-        filtered_events = []
-        for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                mgx, mgy = self._get_grid_from_mouse(pygame.mouse.get_pos())
-                if mgx is not None and mgy is not None and (mgx, mgy) not in self.valid_target_tiles:
-                    msg = "Not a valid target."
-                    print(f"[COMBAT] {msg} ({mgx}, {mgy})")
-                    self.dialogue_mgr.queue_message(msg)
-                    continue # Ignore this click
-            filtered_events.append(event)
+        # 2. Filter events (Allowing all clicks to pass to Controller)
+        filtered_events = events
 
         # 3. Controller Input (Keys + Valid Clicks)
         # Use jump_to_next_valid for directional keys to skip empty tiles
@@ -481,19 +472,10 @@ class CombatState(BaseState):
 
         if result:
             if "target_grid" in result:
-                # 1. Selection Constraint (Double check for safety)
+                # 1. Selection Extraction
                 tx = self.menu_controller.cursor_grid_x
                 ty = self.menu_controller.cursor_grid_y
                 
-                if (tx, ty) not in self.valid_target_tiles:
-                    msg = "Not a valid target."
-                    print(f"[COMBAT] {msg} ({tx}, {ty})")
-                    self.dialogue_mgr.queue_message(msg)
-                    # Revert the menu_controller state to TARGETING if finalize_turn reset it
-                    self.menu_controller.state = MenuState.SELECTING_TARGET
-                    self.menu_controller.selected_action = self.pending_action_data.get('name') if self.pending_action_data else "Attack"
-                    return
-
                 # 2. Entity Extraction
                 # Use TargetingHelper to generate the list of affected entities
                 target_list = TargetingHelper.get_affected_targets(

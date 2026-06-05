@@ -238,6 +238,8 @@ class Menu:
                     ty = rect.centery if self.tooltip_vert_centered else rect.y
                     self.draw_description(screen, tx, ty, 160, desc_text, centered=False, vert_centered=self.tooltip_vert_centered)
 
+        return rect
+
     def draw_description(self, screen, x, y, raw_w, text, centered=True, vert_centered=False):
         from core.game_rules.constants import SCALE_X, SCALE_Y, scale_y, scale_x
         from ui.panel import draw_text_outlined

@@ -35,6 +35,16 @@ class GameOverState(BaseState):
         self.queue_message(msg)
 
         self.start_next_message()
+
+        # Wasm Optimization: Static Caching
+        self.cached_header = None
+        self._render_header_cache()
+
+    def _render_header_cache(self):
+        header_text = "GAME OVER"
+        tw, th = self.fonts['xlarge'].size(header_text)
+        self.cached_header = pygame.Surface((tw + 10, th + 10), pygame.SRCALPHA)
+        draw_text_outlined(self.cached_header, header_text, self.fonts['xlarge'], (255, 50, 50), 5, 5)
     
     def queue_message(self, text):
         self.message_queue.append(text)
@@ -71,7 +81,11 @@ class GameOverState(BaseState):
     def draw(self, screen):
         self.draw_background(screen)
 
-        # If dialogue still playing → show it
+        # 1. Draw Header (Cached)
+        if self.cached_header:
+            screen.blit(self.cached_header, (SCREEN_WIDTH // 2 - self.cached_header.get_width() // 2, 100))
+
+        # 2. If dialogue still playing → show it
         if self.dialogue.current_message:
             self.dialogue.draw(screen)
         else:

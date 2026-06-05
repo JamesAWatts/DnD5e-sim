@@ -22,6 +22,20 @@ class AutoSaveNoticeState(BaseState):
                 self.stone_image = pygame.transform.scale(self.stone_image, (scale_x(150), scale_y(150)))
             except: pass
 
+        # Wasm Optimization: Static Caching
+        self.text1 = "This game uses an auto save feature."
+        self.text2 = "Please don't exit while the sending stone is active."
+        
+        tw1, th1 = self.fonts['medium'].size(self.text1)
+        tw2, th2 = self.fonts['medium'].size(self.text2)
+        
+        # Add 10px padding for the outline to avoid clipping
+        self.cached_text1 = pygame.Surface((tw1 + 10, th1 + 10), pygame.SRCALPHA)
+        self.cached_text2 = pygame.Surface((tw2 + 10, th2 + 10), pygame.SRCALPHA)
+        
+        draw_text_outlined(self.cached_text1, self.text1, self.fonts['medium'], COLOR_WHITE, 5, 5)
+        draw_text_outlined(self.cached_text2, self.text2, self.fonts['medium'], COLOR_WHITE, 5, 5)
+
     def update(self, events, dt):
         if self.transitioning:
             return True
@@ -64,12 +78,8 @@ class AutoSaveNoticeState(BaseState):
             pygame.draw.circle(screen, (100, 100, 255), (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - scale_y(50)), scale_x(75))
 
         # Render text below
-        text1 = "This game uses an auto save feature."
-        text2 = "Please don't exit while the sending stone is active."
-        
-        tw1, th1 = self.fonts['medium'].size(text1)
-        tw2, th2 = self.fonts['medium'].size(text2)
-        
         base_y = SCREEN_HEIGHT // 2 + scale_y(60)
-        draw_text_outlined(screen, text1, self.fonts['medium'], COLOR_WHITE, SCREEN_WIDTH // 2 - tw1 // 2, base_y)
-        draw_text_outlined(screen, text2, self.fonts['medium'], COLOR_WHITE, SCREEN_WIDTH // 2 - tw2 // 2, base_y + th1 + scale_y(10))
+        
+        # Use cached surfaces with 5px offset to account for pre-rendered padding
+        screen.blit(self.cached_text1, (SCREEN_WIDTH // 2 - self.cached_text1.get_width() // 2, base_y - 5))
+        screen.blit(self.cached_text2, (SCREEN_WIDTH // 2 - self.cached_text2.get_width() // 2, base_y + self.fonts['medium'].get_height() + scale_y(10) - 5))

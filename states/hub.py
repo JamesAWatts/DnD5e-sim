@@ -38,16 +38,41 @@ class HubState(BaseState):
                 print(f"[HUB] Error validating player {p.get('name')}: {e}")
             
         # --- Autosave Evaluation ---
+        self.alert_dialogue = None
         if previous_state_name in ["COMBAT_STATE", "LEVEL_UP_STATE"]:
-            # Trigger silent save (Asynchronous for Web/Wasm performance)
-            import asyncio
-            slot = getattr(self.game, 'current_save_slot', 1)
-            asyncio.create_task(SaveManager.save_game_async(
-                slot, self.game.party, 
-                battle_counter=self.game.battle_counter, 
-                bestiary_rp=self.game.bestiary_rp
-            ))
-            self.save_indicator.trigger()
+            player_name = self.game.party[0].get('name', 'Unknown') if self.game.party else "Unknown"
+            
+            # 1st try current slot if it's set and matches
+            current_slot = getattr(self.game, 'current_save_slot', None)
+            best_slot = None
+            
+            if current_slot:
+                data = SaveManager.load_game_data(current_slot)
+                if not data or data.get('name') == player_name:
+                    best_slot = current_slot
+            
+            # If no current slot match, find best slot 1-3
+            if not best_slot:
+                best_slot = SaveManager.find_autosave_slot(player_name)
+            
+            if best_slot:
+                # Store current slot for future autosaves
+                self.game.current_save_slot = best_slot
+                # Trigger silent save (Asynchronous for Web/Wasm performance)
+                import asyncio
+                asyncio.create_task(SaveManager.save_game_async(
+                    best_slot, self.game.party, 
+                    battle_counter=self.game.battle_counter, 
+                    bestiary_rp=self.game.bestiary_rp
+                ))
+                self.save_indicator.trigger()
+            else:
+                # Autosave failed - Notify player
+                from ui.dialogue_box import DialogueBox
+                self.alert_dialogue = DialogueBox(self.fonts['medium'])
+                self.alert_dialogue.set_messages([
+                    "Autosave failed. Please create a save for your character."
+                ])
 
         # Get persistent hub background from manager
         self.background = BackgroundManager.get_hub_bg(self.game.player)
@@ -102,6 +127,31 @@ class HubState(BaseState):
         self.transition_start_time = 0
         self.pending_combat_data = None
 
+        # --- Text Caching for Wasm ---
+        self._text_cache = {}
+        self._static_surfs = {}
+        self._cache_static_text()
+
+    def _cache_static_text(self):
+        """Pre-renders static UI labels."""
+        # Title
+        title_str = "Adventure Hub"
+        tw, th = self.fonts['large'].size(title_str)
+        surf = pygame.Surface((tw + 10, th + 10), pygame.SRCALPHA)
+        draw_text_outlined(surf, title_str, self.fonts['large'], (255, 255, 255), 5, 5)
+        self._static_surfs['title'] = surf
+
+    def _get_cached_text(self, text, font_key, color):
+        """Helper to retrieve or render text surfaces from cache."""
+        cache_key = f"{text}_{font_key}_{color}"
+        if cache_key not in self._text_cache:
+            font = self.fonts[font_key]
+            tw, th = font.size(text)
+            surf = pygame.Surface((tw + 10, th + 10), pygame.SRCALPHA)
+            draw_text_outlined(surf, text, font, color, 5, 5)
+            self._text_cache[cache_key] = surf
+        return self._text_cache[cache_key]
+
     def on_select(self, option):
         if self.menu_state == "MAIN":
             self.handle_main_menu(option)
@@ -109,6 +159,15 @@ class HubState(BaseState):
             self.handle_dev_menu(option)
 
     def update(self, events, dt):
+        # --- Alert Handling ---
+        if self.alert_dialogue:
+            for event in events:
+                self.alert_dialogue.handle_event(event)
+            self.alert_dialogue.update()
+            if self.alert_dialogue.finished:
+                self.alert_dialogue = None
+            return # Block other input while alert is active
+
         # Check for cheat code keys and character switching
         for event in events:
             if event.type == pygame.KEYDOWN:
@@ -230,31 +289,23 @@ class HubState(BaseState):
         p = self.game.party[self.selected_index]
 
         # --- Title ---
-        title_str = "Adventure Hub"
-        tw, th = self.fonts['large'].size(title_str)
+        title_surf = self._static_surfs['title']
         title_y = scale_y(40)
-        draw_text_outlined(
-            screen,
-            title_str,
-            self.fonts['large'],
-            (255, 255, 255),
-            width // 2 - tw // 2,
-            title_y
-        )
+        screen.blit(title_surf, (width // 2 - title_surf.get_width() // 2, title_y))
         
         # --- Gold ---
         gold_val = p.get('inventory_ref', {}).get('gold', 0)
         gold_str = f"Gold: {gold_val}"
-        gw, gh = self.fonts['medium'].size(gold_str)
-        gold_y = title_y + th + scale_y(5)
-        draw_text_outlined(screen, gold_str, self.fonts['medium'], COLOR_GOLD, width // 2 - gw // 2, gold_y)
+        gold_surf = self._get_cached_text(gold_str, 'medium', COLOR_GOLD)
+        gold_y = title_y + title_surf.get_height() + scale_y(5)
+        screen.blit(gold_surf, (width // 2 - gold_surf.get_width() // 2, gold_y))
 
         # --- Player Bars (Top Center) ---
         from ui.bars import draw_bar
 
         if p:
             bx = width // 2 - scale_x(100)
-            by = gold_y + gh + scale_y(15)
+            by = gold_y + gold_surf.get_height() + scale_y(15)
 
             cur_hp = min(p.get("max_hp", 10), p.get("current_hp", p.get("hp", 10)))
             draw_bar(screen, bx, by, scale_x(200), scale_y(25),
@@ -365,3 +416,7 @@ class HubState(BaseState):
 
         # --- Save Indicator ---
         self.save_indicator.draw(screen)
+
+        # --- Alert Dialogue ---
+        if self.alert_dialogue:
+            self.alert_dialogue.draw(screen)

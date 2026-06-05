@@ -22,6 +22,19 @@ class InventoryPanel:
         self.shields_db = shields_db
         self.trinkets_db = trinkets_db
         self.hovered_item = None
+        
+        # Wasm Optimization: Text Cache
+        self._text_cache = {}
+
+    def _get_cached_text(self, text, font, color):
+        """Retrieves or renders a text surface from cache."""
+        cache_key = f"{text}_{id(font)}_{color}"
+        if cache_key not in self._text_cache:
+            tw, th = font.size(text)
+            surf = pygame.Surface((tw + 10, th + 10), pygame.SRCALPHA)
+            draw_text_outlined(surf, text, font, color, 5, 5)
+            self._text_cache[cache_key] = surf
+        return self._text_cache[cache_key]
 
     def draw(self, screen, player):
         if not player: return
@@ -48,26 +61,29 @@ class InventoryPanel:
 
         # Name & Class
         name_str = f"{player.get('name', 'Player')} - Lvl {player.get('level', 1)}"
-        nw, _ = self.font.size(name_str)
-        draw_text_outlined(screen, name_str, self.font, COLOR_WHITE, center_x - nw // 2, curr_y)
+        name_surf = self._get_cached_text(name_str, self.font, COLOR_WHITE)
+        screen.blit(name_surf, (center_x - name_surf.get_width() // 2, curr_y - 5))
         curr_y += line_h
         
         class_str = player.get('class', 'Fighter').title()
-        cw, _ = self.fonts['medium'].size(class_str)
-        draw_text_outlined(screen, class_str, self.fonts['medium'], COLOR_GOLD, center_x - cw // 2, curr_y)
+        class_surf = self._get_cached_text(class_str, self.fonts['medium'], COLOR_GOLD)
+        screen.blit(class_surf, (center_x - class_surf.get_width() // 2, curr_y - 5))
         curr_y += self.fonts['medium'].get_height() + scale_y(10)
 
         # AC & Spell DC & Proficiency (Using small font for details)
         ac_str = f"Armor Class: {player.get('ac', 10)}"
-        draw_text_outlined(screen, ac_str, self.fonts['medium'], COLOR_WHITE, rect.x + scale_x(15), curr_y)
+        ac_surf = self._get_cached_text(ac_str, self.fonts['medium'], COLOR_WHITE)
+        screen.blit(ac_surf, (rect.x + scale_x(15) - 5, curr_y - 5))
         curr_y += small_line_h
 
         prof_str = f"Proficiency: +{player.get('proficiency_bonus', 2)}"
-        draw_text_outlined(screen, prof_str, self.fonts['medium'], COLOR_WHITE, rect.x + scale_x(15), curr_y)
+        prof_surf = self._get_cached_text(prof_str, self.fonts['medium'], COLOR_WHITE)
+        screen.blit(prof_surf, (rect.x + scale_x(15) - 5, curr_y - 5))
         curr_y += small_line_h
 
         ss_str = f"Spell DC: +{player.get('spell_save', 0)}"
-        draw_text_outlined(screen, ss_str, self.fonts['medium'], COLOR_WHITE, rect.x + scale_x(15), curr_y)
+        ss_surf = self._get_cached_text(ss_str, self.fonts['medium'], COLOR_WHITE)
+        screen.blit(ss_surf, (rect.x + scale_x(15) - 5, curr_y - 5))
         curr_y += small_line_h
 
         # Sneak Attack (Rogue only)
@@ -75,7 +91,8 @@ class InventoryPanel:
         if rogue_level > 0:
             sa_dice = (rogue_level + 1) // 2
             sa_str = f"Sneak Attack: {sa_dice}d6"
-            draw_text_outlined(screen, sa_str, self.fonts['medium'], COLOR_WHITE, rect.x + scale_x(15), curr_y)
+            sa_surf = self._get_cached_text(sa_str, self.fonts['medium'], COLOR_WHITE)
+            screen.blit(sa_surf, (rect.x + scale_x(15) - 5, curr_y - 5))
             curr_y += small_line_h
 
         curr_y += scale_y(20)
@@ -99,11 +116,13 @@ class InventoryPanel:
             
             # Draw label
             lx = rect.x + scale_x(15)
-            draw_text_outlined(screen, label, self.fonts['medium'], COLOR_GOLD, lx, curr_y)
+            label_surf = self._get_cached_text(label, self.fonts['medium'], COLOR_GOLD)
+            screen.blit(label_surf, (lx - 5, curr_y - 5))
             
             # Draw value and check for hover
-            vx = lx + self.fonts['medium'].size(label)[0]
-            val_rect = draw_text_outlined(screen, val_str, self.fonts['medium'], COLOR_WHITE, vx, curr_y)
+            vx = lx + label_surf.get_width() - 10
+            val_surf = self._get_cached_text(val_str, self.fonts['medium'], COLOR_WHITE)
+            val_rect = screen.blit(val_surf, (vx, curr_y - 5))
             
             if val_rect.collidepoint(mouse_pos):
                 # Map to DB
@@ -116,7 +135,8 @@ class InventoryPanel:
 
         # Buffs
         curr_y += scale_y(12)
-        draw_text_outlined(screen, "Active Buffs:", self.fonts['medium'], COLOR_GOLD, rect.x + scale_x(15), curr_y)
+        buff_header_surf = self._get_cached_text("Active Buffs:", self.fonts['medium'], COLOR_GOLD)
+        screen.blit(buff_header_surf, (rect.x + scale_x(15) - 5, curr_y - 5))
         curr_y += small_line_h + scale_y(4)
         
         # Aggregated Buffs
@@ -151,10 +171,13 @@ class InventoryPanel:
         display_buffs.extend(special_buffs)
 
         if not display_buffs:
-            draw_text_outlined(screen, "None", self.fonts['medium'], (150, 150, 150), rect.x + scale_x(30), curr_y)
+            none_surf = self._get_cached_text("None", self.fonts['medium'], (150, 150, 150))
+            screen.blit(none_surf, (rect.x + scale_x(30) - 5, curr_y - 5))
         else:
             for b in display_buffs:
-                draw_text_outlined(screen, f"• {b}", self.fonts['medium'], (200, 255, 200), rect.x + scale_x(25), curr_y)
+                b_text = f"• {b}"
+                b_surf = self._get_cached_text(b_text, self.fonts['medium'], (200, 255, 200))
+                screen.blit(b_surf, (rect.x + scale_x(25) - 5, curr_y - 5))
                 curr_y += small_line_h
 
     def draw_tooltip(self, screen):

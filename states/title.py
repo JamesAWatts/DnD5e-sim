@@ -44,6 +44,37 @@ class TitleState(BaseState):
         self.player_name = ""
         self.pulse_time = 0
 
+        # Optimization: Text Caching
+        self._cached_header_surf = None
+        self._cached_name_surf = None
+        self._last_name_rendered = None
+        self._cached_naming_prompt_surf = None
+
+    def _get_header_surf(self):
+        if not self._cached_header_surf:
+            header_text = "Enter Character Name"
+            hw, hh = self.font.size(header_text)
+            self._cached_header_surf = pygame.Surface((hw + 10, hh + 10), pygame.SRCALPHA)
+            draw_text_outlined(self._cached_header_surf, header_text, self.font, COLOR_GOLD, 5, 5)
+        return self._cached_header_surf
+
+    def _get_name_surf(self):
+        name_str = self.player_name + "_"
+        if self._last_name_rendered != name_str:
+            nw, nh = self.font.size(name_str)
+            self._cached_name_surf = pygame.Surface((nw + 10, nh + 10), pygame.SRCALPHA)
+            draw_text_outlined(self._cached_name_surf, name_str, self.font, COLOR_WHITE, 5, 5)
+            self._last_name_rendered = name_str
+        return self._cached_name_surf
+
+    def _get_naming_prompt_surf(self):
+        if not self._cached_naming_prompt_surf:
+            prompt = "Press ENTER to Confirm"
+            pw, ph = self.font.size(prompt)
+            self._cached_naming_prompt_surf = pygame.Surface((pw + 10, ph + 10), pygame.SRCALPHA)
+            draw_text_outlined(self._cached_naming_prompt_surf, prompt, self.font, COLOR_GOLD, 5, 5)
+        return self._cached_naming_prompt_surf
+
     def update(self, events, dt):
         if self.state == "FADING":
             self.title_alpha += self.fade_speed
@@ -54,11 +85,10 @@ class TitleState(BaseState):
         elif self.state == "PRESS_START":
             self.pulse_time += 0.05
             for event in events:
-                if event.type == pygame.KEYDOWN:
-                    if event.key in [pygame.K_RETURN, pygame.K_SPACE]:
-                        self.state = "MENU"
-                        self.active_menu = self.menu
-                        return # Consume events and wait for next frame to avoid double-selection
+                if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                    self.state = "MENU"
+                    self.active_menu = self.menu
+                    return # Consume events and wait for next frame to avoid double-selection
         
         
         
@@ -132,7 +162,7 @@ class TitleState(BaseState):
             # Pulsing logic
             import math
             alpha = int(128 + 127 * math.sin(self.pulse_time * 5))
-            prompt = "Press ENTER to Start"
+            prompt = "START"
             pw, ph = self.fonts['title'].size(prompt)
             
             # Draw pulsing text
@@ -158,17 +188,12 @@ class TitleState(BaseState):
             )
             rect = panel.draw(screen)
             
-            # Draw header manually since Panel doesn't support it
-            header_text = "Enter Character Name"
-            hw, hh = self.font.size(header_text)
-            draw_text_outlined(screen, header_text, self.font, COLOR_GOLD, rect.centerx - hw // 2, rect.y + scale_y(10))
+            # Use cached surfaces
+            header_surf = self._get_header_surf()
+            screen.blit(header_surf, (rect.centerx - header_surf.get_width() // 2, rect.y + scale_y(10)))
             
-            # Draw current name
-            name_str = self.player_name + "_"
-            nw, nh = self.font.size(name_str)
-            draw_text_outlined(screen, name_str, self.font, COLOR_WHITE, rect.centerx - nw // 2, rect.y + scale_y(45))
+            name_surf = self._get_name_surf()
+            screen.blit(name_surf, (rect.centerx - name_surf.get_width() // 2, rect.y + scale_y(45)))
             
-            # Prompt
-            prompt = "Press ENTER to Confirm"
-            pw, ph = self.font.size(prompt)
-            draw_text_outlined(screen, prompt, self.font, COLOR_GOLD, rect.centerx - pw // 2, rect.bottom + scale_y(10))
+            prompt_surf = self._get_naming_prompt_surf()
+            screen.blit(prompt_surf, (rect.centerx - prompt_surf.get_width() // 2, rect.bottom + scale_y(10)))

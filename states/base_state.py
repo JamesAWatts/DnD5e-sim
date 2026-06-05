@@ -33,6 +33,7 @@ class BaseState:
             return False
 
         # Handle all input (keyboard and mouse) via the menu's own event handling
+        mouse_motion_event = None
         for event in events:
             if not self.active_menu:
                 break
@@ -43,16 +44,22 @@ class BaseState:
                 self.on_select(result)
                 return True
 
-            # 2. Mouse Navigation & Selection
-            if event.type in [pygame.MOUSEBUTTONDOWN, pygame.MOUSEMOTION]:
-                mouse_pos = pygame.mouse.get_pos()
-                mouse_click = (event.type == pygame.MOUSEBUTTONDOWN)
-                
-                selection_idx = self.active_menu.handle_mouse(mouse_pos, mouse_click)
-                if selection_idx is not None and mouse_click:
+            # 2. Mouse Selection (Clicks)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                selection_idx = self.active_menu.handle_mouse(event.pos, True)
+                if selection_idx is not None:
                     option = self.active_menu.options[selection_idx]
                     self.on_select(option)
                     return True
+            
+            # 3. Mouse Navigation (Motion) - Store only the latest
+            if event.type == pygame.MOUSEMOTION:
+                mouse_motion_event = event
+
+        # Process the latest mouse motion once per frame
+        if mouse_motion_event:
+            self.active_menu.handle_mouse(mouse_motion_event.pos, False)
+
         return False
 
     def handle_settings_input(self, events):

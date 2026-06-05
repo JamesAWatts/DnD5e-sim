@@ -35,6 +35,56 @@ class InventoryState(BaseState):
             )   
         self.menus.append(root_menu)
 
+        # Wasm Optimization: Caching
+        self.cached_title = None
+        self._last_selected_item = None
+        self._cached_desc_surf = None
+        self._render_title_cache()
+
+    def _render_title_cache(self):
+        from ui.panel import draw_text_outlined
+        title_text = "Inventory"
+        tw, th = self.fonts['xlarge'].size(title_text)
+        self.cached_title = pygame.Surface((tw + 10, th + 10), pygame.SRCALPHA)
+        draw_text_outlined(self.cached_title, title_text, self.fonts['xlarge'], (255, 255, 255), 5, 5)
+
+    def _render_desc_cache(self, text, menu_rect):
+        from ui.panel import draw_text_outlined
+        # Use Menu.draw_description logic but cached
+        # Usually Tooltip width is 160 or menu width
+        raw_w = 200 # Standardizing
+        from core.game_rules.constants import SCALE_X, SCALE_Y, scale_x, scale_y
+        scaled_w = raw_w * SCALE_X
+        
+        words = str(text).split(' ')
+        lines = []
+        current_line = []
+        for word in words:
+            test_line = ' '.join(current_line + [word])
+            tw, _ = self.fonts['medium'].size(test_line)
+            if tw > scaled_w - scale_x(20):
+                lines.append(' '.join(current_line))
+                current_line = [word]
+            else:
+                current_line.append(word)
+        lines.append(' '.join(current_line))
+        
+        line_h = self.fonts['medium'].get_height()
+        spacing = scale_y(2)
+        total_h = len(lines) * (line_h + spacing) + scale_y(30)
+        
+        surf = pygame.Surface((scaled_w, total_h), pygame.SRCALPHA)
+        from ui.panel import Panel
+        from core.game_rules.constants import COLOR_GOLD
+        panel = Panel(0, 0, raw_w, total_h / SCALE_Y, bg_color=(20, 20, 40), border_color=COLOR_GOLD, border_width=2, centered=False, border_radius=10, alpha=230)
+        panel.draw(surf)
+        
+        for i, line in enumerate(lines):
+            lw, _ = self.fonts['medium'].size(line)
+            draw_text_outlined(surf, line, self.fonts['medium'], (220, 220, 220), scaled_w // 2 - lw // 2, scale_y(15) + i * (line_h + spacing))
+            
+        self._cached_desc_surf = surf
+
     def queue_message(self, text):
         self.message_queue.append(text)
 
@@ -306,14 +356,49 @@ class InventoryState(BaseState):
         self.draw_background(screen)
         self.draw_settings_button(screen)
         
-        from ui.panel import draw_text_outlined
-        title_text = "Inventory"
-        # Avoid size() call every frame
-        tw = self.fonts['xlarge'].size(title_text)[0]
-        draw_text_outlined(screen, title_text, self.fonts['xlarge'], (255, 255, 255), (SCREEN_WIDTH // 2) - (tw // 2), 50)
+        # 1. Title (Cached)
+        if self.cached_title:
+            screen.blit(self.cached_title, (SCREEN_WIDTH // 2 - self.cached_title.get_width() // 2, 50 - 5))
         
-        for menu in self.menus:
-            menu.draw(screen)
+        # 2. Menus and Descriptions
+        for i, menu in enumerate(self.menus):
+            # Optimization: Cache description for the active menu only
+            if i == len(self.menus) - 1 and menu.descriptions:
+                selected_opt = str(menu.options[menu.selected])
+                desc_text = menu.descriptions.get(selected_opt)
+                
+                # Check tracker
+                cache_key = f"{id(menu)}_{selected_opt}"
+                if cache_key != self._last_selected_item:
+                    if desc_text:
+                        # We need the menu rect to position the description, 
+                        # but we can't get it easily without calling draw or refresh_layout.
+                        # Menu.draw returns the rect.
+                        pass # Will handle below
+                
+                # Temporarily disable menu's own description drawing
+                orig_desc = menu.descriptions
+                menu.descriptions = None
+                rect = menu.draw(screen)
+                menu.descriptions = orig_desc
+                
+                if desc_text:
+                    if cache_key != self._last_selected_item:
+                        self._render_desc_cache(desc_text, rect)
+                        self._last_selected_item = cache_key
+                    
+                    if self._cached_desc_surf:
+                        # Position logic from Menu.draw_description
+                        from core.game_rules.constants import scale_y, scale_x
+                        tx = rect.right + scale_x(menu.tooltip_offset_x)
+                        ty = rect.centery if menu.tooltip_vert_centered else rect.y
+                        # Check screen bounds and adjust (Simplified version of Menu logic)
+                        if tx + self._cached_desc_surf.get_width() > SCREEN_WIDTH:
+                            tx = rect.left - self._cached_desc_surf.get_width() - scale_x(menu.tooltip_offset_x)
+                        
+                        screen.blit(self._cached_desc_surf, (tx, ty))
+            else:
+                menu.draw(screen)
         
         if self.dialogue.current_message:
             self.dialogue.draw(screen)

@@ -5,6 +5,7 @@ from graphics.backgrounds import BackgroundManager
 from ui.panel import Panel, draw_text_outlined
 from core.players.player import classes
 from graphics.sprite_manager import SpriteManager
+from core.game_rules.constants import scale_x, scale_y, COLOR_GOLD, COLOR_WHITE
 
 class ClassSelectState(BaseState):
     def __init__(self, game, font, hiring=False):
@@ -30,9 +31,103 @@ class ClassSelectState(BaseState):
 
         self.details_panel = Panel(520, 90, 260, 420)
 
+        # Wasm Optimization: Class Details Caching
+        self._last_selected_idx = -1
+        self._cached_details_surf = None
+
+    def wrap_text(self, text, font, max_width):
+        """Helper to wrap text into multiple lines."""
+        words = text.split(' ')
+        lines = []
+        current_line = []
+
+        for word in words:
+            test_line = ' '.join(current_line + [word])
+            if font.size(test_line)[0] <= max_width:
+                current_line.append(word)
+            else:
+                lines.append(' '.join(current_line))
+                current_line = [word]
+        
+        if current_line:
+            lines.append(' '.join(current_line))
+        return lines
+
+    def _update_details_cache(self, class_key, class_data):
+        """Pre-renders the class details onto a cached surface."""
+        # Panel inner width/height (approx)
+        pw, ph = scale_x(260), scale_y(420)
+        surf = pygame.Surface((pw, ph), pygame.SRCALPHA)
+        
+        y_off = 10
+        # Title
+        title = class_key.title()
+        tw, _ = self.fonts['large'].size(title)
+        draw_text_outlined(surf, title, self.fonts['large'], COLOR_GOLD, pw // 2 - tw // 2, y_off)
+        y_off += 35
+        
+        # HP
+        hp = class_data.get('hp', 10)
+        draw_text_outlined(surf, f"HP: {hp}", self.font, (200, 50, 50), scale_x(15), y_off)
+        y_off += 25
+        
+        # Resource
+        caster_classes = ["wizard", "druid", "alchemist", "sorcerer", "cleric"]
+        martial_classes = ["fighter", "monk", "ranger", "rogue"]
+        if class_key in caster_classes:
+            draw_text_outlined(surf, "MP: 1", self.font, (50, 100, 200), scale_x(15), y_off)
+            y_off += 25
+        elif class_key in martial_classes:
+            draw_text_outlined(surf, "SP: 1", self.font, (255, 200, 0), scale_x(15), y_off)
+            y_off += 25
+            
+        # Gear
+        y_off += 5
+        draw_text_outlined(surf, "Starting Gear:", self.font, COLOR_GOLD, scale_x(15), y_off)
+        y_off += 25
+        weapon = class_data.get('weapon', 'None').replace('_', ' ').title()
+        armor = class_data.get('armor', 'None').replace('_', ' ').title()
+        draw_text_outlined(surf, f"Weapon: {weapon}", self.font, COLOR_WHITE, scale_x(15), y_off)
+        y_off += 20
+        draw_text_outlined(surf, f"Armor: {armor}", self.font, COLOR_WHITE, scale_x(15), y_off)
+        y_off += 30
+        
+        # Ability
+        lvl1_data = class_data.get('levels', {}).get('1', {})
+        ability_name = "None"
+        if lvl1_data.get('skills'):
+            ability_name = lvl1_data['skills'][0].replace('_', ' ').title()
+            ability_label = "Starting Skill:"
+        elif lvl1_data.get('spells'):
+            ability_name = lvl1_data['spells'][0].replace('_', ' ').title()
+            ability_label = "Starting Spell:"
+        else:
+            ability_label = "Starting Ability:"
+            
+        draw_text_outlined(surf, ability_label, self.font, COLOR_GOLD, scale_x(15), y_off)
+        y_off += 25
+        draw_text_outlined(surf, ability_name, self.font, COLOR_WHITE, scale_x(15), y_off)
+        y_off += 35
+        
+        # Description
+        draw_text_outlined(surf, "Description:", self.font, COLOR_GOLD, scale_x(15), y_off)
+        y_off += 25
+        
+        flavor = class_data.get('flavor', '')
+        desc = class_data.get('description', '')
+        full_text = f"{flavor} {desc}"
+        
+        max_desc_width = pw - scale_x(25)
+        desc_lines = self.wrap_text(full_text, self.font, max_desc_width)
+        
+        for line in desc_lines:
+            draw_text_outlined(surf, line, self.font, COLOR_WHITE, scale_x(15), y_off)
+            y_off += scale_y(24)
+            
+        self._cached_details_surf = surf
+
     def get_class_sprite(self, class_key):
         """Loads and returns the sprite for a given class."""
-        from core.game_rules.constants import scale_x, scale_y
         return SpriteManager.get_player_sprite(class_key, size=(scale_x(256), scale_y(256)))
 
     def on_select(self, option):
@@ -110,64 +205,28 @@ class ClassSelectState(BaseState):
         # Menu pinned to the left side, vertically centered 
         self.active_menu.draw(screen)
 
-        from core.game_rules.constants import scale_y, COLOR_GOLD
-        
         title_str = "Choose Your Class"
         tw, th = self.fonts['xlarge'].size(title_str)
         draw_text_outlined(screen, title_str, self.fonts['xlarge'], (255, 255, 255), width // 2 - tw // 2, 50)
 
         # Get current class
-        class_key = self.menu.options[self.menu.selected].lower()
+        if not self.menu.options:
+            return
+            
+        selected_idx = self.menu.selected
+        class_key = self.menu.options[selected_idx].lower()
         class_data = classes.get(class_key, {})
 
         # --- Draw Class Details Panel ---
-        self.details_panel.draw(screen)
-        y_off = 10
-        self.details_panel.draw_text(screen, class_key.title(), self.fonts['large'], COLOR_GOLD, center=True, y_offset=y_off)
-        y_off += 40
+        rect = self.details_panel.draw(screen)
         
-        # HP
-        hp = class_data.get('hp', 10)
-        self.details_panel.draw_text(screen, f"HP: {hp}", self.font, (200, 50, 50), y_offset=y_off)
-        y_off += 30
-        
-        # Resource (MP or SP)
-        caster_classes = ["wizard", "druid", "alchemist", "sorcerer", "cleric"]
-        martial_classes = ["fighter", "monk", "ranger", "rogue"]
-        
-        if class_key in caster_classes:
-            self.details_panel.draw_text(screen, "MP: 1", self.font, (50, 100, 200), y_offset=y_off)
-            y_off += 30
-        elif class_key in martial_classes:
-            self.details_panel.draw_text(screen, "SP: 1", self.font, (255, 200, 0), y_offset=y_off)
-            y_off += 30
+        # Optimization: Re-render only on change
+        if selected_idx != self._last_selected_idx:
+            self._update_details_cache(class_key, class_data)
+            self._last_selected_idx = selected_idx
             
-        # Starting Gear
-        y_off += 10
-        self.details_panel.draw_text(screen, "Starting Gear:", self.font, COLOR_GOLD, y_offset=y_off)
-        y_off += 30
-        weapon = class_data.get('weapon', 'None').replace('_', ' ').title()
-        armor = class_data.get('armor', 'None').replace('_', ' ').title()
-        self.details_panel.draw_text(screen, f"Weapon: {weapon}", self.font, y_offset=y_off)
-        y_off += 25
-        self.details_panel.draw_text(screen, f"Armor: {armor}", self.font, y_offset=y_off)
-        y_off += 40
-        
-        # Starting Ability
-        lvl1_data = class_data.get('levels', {}).get('1', {})
-        ability_name = "None"
-        if lvl1_data.get('skills'):
-            ability_name = lvl1_data['skills'][0].replace('_', ' ').title()
-            ability_label = "Starting Skill:"
-        elif lvl1_data.get('spells'):
-            ability_name = lvl1_data['spells'][0].replace('_', ' ').title()
-            ability_label = "Starting Spell:"
-        else:
-            ability_label = "Starting Ability:"
-            
-        self.details_panel.draw_text(screen, ability_label, self.font, COLOR_GOLD, y_offset=y_off)
-        y_off += 30
-        self.details_panel.draw_text(screen, ability_name, self.font, y_offset=y_off)
+        if self._cached_details_surf:
+            screen.blit(self._cached_details_surf, (rect.x, rect.y))
 
         # Draw current class sprite
         sprite = self.get_class_sprite(class_key)

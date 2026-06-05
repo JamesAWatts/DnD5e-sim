@@ -17,12 +17,31 @@ class AbilityDescriptionBox:
         rx, ry, rw, rh = rect_tuple
         self.panel = Panel(rx, ry, rw, rh, bg_color=(20, 20, 40), alpha=235, border_color=COLOR_GOLD)
 
+        # Wasm Optimization: Tracker Caching
+        self._last_ability_name = None
+        self._cached_desc_surface = None
+
     def draw(self, screen, baked_ability):
         if not baked_ability: return
 
         # Draw panel and get its SCREEN-SPACE rect
         rect = self.panel.draw(screen)
 
+        name = baked_ability.get('name', 'Ability').title()
+        
+        # Wasm Optimization: Re-render only on change
+        if name != self._last_ability_name:
+            self._render_to_cache(baked_ability, rect)
+            self._last_ability_name = name
+
+        if self._cached_desc_surface:
+            screen.blit(self._cached_desc_surface, (rect.x, rect.y))
+
+    def _render_to_cache(self, baked_ability, rect):
+        """Pre-renders the entire description box content to a surface."""
+        # Create a surface matching the panel's screen-space size
+        surf = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
+        
         name = baked_ability.get('name', 'Ability').title()
         cost = baked_ability.get('cost', 0)
         
@@ -55,9 +74,8 @@ class AbilityDescriptionBox:
         if cost > 0:
             desc += f" (Cost: {cost} {res_type})"
 
-        # All text drawing now uses 'rect' (scaled screen space) instead of raw self.rect
         # Name
-        draw_text_outlined(screen, name, self.font, COLOR_GOLD, rect.x + scale_x(15), rect.y + scale_y(12))
+        draw_text_outlined(surf, name, self.font, COLOR_GOLD, scale_x(15), scale_y(12))
 
         # Cost and Type
         info_text = f"{cost} {res_type} | {a_type}"
@@ -70,10 +88,10 @@ class AbilityDescriptionBox:
         if current_val < cost:
             cost_color = (255, 100, 100) # Soft Red
 
-        draw_text_outlined(screen, info_text, medium_font, cost_color, rect.x + scale_x(15), rect.y + scale_y(42))
+        draw_text_outlined(surf, info_text, medium_font, cost_color, scale_x(15), scale_y(42))
 
         # Description (Wrapped)
-        desc_y = rect.y + scale_y(75)
+        desc_y = scale_y(75)
         words = desc.split(' ')
         line = ""
         for word in words:
@@ -81,10 +99,13 @@ class AbilityDescriptionBox:
             if medium_font.size(test_line)[0] < rect.width - scale_x(30):
                 line = test_line
             else:
-                draw_text_outlined(screen, line, medium_font, COLOR_WHITE, rect.x + scale_x(15), desc_y)
+                draw_text_outlined(surf, line, medium_font, COLOR_WHITE, scale_x(15), desc_y)
                 desc_y += scale_y(medium_font.get_height() + 1)
                 line = word + " "
-        draw_text_outlined(screen, line, medium_font, COLOR_WHITE, rect.x + scale_x(15), desc_y)
+        draw_text_outlined(surf, line, medium_font, COLOR_WHITE, scale_x(15), desc_y)
+        
+        self._cached_desc_surface = surf
+
 
 class CombatMenuManager:
     def __init__(self, combat_state):

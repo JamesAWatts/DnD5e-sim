@@ -66,7 +66,107 @@ class BestiaryState(BaseState):
             for item_id, item_data in items.items():
                 self.item_lookup[item_id] = item_data
 
+        # Wasm Optimization: Caching
+        self._text_cache = {}
+        self._last_creature_idx = -1
+        self._cached_spec_surf = None # Surface for the right column (stats/loot/abilities)
+
         self.build_spec_sheet_layout()
+
+    def _get_cached_text(self, text, font, color):
+        """Retrieves or renders a text surface from cache."""
+        cache_key = f"{text}_{id(font)}_{color}"
+        if cache_key not in self._text_cache:
+            tw, th = font.size(text)
+            surf = pygame.Surface((tw + 10, th + 10), pygame.SRCALPHA)
+            draw_text_outlined(surf, text, font, color, 5, 5)
+            self._text_cache[cache_key] = surf
+        return self._text_cache[cache_key]
+
+    def _render_spec_cache(self, screen):
+        """Pre-renders the expensive stats/loot/ability details onto a surface."""
+        # Panel Dimensions (Right Column)
+        margin = 70
+        left_col_w = 180
+        right_col_x = margin + left_col_w + 20
+        right_col_w = 800 - right_col_x - margin
+        
+        # Total height needed for right column
+        total_h = 600 - margin * 2
+        surf = pygame.Surface((scale_x(right_col_w), scale_y(total_h)), pygame.SRCALPHA)
+        
+        c = self.creatures_list[self.current_creature_idx]
+        c_id = c.get('_id', '')
+        rp = self.game.bestiary_rp.get(c_id, 0)
+        
+        # Stats Section (y=0 in local surf)
+        stats_title = f"{c.get('name', 'Unknown')}'s Stats"
+        draw_text_outlined(surf, stats_title, self.fonts['large'], COLOR_GOLD, scale_x(20), scale_y(15))
+        
+        if rp >= 5:
+            draw_text_outlined(surf, f"Level: {c.get('level', '?')}", self.fonts['medium'], COLOR_WHITE, scale_x(20), scale_y(50))
+            draw_text_outlined(surf, f"AC: {c.get('armor', '?')}", self.fonts['medium'], COLOR_WHITE, scale_x(200), scale_y(50))
+            hp_val = str(c.get('hp', '?')) if rp >= 1 else "???"
+            draw_text_outlined(surf, f"HP: {hp_val}", self.fonts['medium'], COLOR_WHITE, scale_x(20), scale_y(85))
+            draw_text_outlined(surf, f"Proficiency: +{c.get('proficiency_bonus', '?')}", self.fonts['medium'], COLOR_WHITE, scale_x(200), scale_y(85))
+            draw_text_outlined(surf, f"Attacks: {c.get('attack_count', 1)}", self.fonts['medium'], COLOR_WHITE, scale_x(20), scale_y(120))
+            
+            raw_die = c.get('die', '?')
+            prof = c.get('proficiency_bonus', 0)
+            dmg_str = f"1d{raw_die} + {prof}" if isinstance(raw_die, int) else f"{raw_die} + {prof}"
+            draw_text_outlined(surf, f"Damage: {dmg_str}", self.fonts['medium'], COLOR_WHITE, scale_x(200), scale_y(120))
+        else:
+            hp_val = str(c.get('hp', '?')) if rp >= 1 else "???"
+            draw_text_outlined(surf, f"HP: {hp_val}", self.fonts['medium'], COLOR_WHITE, scale_x(20), scale_y(50))
+            draw_text_outlined(surf, "Kill more to reveal stats...", self.fonts['medium'], COLOR_GRAY, scale_x(20), scale_y(85))
+            
+        # Loot Section (y=170)
+        loot_y = 170
+        draw_text_outlined(surf, "Loot Drops", self.fonts['large'], COLOR_GOLD, scale_x(20), scale_y(loot_y + 15))
+        reward = c.get('reward', {})
+        loot_y_base = loot_y + 55
+        draw_text_outlined(surf, f"Gold: {reward.get('gold', 0)}g", self.fonts['medium'], COLOR_WHITE, scale_x(20), scale_y(loot_y_base))
+        
+        items_x = 200
+        curr_loot_y = loot_y_base
+        # Note: Hover rects cannot be cached easily, will rebuild in draw()
+        for item_entry in reward.get('items', []):
+            item_id = item_entry.get('name', '')
+            item_name = item_id.replace('_', ' ').title()
+            draw_text_outlined(surf, f"- {item_name}", self.fonts['medium'], COLOR_WHITE, scale_x(items_x), scale_y(curr_loot_y))
+            curr_loot_y += 30
+            
+        # Abilities Section (y=300)
+        ab_y = 300
+        draw_text_outlined(surf, "Abilities", self.fonts['large'], COLOR_GOLD, scale_x(20), scale_y(ab_y + 15))
+        if rp >= 10:
+            ability_y = ab_y + 50
+            abilities = c.get('skills', []) + c.get('spells', [])
+            if not abilities:
+                draw_text_outlined(surf, "None", self.fonts['medium'], COLOR_GRAY, scale_x(20), scale_y(ability_y))
+            else:
+                from core.combat.combat_ai import CombatAI
+                from core.combat.ability_baker import AbilityBaker
+                for a_name in abilities[:2]: 
+                    data = CombatAI.get_ability_data(a_name)
+                    if not data: continue
+                    name_disp = a_name.replace('_', ' ').title()
+                    baked_data = AbilityBaker.bake_ability(data, c)
+                    if rp >= 40:
+                        die = baked_data.get('damage_die', baked_data.get('die', ''))
+                        desc = baked_data.get('description', '')
+                        draw_text_outlined(surf, f"{name_disp} ({die})", self.fonts['medium'], COLOR_GOLD, scale_x(20), scale_y(ability_y))
+                        ability_y += 25
+                        # Word-wrapping could be added here if needed, but per instructions we keep it simple or cache it.
+                        draw_text_outlined(surf, desc[:60] + ("..." if len(desc)>60 else ""), self.fonts['medium'], COLOR_WHITE, scale_x(30), scale_y(ability_y))
+                        ability_y += 35
+                    else:
+                        draw_text_outlined(surf, name_disp, self.fonts['medium'], COLOR_WHITE, scale_x(20), scale_y(ability_y))
+                        ability_y += 30
+        else:
+            draw_text_outlined(surf, "Kill more to reveal abilities...", self.fonts['medium'], COLOR_GRAY, scale_x(20), scale_y(ab_y + 50))
+            
+        self._cached_spec_surf = surf
 
     def on_select(self, option):
         if self.menu_state == "CHAPTERS":
@@ -213,6 +313,63 @@ class BestiaryState(BaseState):
         
         self.spec_nav_menu.draw(screen)
         
+        # Wasm Optimization: Caching Spec Sheet Section
+        if self.current_creature_idx != self._last_creature_idx:
+            self._render_spec_cache(screen)
+            self._last_creature_idx = self.current_creature_idx
+            
+        if self._cached_spec_surf:
+            # Stats panel is the top-most of the right column
+            screen.blit(self._cached_spec_surf, (stats_rect.x, stats_rect.y))
+            
+        # Manually reconstruct hover rects for items/abilities (must be screen-space)
+        # Note: This is still faster than rendering text.
+        reward = c.get('reward', {})
+        loot_y_base = loot_rect.y + scale_y(55)
+        items_x = loot_rect.x + scale_x(200)
+        curr_loot_y = loot_y_base
+        for item_entry in reward.get('items', []):
+            item_id = item_entry.get('name', '')
+            item_data = self.item_lookup.get(item_id)
+            if item_data:
+                # We need the size of the text to build the rect. 
+                # Use font.size (which is cheap compared to render)
+                item_name = item_id.replace('_', ' ').title()
+                tw, th = self.fonts['medium'].size(f"- {item_name}")
+                r = pygame.Rect(items_x, curr_loot_y, tw, th)
+                self.hover_rects.append((r, {'type': 'item', 'data': item_data}))
+            curr_loot_y += scale_y(30)
+            
+        if rp >= 10:
+            ability_y = ability_rect.y + scale_y(50)
+            abilities = c.get('skills', []) + c.get('spells', [])
+            from core.combat.combat_ai import CombatAI
+            from core.combat.ability_baker import AbilityBaker
+            for a_name in abilities[:2]:
+                data = CombatAI.get_ability_data(a_name)
+                if not data: continue
+                baked_data = AbilityBaker.bake_ability(data, c)
+                name_disp = a_name.replace('_', ' ').title()
+                
+                if rp >= 40:
+                    die = baked_data.get('damage_die', baked_data.get('die', ''))
+                    tw, th = self.fonts['medium'].size(f"{name_disp} ({die})")
+                    r = pygame.Rect(ability_rect.x + scale_x(20), ability_y, tw, th)
+                    self.hover_rects.append((r, {'type': 'ability', 'data': baked_data}))
+                    ability_y += scale_y(25)
+                    
+                    desc = baked_data.get('description', '')
+                    tw2, th2 = self.fonts['medium'].size(desc[:60] + "...")
+                    r2 = pygame.Rect(ability_rect.x + scale_x(30), ability_y, tw2, th2)
+                    self.hover_rects.append((r2, {'type': 'ability', 'data': baked_data}))
+                    ability_y += scale_y(35)
+                else:
+                    tw, th = self.fonts['medium'].size(name_disp)
+                    r = pygame.Rect(ability_rect.x + scale_x(20), ability_y, tw, th)
+                    self.hover_rects.append((r, {'type': 'ability', 'data': baked_data}))
+                    ability_y += scale_y(30)
+        
+        # Sprite logic remains the same (already fairly efficient)
         sz = scale_x(180)
         from graphics.sprite_manager import SpriteManager
         raw_sprite = SpriteManager.get_enemy_sprite(c, size=(sz, sz))
@@ -232,78 +389,15 @@ class BestiaryState(BaseState):
                 flipped_sprite = pygame.transform.flip(sprite_surface, True, False)
                 screen.blit(flipped_sprite, (sprite_rect.centerx - sz // 2, sprite_rect.centery - sz // 2))
             except Exception:
-                draw_text_outlined(screen, "Flip Error", self.fonts['medium'], COLOR_WHITE, sprite_rect.x + scale_x(20), sprite_rect.y + scale_y(50))
+                surf = self._get_cached_text("Flip Error", self.fonts['medium'], COLOR_WHITE)
+                screen.blit(surf, (sprite_rect.x + scale_x(20), sprite_rect.y + scale_y(50)))
         else:
-            draw_text_outlined(screen, "No Image", self.fonts['medium'], COLOR_GRAY, sprite_rect.x + scale_x(50), sprite_rect.y + scale_y(100))
+            surf = self._get_cached_text("No Image", self.fonts['medium'], COLOR_GRAY)
+            screen.blit(surf, (sprite_rect.x + scale_x(50), sprite_rect.y + scale_y(100)))
         
         rp_text = f"Research Points: {rp}"
-        draw_text_outlined(screen, rp_text, self.fonts['medium'], COLOR_GOLD, sprite_rect.x + scale_x(15), sprite_rect.bottom - scale_y(25))
-        
-        stats_title = f"{c.get('name', 'Unknown')}'s Stats"
-        draw_text_outlined(screen, stats_title, self.fonts['large'], COLOR_GOLD, stats_rect.x + scale_x(20), stats_rect.y + scale_y(15))
-        
-        if rp >= 5:
-            draw_text_outlined(screen, f"Level: {c.get('level', '?')}", self.fonts['medium'], COLOR_WHITE, stats_rect.x + scale_x(20), stats_rect.y + scale_y(50))
-            draw_text_outlined(screen, f"AC: {c.get('armor', '?')}", self.fonts['medium'], COLOR_WHITE, stats_rect.x + scale_x(200), stats_rect.y + scale_y(50))
-            hp_val = str(c.get('hp', '?')) if rp >= 1 else "???"
-            draw_text_outlined(screen, f"HP: {hp_val}", self.fonts['medium'], COLOR_WHITE, stats_rect.x + scale_x(20), stats_rect.y + scale_y(85))
-            draw_text_outlined(screen, f"Proficiency: +{c.get('proficiency_bonus', '?')}", self.fonts['medium'], COLOR_WHITE, stats_rect.x + scale_x(200), stats_rect.y + scale_y(85))
-            draw_text_outlined(screen, f"Attacks: {c.get('attack_count', 1)}", self.fonts['medium'], COLOR_WHITE, stats_rect.x + scale_x(20), stats_rect.y + scale_y(120))
-            
-            raw_die = c.get('die', '?')
-            prof = c.get('proficiency_bonus', 0)
-            dmg_str = f"1d{raw_die} + {prof}" if isinstance(raw_die, int) else f"{raw_die} + {prof}"
-            draw_text_outlined(screen, f"Damage: {dmg_str}", self.fonts['medium'], COLOR_WHITE, stats_rect.x + scale_x(200), stats_rect.y + scale_y(120))
-        else:
-            hp_val = str(c.get('hp', '?')) if rp >= 1 else "???"
-            draw_text_outlined(screen, f"HP: {hp_val}", self.fonts['medium'], COLOR_WHITE, stats_rect.x + scale_x(20), stats_rect.y + scale_y(50))
-            draw_text_outlined(screen, "Kill more to reveal stats...", self.fonts['medium'], COLOR_GRAY, stats_rect.x + scale_x(20), stats_rect.y + scale_y(85))
-            
-        draw_text_outlined(screen, "Loot Drops", self.fonts['large'], COLOR_GOLD, loot_rect.x + scale_x(20), loot_rect.y + scale_y(15))
-        reward = c.get('reward', {})
-        loot_y_base = loot_rect.y + scale_y(55)
-        draw_text_outlined(screen, f"Gold: {reward.get('gold', 0)}g", self.fonts['medium'], COLOR_WHITE, loot_rect.x + scale_x(20), loot_y_base)
-        
-        items_x = loot_rect.x + scale_x(200)
-        curr_loot_y = loot_y_base
-        for item_entry in reward.get('items', []):
-            item_id = item_entry.get('name', '')
-            item_name = item_id.replace('_', ' ').title()
-            r = draw_text_outlined(screen, f"- {item_name}", self.fonts['medium'], COLOR_WHITE, items_x, curr_loot_y)
-            item_data = self.item_lookup.get(item_id)
-            if item_data:
-                self.hover_rects.append((r, {'type': 'item', 'data': item_data}))
-            curr_loot_y += scale_y(30)
-            
-        draw_text_outlined(screen, "Abilities", self.fonts['large'], COLOR_GOLD, ability_rect.x + scale_x(20), ability_rect.y + scale_y(15))
-        if rp >= 10:
-            ability_y = ability_rect.y + scale_y(50)
-            abilities = c.get('skills', []) + c.get('spells', [])
-            if not abilities:
-                draw_text_outlined(screen, "None", self.fonts['medium'], COLOR_GRAY, ability_rect.x + scale_x(20), ability_y)
-            else:
-                from core.combat.combat_ai import CombatAI
-                from core.combat.ability_baker import AbilityBaker
-                for a_name in abilities[:2]: 
-                    data = CombatAI.get_ability_data(a_name)
-                    if not data or data.get('type') == 'heal': continue
-                    name_disp = a_name.replace('_', ' ').title()
-                    baked_data = AbilityBaker.bake_ability(data, c)
-                    if rp >= 40:
-                        die = baked_data.get('damage_die', baked_data.get('die', ''))
-                        desc = baked_data.get('description', '')
-                        r = draw_text_outlined(screen, f"{name_disp} ({die})", self.fonts['medium'], COLOR_GOLD, ability_rect.x + scale_x(20), ability_y)
-                        self.hover_rects.append((r, {'type': 'ability', 'data': baked_data}))
-                        ability_y += scale_y(25)
-                        r2 = draw_text_outlined(screen, desc[:60] + ("..." if len(desc)>60 else ""), self.fonts['medium'], COLOR_WHITE, ability_rect.x + scale_x(30), ability_y)
-                        self.hover_rects.append((r2, {'type': 'ability', 'data': baked_data}))
-                        ability_y += scale_y(35)
-                    else:
-                        r = draw_text_outlined(screen, name_disp, self.fonts['medium'], COLOR_WHITE, ability_rect.x + scale_x(20), ability_y)
-                        self.hover_rects.append((r, {'type': 'ability', 'data': baked_data}))
-                        ability_y += scale_y(30)
-        else:
-            draw_text_outlined(screen, "Kill more to reveal abilities...", self.fonts['medium'], COLOR_GRAY, ability_rect.x + scale_x(20), ability_rect.y + scale_y(50))
+        rp_surf = self._get_cached_text(rp_text, self.fonts['medium'], COLOR_GOLD)
+        screen.blit(rp_surf, (sprite_rect.x + scale_x(15), sprite_rect.bottom - scale_y(25) - 5))
 
     def draw_tooltip(self, screen):
         if not self.active_tooltip: return

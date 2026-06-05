@@ -39,6 +39,50 @@ class ShopState(BaseState):
         # Calculate TPL once upon entering the shop
         self.tpl = sum(p.get('level', 1) for p in self.game.party)
 
+        # Wasm Optimization: Caching
+        self._last_gold = -1
+        self._cached_gold_surf = None
+        self._last_hovered_item = None
+        self._cached_desc_surf = None
+
+    def _render_gold_cache(self, gold):
+        gold_text = f"Gold: {gold}"
+        tw, th = self.fonts['large'].size(gold_text)
+        self._cached_gold_surf = pygame.Surface((tw + 10, th + 10), pygame.SRCALPHA)
+        draw_text_outlined(self._cached_gold_surf, gold_text, self.fonts['large'], COLOR_GOLD, 5, 5)
+
+    def _render_desc_cache(self, text, menu_rect):
+        from core.game_rules.constants import SCALE_X, SCALE_Y, scale_x, scale_y
+        raw_w = 200 # Tooltip width
+        scaled_w = raw_w * SCALE_X
+        
+        words = str(text).split(' ')
+        lines = []
+        current_line = []
+        for word in words:
+            test_line = ' '.join(current_line + [word])
+            tw, _ = self.fonts['medium'].size(test_line)
+            if tw > scaled_w - scale_x(20):
+                lines.append(' '.join(current_line))
+                current_line = [word]
+            else:
+                current_line.append(word)
+        lines.append(' '.join(current_line))
+        
+        line_h = self.fonts['medium'].get_height()
+        spacing = scale_y(2)
+        total_h = len(lines) * (line_h + spacing) + scale_y(30)
+        
+        surf = pygame.Surface((scaled_w, total_h), pygame.SRCALPHA)
+        from ui.panel import Panel
+        panel = Panel(0, 0, raw_w, total_h / SCALE_Y, bg_color=(20, 20, 40), border_color=COLOR_GOLD, border_width=2, centered=False, border_radius=10, alpha=230)
+        panel.draw(surf)
+        
+        for i, line in enumerate(lines):
+            lw, _ = self.fonts['medium'].size(line)
+            draw_text_outlined(surf, line, self.fonts['medium'], (220, 220, 220), scaled_w // 2 - lw // 2, scale_y(15) + i * (line_h + spacing))
+        self._cached_desc_surf = surf
+
     def refresh_buy_menu(self):
         options = ["Weapons", "Armor", "Shields", "Consumables", "Trinkets", "Back"]
         self.active_menu = Menu(options, self.fonts['medium'], width=200, header="What are you looking for?", pos=(300, 300), tooltip_offset_x=105, tooltip_vert_centered=True)
@@ -422,12 +466,42 @@ class ShopState(BaseState):
         self.draw_background(screen)
         self.draw_settings_button(screen)
 
-        gold_text = f"Gold: {self.inventory.get('gold', 0)}"
-        gw, gh = self.fonts['large'].size(gold_text)
-        draw_text_outlined(screen, gold_text, self.fonts['large'], COLOR_GOLD, (SCREEN_WIDTH // 2) - (gw // 2), scale_y(40))
+        # Gold (Tracker-based Cache)
+        gold_val = self.inventory.get('gold', 0)
+        if gold_val != self._last_gold:
+            self._render_gold_cache(gold_val)
+            self._last_gold = gold_val
+            
+        if self._cached_gold_surf:
+            screen.blit(self._cached_gold_surf, (SCREEN_WIDTH // 2 - self._cached_gold_surf.get_width() // 2, scale_y(40) - 5))
 
         if self.active_menu and not self.dialogue.current_message:
-            self.active_menu.draw(screen)
+            # Tracker-based description caching
+            if self.active_menu.descriptions:
+                selected_opt = str(self.active_menu.options[self.active_menu.selected])
+                cache_key = f"{id(self.active_menu)}_{selected_opt}"
+                
+                # Temporarily disable menu's own description drawing
+                orig_desc = self.active_menu.descriptions
+                self.active_menu.descriptions = None
+                rect = self.active_menu.draw(screen)
+                self.active_menu.descriptions = orig_desc
+                
+                desc_text = orig_desc.get(selected_opt)
+                if desc_text:
+                    if cache_key != self._last_hovered_item:
+                        self._render_desc_cache(desc_text, rect)
+                        self._last_hovered_item = cache_key
+                    
+                    if self._cached_desc_surf:
+                        from core.game_rules.constants import scale_x
+                        tx = rect.right + scale_x(self.active_menu.tooltip_offset_x)
+                        ty = rect.centery if self.active_menu.tooltip_vert_centered else rect.y
+                        if tx + self._cached_desc_surf.get_width() > SCREEN_WIDTH:
+                            tx = rect.left - self._cached_desc_surf.get_width() - scale_x(self.active_menu.tooltip_offset_x)
+                        screen.blit(self._cached_desc_surf, (tx, ty))
+            else:
+                self.active_menu.draw(screen)
             
         if self.dialogue.current_message:
             self.dialogue.draw(screen)

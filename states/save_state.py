@@ -24,6 +24,16 @@ class SaveState(BaseState):
         self.confirm_menu = None
         self.selected_slot = None
 
+        # Wasm Optimization: Caching
+        self.cached_title = None
+        self._render_title_cache()
+
+    def _render_title_cache(self):
+        title_str = "Save / Load"
+        tw, th = self.fonts['xlarge'].size(title_str)
+        self.cached_title = pygame.Surface((tw + 10, th + 10), pygame.SRCALPHA)
+        draw_text_outlined(self.cached_title, title_str, self.fonts['xlarge'], COLOR_WHITE, 5, 5)
+
     def on_select(self, option):
         if self.confirm_menu:
             if option == "Yes":
@@ -103,8 +113,7 @@ class SaveState(BaseState):
         if self.active_menu:
             self.active_menu.draw(screen, 400, 300)
 
-        title_str = "Save / Load"
-        tw, th = self.fonts['xlarge'].size(title_str)
-        # SCREEN_WIDTH // 2 is fine for simple horizontal centering of text
-        from core.game_rules.constants import SCREEN_WIDTH
-        draw_text_outlined(screen, title_str, self.fonts['xlarge'], COLOR_WHITE, SCREEN_WIDTH // 2 - tw // 2, scale_y(50))
+        # Title (Cached)
+        if self.cached_title:
+            from core.game_rules.constants import SCREEN_WIDTH
+            screen.blit(self.cached_title, (SCREEN_WIDTH // 2 - self.cached_title.get_width() // 2, scale_y(50) - 5))

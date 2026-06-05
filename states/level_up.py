@@ -1,3 +1,4 @@
+import pygame
 import os
 from states.base_state import BaseState
 from ui.menu import Menu
@@ -26,7 +27,55 @@ class LevelUpState(BaseState):
         trinkets_db = load_trinkets()
         self.inventory_panel = InventoryPanel(self.fonts, weapons_db, armor_db, shields_db, trinkets_db)
 
+        # Wasm Optimization: Caching
+        self.cached_title = None
+        self._last_selected_class = None
+        self._cached_desc_surf = None
+
         self.refresh_class_menu()
+
+    def _render_title_cache(self):
+        from ui.panel import draw_text_outlined
+        title_text = f"Level Up: {self.player.get('name', 'Adventurer')}!"
+        tw, th = self.fonts['xlarge'].size(title_text)
+        self.cached_title = pygame.Surface((tw + 10, th + 10), pygame.SRCALPHA)
+        draw_text_outlined(self.cached_title, title_text, self.fonts['xlarge'], (255, 255, 0), 5, 5)
+
+    def _render_desc_cache(self, text):
+        from ui.panel import draw_text_outlined
+        # Panel Dimensions (Matches Menu.draw_description defaults)
+        raw_w = 200
+        from core.game_rules.constants import SCALE_X, SCALE_Y, scale_x, scale_y
+        scaled_w = raw_w * SCALE_X
+        
+        words = str(text).split(' ')
+        lines = []
+        current_line = []
+        for word in words:
+            test_line = ' '.join(current_line + [word])
+            tw, _ = self.fonts['medium'].size(test_line)
+            if tw > scaled_w - scale_x(20):
+                lines.append(' '.join(current_line))
+                current_line = [word]
+            else:
+                current_line.append(word)
+        lines.append(' '.join(current_line))
+        
+        line_h = self.fonts['medium'].get_height()
+        spacing = scale_y(2)
+        total_h = len(lines) * (line_h + spacing) + scale_y(30)
+        
+        surf = pygame.Surface((scaled_w, total_h), pygame.SRCALPHA)
+        from ui.panel import Panel
+        from core.game_rules.constants import COLOR_GOLD
+        panel = Panel(0, 0, raw_w, total_h / SCALE_Y, bg_color=(20, 20, 40), border_color=COLOR_GOLD, border_width=2, centered=False, border_radius=10, alpha=230)
+        panel.draw(surf)
+        
+        for i, line in enumerate(lines):
+            lw, _ = self.fonts['medium'].size(line)
+            draw_text_outlined(surf, line, self.fonts['medium'], (220, 220, 220), scaled_w // 2 - lw // 2, scale_y(15) + i * (line_h + spacing))
+            
+        self._cached_desc_surf = surf
 
     def refresh_class_menu(self):
         self.class_names = [name.title() for name in load_player_classes().keys()]
@@ -100,17 +149,31 @@ class LevelUpState(BaseState):
         # Draw background manually to avoid super().draw() centering the menu
         self.draw_background(screen)
 
-        from ui.panel import draw_text_outlined
-        title_text = f"Level Up: {self.player.get('name', 'Adventurer')}!"
-        # Cache size check
-        tw = self.fonts['xlarge'].size(title_text)[0]
-        draw_text_outlined(screen, title_text, self.fonts['xlarge'], (255, 255, 0), (SCREEN_WIDTH // 2) - (tw // 2), 50)
+        # 1. Title (Cached)
+        if not self.cached_title:
+            self._render_title_cache()
+        screen.blit(self.cached_title, (SCREEN_WIDTH // 2 - self.cached_title.get_width() // 2, 50 - 5))
 
-        # Position class selection menu on the left
+        # 2. Menu and Description
         if self.active_menu:
-            self.active_menu.draw(screen, 150, 150, force_bottom_desc=True)
+            # Tell menu not to draw built-in description so we can use our cached one
+            orig_desc = self.active_menu.descriptions
+            self.active_menu.descriptions = None
+            rect = self.active_menu.draw(screen, 150, 150)
+            self.active_menu.descriptions = orig_desc
+            
+            # Tracker-based description caching
+            if orig_desc:
+                selected_opt = self.active_menu.options[self.active_menu.selected]
+                if selected_opt != self._last_selected_class:
+                    desc_text = orig_desc.get(selected_opt, "")
+                    self._render_desc_cache(desc_text)
+                    self._last_selected_class = selected_opt
+                
+                if self._cached_desc_surf:
+                    screen.blit(self._cached_desc_surf, (rect.centerx - self._cached_desc_surf.get_width() // 2, rect.bottom + scale_y(10)))
 
-        # Draw Player Info Panel (on the right)
+        # 3. Draw Player Info Panel (on the right)
         self.inventory_panel.draw(screen, self.player)
         self.inventory_panel.draw_tooltip(screen)
 

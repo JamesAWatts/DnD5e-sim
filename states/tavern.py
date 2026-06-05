@@ -68,6 +68,55 @@ class TavernState(BaseState):
         self.hiring_name = ""
         self.is_typing_name = False
 
+        # Wasm Optimization: Caching
+        self._cached_prompt = None
+        self._cached_instruct = None
+        self._cached_party_str = None
+        self._last_party_count = -1
+        
+        self._last_hiring_name = None
+        self._cached_name_surf = None
+        
+        self._last_gold_tavern = -1
+        self._cached_gold_surf_tavern = None
+        
+        self._render_static_cache_tavern()
+
+    def _render_static_cache_tavern(self):
+        """Pre-renders static strings for the tavern."""
+        # Prompt
+        prompt = "Name your ally:"
+        pw, ph = self.fonts['medium'].size(prompt)
+        self._cached_prompt = pygame.Surface((pw + 10, ph + 10), pygame.SRCALPHA)
+        draw_text_outlined(self._cached_prompt, prompt, self.fonts['medium'], (255,255,255), 5, 5)
+        
+        # Instruct
+        instruct = "Press ENTER to confirm, ESC to cancel"
+        iw, ih = self.fonts['small'].size(instruct)
+        self._cached_instruct = pygame.Surface((iw + 10, ih + 10), pygame.SRCALPHA)
+        draw_text_outlined(self._cached_instruct, instruct, self.fonts['small'], (150, 150, 150), 5, 5)
+
+    def _render_party_cache(self, count):
+        """Pre-renders the party size indicator."""
+        party_str = f"Party Size: {count}/3"
+        pw, ph = self.fonts['xlarge'].size(party_str)
+        self._cached_party_str = pygame.Surface((pw + 10, ph + 10), pygame.SRCALPHA)
+        draw_text_outlined(self._cached_party_str, party_str, self.fonts['xlarge'], (255,255,255), 5, 5)
+
+    def _render_gold_cache_tavern(self, gold):
+        """Pre-renders the player gold amount."""
+        gold_str = f"Gold: {gold}"
+        gw, gh = self.fonts['xlarge'].size(gold_str)
+        self._cached_gold_surf_tavern = pygame.Surface((gw + 10, gh + 10), pygame.SRCALPHA)
+        draw_text_outlined(self._cached_gold_surf_tavern, gold_str, self.fonts['xlarge'], COLOR_GOLD, 5, 5)
+
+    def _render_name_cache(self, name):
+        """Pre-renders the character name being typed."""
+        name_str = name + "_"
+        nw, nh = self.fonts['medium'].size(name_str)
+        self._cached_name_surf = pygame.Surface((nw + 10, nh + 10), pygame.SRCALPHA)
+        draw_text_outlined(self._cached_name_surf, name_str, self.fonts['medium'], (255, 255, 0), 5, 5)
+
     def on_select(self, option):
         if self.menu_state == "MAIN":
             self.handle_main_menu(option)
@@ -201,30 +250,41 @@ class TavernState(BaseState):
             pygame.draw.rect(screen, (30, 30, 30), (bx, by, box_w, box_h))
             pygame.draw.rect(screen, (200, 200, 200), (bx, by, box_w, box_h), 2)
             
-            prompt = "Name your ally:"
-            pw, ph = self.fonts['medium'].size(prompt)
-            draw_text_outlined(screen, prompt, self.fonts['medium'], (255,255,255), bx + (box_w - pw)//2, by + scale_y(20))
+            # Use cached prompt
+            if self._cached_prompt:
+                screen.blit(self._cached_prompt, (bx + (box_w - self._cached_prompt.get_width()) // 2, by + scale_y(20) - 5))
             
-            # Draw current typing name
-            name_str = self.hiring_name + "_"
-            nw, nh = self.fonts['medium'].size(name_str)
-            draw_text_outlined(screen, name_str, self.fonts['medium'], (255, 255, 0), bx + (box_w - nw)//2, by + scale_y(70))
+            # Tracker-based Cache for name input
+            if self.hiring_name != self._last_hiring_name:
+                self._render_name_cache(self.hiring_name)
+                self._last_hiring_name = self.hiring_name
             
-            instruct = "Press ENTER to confirm, ESC to cancel"
-            iw, ih = self.fonts['small'].size(instruct)
-            draw_text_outlined(screen, instruct, self.fonts['small'], (150, 150, 150), bx + (box_w - iw)//2, by + scale_y(110))
+            if self._cached_name_surf:
+                screen.blit(self._cached_name_surf, (bx + (box_w - self._cached_name_surf.get_width()) // 2, by + scale_y(70) - 5))
+            
+            # Use cached instructions
+            if self._cached_instruct:
+                screen.blit(self._cached_instruct, (bx + (box_w - self._cached_instruct.get_width()) // 2, by + scale_y(110) - 5))
         else:
             self.active_menu.draw(screen)
             
-            # Show party size
-            party_str = f"Party Size: {len(self.game.party)}/3"
-            pw, ph = self.fonts['xlarge'].size(party_str)
-            draw_text_outlined(screen, party_str, self.fonts['xlarge'], (255,255,255), width // 2 - pw // 2, height // 2 - scale_y(150))
+            # Show party size (Conditional Cache)
+            party_count = len(self.game.party)
+            if party_count != self._last_party_count:
+                self._render_party_cache(party_count)
+                self._last_party_count = party_count
+                
+            if self._cached_party_str:
+                screen.blit(self._cached_party_str, (width // 2 - self._cached_party_str.get_width() // 2, height // 2 - scale_y(150) - 5))
             
-            # Show gold
-            gold_str = f"Gold: {self.game.player['inventory_ref']['gold']}"
-            gw, gh = self.fonts['xlarge'].size(gold_str)
-            draw_text_outlined(screen, gold_str, self.fonts['xlarge'], COLOR_GOLD, width // 2 - gw // 2, height // 2 - scale_y(110))
+            # Show gold (Tracker-based Cache)
+            gold_val = self.game.player['inventory_ref']['gold']
+            if gold_val != self._last_gold_tavern:
+                self._render_gold_cache_tavern(gold_val)
+                self._last_gold_tavern = gold_val
+                
+            if self._cached_gold_surf_tavern:
+                screen.blit(self._cached_gold_surf_tavern, (width // 2 - self._cached_gold_surf_tavern.get_width() // 2, height // 2 - scale_y(110) - 5))
 
         if self.dialogue.current_message:
             self.dialogue.draw(screen)

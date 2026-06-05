@@ -16,6 +16,10 @@ class DialogueBox:
 
         self.finished = False
 
+        # Wasm Optimization: Tracker Caching for Word-Wrapping
+        self._last_visible_text = ""
+        self._cached_wrapped_lines = []
+
     # =========================
     # MESSAGE CONTROL
     # =========================
@@ -145,7 +149,13 @@ class DialogueBox:
         # Only draw text/indicators if a message is actually active
         if self.current_message:
             max_width = rect.width - scale_y(40)
-            lines = self.wrap_text(self.visible_text, max_width)
+            
+            # Wasm Optimization: Only wrap text when it changes
+            if self.visible_text != self._last_visible_text:
+                self._cached_wrapped_lines = self.wrap_text(self.visible_text, max_width)
+                self._last_visible_text = self.visible_text
+                
+            lines = self._cached_wrapped_lines
             line_height = self.font.get_height()
 
             from ui.panel import draw_text_outlined

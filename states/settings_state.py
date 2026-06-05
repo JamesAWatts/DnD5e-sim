@@ -23,6 +23,27 @@ class SettingsState(BaseState):
         self.thumb_radius = scale_y(10)
         self.is_dragging = False
 
+        # Wasm Optimization: Caching
+        self.cached_header = None
+        self._last_vol_percent = -1
+        self._cached_vol_surface = None
+        self._render_static_cache()
+
+    def _render_static_cache(self):
+        """Pre-renders static UI labels."""
+        # Header
+        header_text = "Settings"
+        tw, th = self.fonts['xlarge'].size(header_text)
+        self.cached_header = pygame.Surface((tw + 10, th + 10), pygame.SRCALPHA)
+        draw_text_outlined(self.cached_header, header_text, self.fonts['xlarge'], COLOR_GOLD, 5, 5)
+
+    def _render_vol_cache(self, vol_percent):
+        """Pre-renders the volume level label."""
+        text = f"Music Volume: {vol_percent}%"
+        tw, th = self.font.size(text)
+        self._cached_vol_surface = pygame.Surface((tw + 10, th + 10), pygame.SRCALPHA)
+        draw_text_outlined(self._cached_vol_surface, text, self.font, COLOR_WHITE, 5, 5)
+
     def refresh_menu_text(self):
         """Updates the menu text to show current settings."""
         music_status = "Off" if self.game.music_manager.is_muted else "On"
@@ -87,19 +108,28 @@ class SettingsState(BaseState):
                 from .title import TitleState
                 self.game.change_state(TitleState(self.game, self.fonts))
         elif option == "Exit Game":
-            self.game.quit()
+            # Web/Wasm optimization: Instead of quitting (which is often blocked), 
+            # return to Title and reset session data.
+            self.game.reset_game()
+            from .title import TitleState
+            self.game.change_state(TitleState(self.game, self.fonts))
 
     def draw(self, screen):
         # Background
         screen.fill((20, 20, 40))
         
-        # Header
-        draw_text_outlined(screen, "Settings", self.fonts['xlarge'], COLOR_GOLD, SCREEN_WIDTH // 2 - 50, scale_y(50))
+        # Header (Cached)
+        if self.cached_header:
+            screen.blit(self.cached_header, (SCREEN_WIDTH // 2 - self.cached_header.get_width() // 2, scale_y(50) - 5))
         
-        # Slider Label
+        # Slider Label (Tracker-based Cache)
         vol_percent = int(self.game.music_manager.volume * 100)
-        draw_text_outlined(screen, f"Music Volume: {vol_percent}%", self.font, COLOR_WHITE, 
-                          SCREEN_WIDTH // 2 - 100, self.slider_rect.y - scale_y(40))
+        if vol_percent != self._last_vol_percent:
+            self._render_vol_cache(vol_percent)
+            self._last_vol_percent = vol_percent
+            
+        if self._cached_vol_surface:
+            screen.blit(self._cached_vol_surface, (SCREEN_WIDTH // 2 - self._cached_vol_surface.get_width() // 2, self.slider_rect.y - scale_y(40) - 5))
         
         # Draw Slider Track
         pygame.draw.rect(screen, (100, 100, 100), self.slider_rect)
