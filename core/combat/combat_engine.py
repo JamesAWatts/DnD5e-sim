@@ -480,13 +480,16 @@ class CombatEngine:
                 msg += "."
 
             if float_mgr:
+                # Phasing for basic attacks (attack type)
+                EFFECT_DELAY = 50
+                
                 if res['critical']:
-                    float_mgr.add("CRIT!", target_pos, "crit", rise_speed=2.0)
+                    float_mgr.add("CRIT!", target_pos, "crit", rise_speed=2.0, delay=0)
                 else:
-                    float_mgr.add("HIT", target_pos, "hit")
+                    float_mgr.add("HIT", target_pos, "hit", delay=0)
 
                 if damage > 0:
-                    float_mgr.add(f"-{damage}", target_pos, "damage", rise_speed=1.5)
+                    float_mgr.add(f"-{damage}", target_pos, "damage", rise_speed=1.5, delay=0)
 
             if debug:
                 debug.set("Last Damage", damage)
@@ -518,25 +521,25 @@ class CombatEngine:
                 fire_dmg = random.randint(1, 4)
                 effects.append({'name': 'Fire', 'type': 'extra_dmg', 'value': fire_dmg})
                 msg += f" Fire applied to {target_name}."
-                if float_mgr: float_mgr.add(f"-{fire_dmg}", target_pos, (255, 128, 0))        
+                if float_mgr: float_mgr.add(f"-{fire_dmg}", target_pos, (255, 128, 0), delay=EFFECT_DELAY)        
             elif enchant == 'frost':
                 effects.append({'name': 'Chilled', 'type': 'enemy_advantage', 'value': -1}) # Slow effect
                 msg += f" Frost applied to {target_name}."
-                if float_mgr: float_mgr.add("CHILLED", target_pos, (100, 200, 255))
+                if float_mgr: float_mgr.add("CHILLED", target_pos, (100, 200, 255), delay=EFFECT_DELAY)
             elif enchant == 'silence':
                 # DC 12 Silence save
                 save_roll, _ = roll_d20()
                 if save_roll < 12:
                     effects.append({'name': 'Silence', 'type': 'silence', 'duration': 1})
                     msg += f" Silence applied to {target_name}."
-                    if float_mgr: float_mgr.add("SILENCED", target_pos, "effect")
+                    if float_mgr: float_mgr.add("SILENCED", target_pos, "effect", delay=EFFECT_DELAY)
                 else:
                     msg += f" {target_name} resisted Silence."
 
         else:
             msg += "."
             if float_mgr:
-                float_mgr.add("MISS", target_pos, "miss")
+                float_mgr.add("MISS", target_pos, "miss", delay=0)
             if debug:
                 debug.log(f"Missed! Roll: {res['roll']} vs AC {target_ac}")
             # Handle miss effects (like Graze)
@@ -814,7 +817,7 @@ class CombatEngine:
                     damage_by_target[tid] += dmg
                     hits_by_target[tid] += 1
                     failed_saves_by_target[tid] += 1
-                    if float_mgr: float_mgr.add(f"-{dmg}", target_pos, "hit")
+                    if float_mgr: float_mgr.add(f"-{dmg}", target_pos, "damage", delay=DAMAGE_DELAY)
 
                     # Trigger Weapon On-Hit Effects for attack abilities
                     w_effects, w_msgs = CombatEngine._trigger_on_hit_effects(caster, target, dmg, hit=True)
@@ -858,7 +861,7 @@ class CombatEngine:
                     failed_saves_by_target[tid] += 1
                     if float_mgr:
                         float_mgr.add("FAIL", target_pos, "fail")
-                        if dmg > 0: float_mgr.add(f"-{dmg}", target_pos, "hit")
+                        if dmg > 0: float_mgr.add(f"-{dmg}", target_pos, "damage", delay=DAMAGE_DELAY)
                 else:
                     dmg = damage_roll // 2
                     dmg *= ability_data.get('multiplier', 1)
@@ -866,7 +869,7 @@ class CombatEngine:
                     hits_by_target[tid] += 1
                     if float_mgr:
                         float_mgr.add("SAVE", target_pos, "save")
-                        if dmg > 0: float_mgr.add(f"-{dmg}", target_pos, "hit")
+                        if dmg > 0: float_mgr.add(f"-{dmg}", target_pos, "damage", delay=DAMAGE_DELAY)
 
             elif spell_type == "auto":
                 threshold = ability_data.get('hp_threshold')
@@ -883,7 +886,7 @@ class CombatEngine:
                     hits_by_target[tid] += 1
                     failed_saves_by_target[tid] += 1
                     if float_mgr and dmg > 0:
-                        float_mgr.add(f"-{dmg}", target_pos, "damage")
+                        float_mgr.add(f"-{dmg}", target_pos, "damage", delay=DAMAGE_DELAY)
                 else:
                     dmg = ability_data.get('else_damage', 0)
                     if dmg > 0:
@@ -891,7 +894,7 @@ class CombatEngine:
                         hits_by_target[tid] += 1
                         # Do not increment failed_saves_by_target so effects don't apply if above threshold
                         if float_mgr:
-                            float_mgr.add(f"-{dmg}", target_pos, "damage")
+                            float_mgr.add(f"-{dmg}", target_pos, "damage", delay=DAMAGE_DELAY)
 
             elif spell_type == "heal":
                 heal_amt = roll_dice(current_dice) if current_dice else 0

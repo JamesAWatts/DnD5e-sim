@@ -91,7 +91,7 @@
             "type": "save",
             "ranged": true,
             "effect": "petrified",
-            "duration": "{prof/2}",
+            "duration": "{prof/2}+1",
             "description": "Lock eyes with a target to turn their flesh to stone. The target must succeed on a save or become {effect} for {duration} turns."
         },
         "cleave":{

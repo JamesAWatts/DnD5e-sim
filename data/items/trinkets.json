@@ -256,10 +256,10 @@
             "class": "caster",
             "cost": 5000,
             "in_shop": false,
-            "spell_save": 5,
-            "bonus_atk": 5,
+            "spell_save": 4,
+            "bonus_atk": 4,
             "bonus_mp": 10,
-            "description": "An artifact of immense draconic power. +5 Spell DC and Attack, +10 Max MP."
+            "description": "An artifact of immense draconic power. +4 Spell DC and Attack, +10 Max MP."
         },
         "phylactery": {
             "name": "Phylactery",
@@ -283,12 +283,12 @@
             "class": "martial",
             "cost": 10000,
             "in_shop": false,
-            "bonus_hp": 200,
-            "bonus_ac": 5,
+            "bonus_hp": 150,
+            "bonus_ac": 3,
             "bonus_sp": 10,
-            "bonus_atk": 5,
-            "bonus_dmg": 5,
-            "description": "The still-beating heart of the tarrasque. +200 Max HP, +5 AC."
+            "bonus_atk": 4,
+            "bonus_dmg": 4,
+            "description": "The still-beating heart of the tarrasque. +150 Max HP, +3 AC."
         },
         "unholy_symbol": {
             "name": "Unholy Symbol",
@@ -305,20 +305,20 @@
             "cost": 3500,
             "in_shop": false,
             "on_hit_effect": "lifesteal",
-            "bonus_atk": 5,
-            "bonus_dmg": 5,
-            "damage_resist": 5,
-            "spell_resist": 5,
-            "description": "A dark core, consuming all it comes in contact with. +5 to Attack, Damage, Damage Resist, and Spell Resist."
+            "bonus_atk": 4,
+            "bonus_dmg": 4,
+            "damage_resist": 4,
+            "spell_resist": 4,
+            "description": "A dark core, consuming all it comes in contact with. +4 to Attack, Damage, Damage Resist, and Spell Resist."
         },
         "warlords_banner": {
             "name": "Warlord's Banner",
             "class": "martial",
             "cost": 4500,
             "in_shop": false,
-            "bonus_atk": 5,
-            "bonus_dmg": 5,
-            "description": "A standard that inspires relentless aggression. +5 to hit and damage."
+            "bonus_atk": 4,
+            "bonus_dmg": 4,
+            "description": "A standard that inspires relentless aggression. +4 to hit and damage."
         },
         "world_tree_leaf": {
             "name": "World Tree Leaf",

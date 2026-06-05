@@ -9,7 +9,7 @@
         },
         "padded":{
             "type": "light",
-            "ac":10,
+            "ac":9,
             "cost":50,
             "spell_resist": 1,
             "initiative_boost": 1,
@@ -17,7 +17,7 @@
         },
         "leather":{
             "type": "light",
-            "ac":11,
+            "ac":9,
             "cost":100,
             "spell_resist": 1,
             "initiative_boost": 2,
@@ -25,7 +25,7 @@
         },
         "leather_armor":{
             "type": "light",
-            "ac":11,
+            "ac":10,
             "cost":100,
             "spell_resist": 1,
             "initiative_boost": 2,
@@ -33,15 +33,15 @@
         },
         "studded_leather":{
             "type": "light",
-            "ac":12,
+            "ac":11,
             "cost":250,
-            "spell_resist": 2,
-            "initiative_boost": 3,
+            "spell_resist": 1,
+            "initiative_boost": 2,
             "description": "Made from tough but flexible leather, and reinforced with close-set rivets. +3 to Initiative & +2 Spell Resistance."
         },
         "dark_leather":{
             "type": "light",
-            "ac":12,
+            "ac":10,
             "cost":500,
             "spell_resist": 2,
             "spell_save": 1,
@@ -50,16 +50,27 @@
         },
         "assassin_leather":{
             "type": "light",
-            "ac":13,
+            "ac":11,
             "cost":1000,
             "spell_resist": 3,
             "spell_save": 2,
             "initiative_boost": 5,
             "description": "Leather made from a unique beast, boasting exceptional stealth and protection. +5 to Initiative, +3 Spell Resistance & +2 Spell Save."
         },
+         "adamantite_studded_leather": {
+            "name": "Adamantite Studded Leather",
+            "type": "light",
+            "ac": 12,
+            "cost": 3000,
+            "crit_immune": true,
+            "spell_resist": 4,
+            "spell_save": 3,
+            "initiative_boost": 6,
+            "description": "Reinforced with ultra-hard adamantite. Grants immunity to the extra damage from critical hits."
+        },
         "hide_armor":{
             "type": "medium",
-            "ac":11,
+            "ac":10,
             "cost":50,
             "spell_resist": 1,
             "description": "Rugged armor made from the hides of wild beasts. +1 Spell Resistance."
@@ -87,6 +98,16 @@
             "spell_resist": 1,
             "description": "A fitted metal chest piece worn with supple leather. +1 Damage Resistance & +1 Spell Resistance."
         },
+        "troll_bone_armor":{
+            "type": "medium",
+            "ac": 13,
+            "damage_resist": 2,
+            "spell_resist": 2,
+            "cost": 1500,
+            "in_shop": false,
+            "bonus_hp": 30,
+            "description": "Armor reinforced with troll bones. It seems to pulse with vitality. +30 Max HP."
+        },
         "half_plate":{
             "type": "medium",
             "ac":14,
@@ -94,6 +115,44 @@
             "damage_resist": 2,
             "spell_resist": 2,
             "description": "Shaped metal plates that cover most of the wearer's body. +2 Damage Resistance & +2 Spell Resistance."
+        },
+        "behir_scale":{
+            "type": "medium",
+            "ac": 14,
+            "cost": 2200,
+            "in_shop": false,
+            "damage_resist": 2,
+            "spell_resist": 4,
+            "description": "Scales harvested from a Behir, naturally resistant to magic. +2 Damage Resistance, +4 Spell Resistance."
+        },
+        "dire_troll_bone_armor":{
+            "type": "medium",
+            "ac": 15,
+            "damage_resist": 3,
+            "spell_resist": 3,
+            "cost": 1500,
+            "in_shop": false,
+            "bonus_hp": 50,
+            "description": "Armor reinforced with dire troll bones. +50 Max HP."
+        },
+        "dragon_hide":{
+            "type": "medium",
+            "ac": 15,
+            "cost": 3500,
+            "in_shop": false,
+            "damage_resist": 3,
+            "spell_resist": 3,
+            "description": "Armor crafted from the hide of a young dragon. +4 to Damage Resistance and Spell Resistance."
+        },
+        "adamantite_breastplate": {
+            "name": "Adamantite Breastplate",
+            "type": "medium",
+            "ac": 15,
+            "cost": 5000,
+            "crit_immune": true,
+            "damage_resist": 3,
+            "spell_resist": 3,
+            "description": "A gleaming adamantite chestpiece. Grants immunity to the extra damage from critical hits."
         },
         "ring_mail":{
             "type": "heavy",
@@ -113,26 +172,62 @@
             "type": "heavy",
             "ac":14,
             "cost":900,
-            "damage_resist": 3,
+            "damage_resist": 4,
             "description": "Narrow strips of metal riveted to a backing of leather. +3 Damage Resistance."
+        },
+         "bulette_plate":{
+            "type": "heavy",
+            "ac": 15,
+            "cost": 2800,
+            "in_shop": false,
+            "damage_resist": 6,
+            "description": "A heavy plate made from a Bulette's hide. +6 Damage Resistance."
         },
         "plate":{
             "type": "heavy",
-            "ac":15,
+            "ac":16,
             "cost":1600,
-            "damage_resist": 4,
+            "damage_resist": 6,
             "description": "Many shaped, interlocking metal plates cover the entire body. +4 Damage Resistance."
+        },
+        "remorhaz_carapace":{
+            "type": "heavy",
+            "ac": 17,
+            "cost": 3200,
+            "in_shop": false,
+            "damage_resist": 6,
+            "spell_resist": 3,
+            "description": "The heated carapace of a Remorhaz. +6 Damage Resistance, +3 Spell Resistance."
         },
         "layered_plate":{
             "type": "heavy",
-            "ac":16,
+            "ac":18,
             "cost":2500,
-            "damage_resist": 5,
+            "damage_resist": 8,
             "description": "Exquisite metal plates, offering unmatched physical protection. +5 Damage Resistance."
+        },
+        "massive_shell":{
+            "type": "heavy",
+            "ac": 19,
+            "cost": 5000,
+            "in_shop": false,
+            "damage_resist": 8,
+            "spell_resist": 3,
+            "description": "A massive, extremely heavy shell from a Dragon Turtle. +8 Damage Resistance."
+        },
+         "adamantite_plate": {
+            "name": "Adamantite Plate",
+            "type": "heavy",
+            "ac": 20,
+            "cost": 8000,
+            "crit_immune": true,
+            "damage_resist": 10,
+            "spell_resist": 3,
+            "description": "The pinnacle of physical protection. Grants immunity to the extra damage from critical hits."
         },
         "novice_robe":{
             "type": "robe",
-            "ac": 10,
+            "ac": 9,
             "bonus_mp": 2,
             "spell_resist": 2,
             "cost": 400,
@@ -140,7 +235,7 @@
         },
         "adept_robe":{
             "type": "robe",
-            "ac": 11,
+            "ac": 10,
             "bonus_mp": 4,
             "spell_resist": 3,
             "cost": 800,
@@ -148,7 +243,7 @@
         },
         "archmage_robe":{
             "type": "robe",
-            "ac": 12,
+            "ac": 11,
             "bonus_mp": 6,
             "spell_resist": 4,
             "cost": 1200,
@@ -156,7 +251,7 @@
         },
         "monk_wraps":{
             "type": "robe",
-            "ac": 12,
+            "ac": 10,
             "bonus_sp": 2,
             "spell_resist": 2,
             "initiative_boost": 2,
@@ -165,7 +260,7 @@
         },
         "ascendant_wraps":{
             "type": "robe",
-            "ac": 13,
+            "ac": 12,
             "bonus_sp": 4,
             "spell_resist": 3,
             "initiative_boost": 3,
@@ -180,96 +275,6 @@
             "initiative_boost": 4,
             "cost": 1200,
             "description": "Masterfully crafted wraps, reserved for the most skilled monks. +4 to Initiative, Spell Resistance & +8 to Stamina."
-        },
-        "behir_scale":{
-            "type": "medium",
-            "ac": 14,
-            "cost": 2200,
-            "in_shop": false,
-            "damage_resist": 2,
-            "spell_resist": 4,
-            "description": "Scales harvested from a Behir, naturally resistant to magic. +2 Damage Resistance, +4 Spell Resistance."
-        },
-        "bulette_plate":{
-            "type": "heavy",
-            "ac": 16,
-            "cost": 2800,
-            "in_shop": false,
-            "damage_resist": 6,
-            "description": "A heavy plate made from a Bulette's hide. +6 Damage Resistance."
-        },
-        "dragon_hide":{
-            "type": "medium",
-            "ac": 15,
-            "cost": 3500,
-            "in_shop": false,
-            "damage_resist": 4,
-            "spell_resist": 4,
-            "description": "Armor crafted from the hide of a young dragon. +4 Damage Resistance, +4 Spell Resistance."
-        },
-        "massive_shell":{
-            "type": "heavy",
-            "ac": 18,
-            "cost": 5000,
-            "in_shop": false,
-            "damage_resist": 8,
-            "description": "A massive, extremely heavy shell from a Dragon Turtle. +8 Damage Resistance."
-        },
-        "remorhaz_carapace":{
-            "type": "heavy",
-            "ac": 16,
-            "cost": 3200,
-            "in_shop": false,
-            "damage_resist": 5,
-            "spell_resist": 3,
-            "description": "The heated carapace of a Remorhaz. +5 Damage Resistance, +3 Spell Resistance."
-        },
-        "troll_bone_armor":{
-            "type": "medium",
-            "ac": 13,
-            "damage_resist": 2,
-            "spell_resist": 2,
-            "cost": 1500,
-            "in_shop": false,
-            "bonus_hp": 30,
-            "description": "Armor reinforced with troll bones. It seems to pulse with vitality. +30 Max HP."
-        },
-        "dire_troll_bone_armor":{
-            "type": "medium",
-            "ac": 15,
-            "damage_resist": 3,
-            "spell_resist": 3,
-            "cost": 1500,
-            "in_shop": false,
-            "bonus_hp": 50,
-            "description": "Armor reinforced with dire troll bones. +50 Max HP."
-        },
-        "adamantite_studded_leather": {
-            "name": "Adamantite Studded Leather",
-            "type": "light",
-            "ac": 13,
-            "cost": 3000,
-            "crit_immune": true,
-            "initiative_boost": 4,
-            "description": "Reinforced with ultra-hard adamantite. Grants immunity to the extra damage from critical hits."
-        },
-        "adamantite_breastplate": {
-            "name": "Adamantite Breastplate",
-            "type": "medium",
-            "ac": 15,
-            "cost": 5000,
-            "crit_immune": true,
-            "damage_resist": 2,
-            "description": "A gleaming adamantite chestpiece. Grants immunity to the extra damage from critical hits."
-        },
-        "adamantite_plate": {
-            "name": "Adamantite Plate",
-            "type": "heavy",
-            "ac": 18,
-            "cost": 8000,
-            "crit_immune": true,
-            "damage_resist": 5,
-            "description": "The pinnacle of physical protection. Grants immunity to the extra damage from critical hits."
-        }
+        }    
     }
 }

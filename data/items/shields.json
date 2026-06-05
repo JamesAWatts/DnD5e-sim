@@ -11,7 +11,6 @@
             "name": "Buckler",
             "type": "shield",
             "ac": 1,
-            "damage_resist": 1,
             "cost": 80,
             "description": "A small, round shield. Lightweight but basic. +1 to AC and damage resistance."
         },
@@ -19,7 +18,6 @@
             "name": "Wooden Shield",
             "type": "shield",
             "ac": 1,
-            "damage_resist": 0,
             "cost": 40,
             "in_shop": false,
             "description": "A crude shield made from planks of wood. +1 to AC."
@@ -35,7 +33,7 @@
         "kite_shield": {
             "name": "Kite Shield",
             "type": "shield",
-            "ac": 3,
+            "ac": 2,
             "damage_resist": 2,
             "cost": 500,
             "description": "A large shield providing excellent coverage. +3 to AC and +2 to damage resistance."
@@ -43,7 +41,7 @@
         "arcane_ward": {
             "name": "Arcane Ward",
             "type": "shield",
-            "ac": 2,
+            "ac": 1,
             "damage_resist": 1,
             "spell_save": 1,
             "spell_resist": 1,
@@ -54,7 +52,7 @@
         "sturdy_targe": {
             "name": "Sturdy Targe",
             "type": "shield",
-            "ac": 2,
+            "ac": 1,
             "damage_resist": 2,
             "bonus_sp": 2,
             "cost": 600,
@@ -66,7 +64,7 @@
             "ac": 3,
             "spell_resist": 2,
             "spell_save": 2,
-            "damage_resist": 3,
+            "damage_resist": 4,
             "cost": 1500,
             "description": "A legendary shield made from the scales of a red dragon. +3 to AC and damage resistance, +2 to spell resistance and spell DC."
         }

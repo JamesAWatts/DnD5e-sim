@@ -155,3 +155,23 @@ class SaveManager:
     @staticmethod
     def delete_save(slot):
         return SaveManager._storage.delete(slot)
+
+    @staticmethod
+    def find_autosave_slot(player_name):
+        """
+        Finds the first available slot for autosave.
+        1. Checks slots 1-3.
+        2. If slot is empty, return it.
+        3. If slot has a save with a matching name, return it.
+        4. If all 3 slots are occupied by other players, return None.
+        """
+        for slot in [1, 2, 3]:
+            data = SaveManager.load_game_data(slot)
+            if not data:
+                return slot
+            
+            # Check for name match in the save data
+            save_name = data.get('name', 'Unknown')
+            if save_name == player_name:
+                return slot
+        return None

@@ -53,6 +53,19 @@ class ActionExecutor:
         # 2. Apply Results
         print(f"\n--- Action Execution: {ability_name} ---")
         
+        a_type = state.pending_action_data.get('type', 'attack')
+        # Base Delays (in frames)
+        if a_type == 'save':
+            RESULT_DELAY = 0
+            DAMAGE_DELAY = 25
+            RESOURCE_DELAY = 45
+            EFFECT_DELAY = 65
+        else:
+            DAMAGE_DELAY = 0
+            RESULT_DELAY = 0
+            RESOURCE_DELAY = 25
+            EFFECT_DELAY = 50
+
         saved_names = []
         failed_names = []
         healed_names = []
@@ -79,9 +92,11 @@ class ActionExecutor:
                 if si:
                     if si.get('success'):
                         saved_names.append(target['name'])
+                        state.float_mgr.add("SAVE", text_pos, color_key="save", delay=RESULT_DELAY)
                     else:
                         failed_names.append(target['name'])
                         consolidated_damage = max(consolidated_damage, dmg)
+                        state.float_mgr.add("FAIL", text_pos, color_key="fail", delay=RESULT_DELAY)
                 else:
                     failed_names.append(target['name'])
                     consolidated_damage = max(consolidated_damage, dmg)
@@ -114,27 +129,27 @@ class ActionExecutor:
                         state.turn_queue.remove(target)
                 
                 state.vfx_mgr.play_effect(state.pending_action_data, state.current_actor.get('screen_pos', (0,0)), target_pos)
-                state.float_mgr.add(str(dmg), text_pos, color_key="crit" if res.get('crit') else "damage")
+                state.float_mgr.add(str(dmg), text_pos, color_key="crit" if res.get('crit') else "damage", delay=DAMAGE_DELAY)
 
             elif heal > 0:
                 target['current_hp'] = min(target.get('max_hp', 100), target.get('current_hp', 0) + heal)
-                state.float_mgr.add(str(heal), text_pos, color_key="heal")
+                state.float_mgr.add(str(heal), text_pos, color_key="heal", delay=DAMAGE_DELAY)
 
             # Apply Resource Gains and Buffs
             from core.players.player import apply_consumable_effect
             apply_consumable_effect(target, res)
             
             if res.get('mana_gain', 0) > 0:
-                state.float_mgr.add(str(res['mana_gain']), text_pos, color_key="mana")
+                state.float_mgr.add(str(res['mana_gain']), text_pos, color_key="mana", delay=RESOURCE_DELAY)
             if res.get('stamina_gain', 0) > 0:
-                state.float_mgr.add(str(res['stamina_gain']), text_pos, color_key="stamina")
+                state.float_mgr.add(str(res['stamina_gain']), text_pos, color_key="stamina", delay=RESOURCE_DELAY)
             if res.get('bonus_gain', 0) > 0:
-                state.float_mgr.add("BUFF", text_pos, color_key="buff")
+                state.float_mgr.add("BUFF", text_pos, color_key="buff", delay=RESOURCE_DELAY)
             if res.get('attack_gain', 0) > 0:
-                state.float_mgr.add("HASTE", text_pos, color_key="buff")
+                state.float_mgr.add("HASTE", text_pos, color_key="buff", delay=RESOURCE_DELAY)
             
             if res.get('miss'):
-                state.float_mgr.add("Miss", text_pos, color_key="miss")
+                state.float_mgr.add("Miss", text_pos, color_key="miss", delay=RESULT_DELAY)
                 if not is_aoe:
                     state.dialogue_mgr.queue_message(f"{target['name']} evaded the attack!")
 
@@ -152,7 +167,7 @@ class ActionExecutor:
                         val = effect.get('value', 0)
                         old_hp = target.get('current_hp', 0)
                         target['current_hp'] = max(0, old_hp - val)
-                        state.float_mgr.add(str(val), text_pos, color_key="damage")
+                        state.float_mgr.add(str(val), text_pos, color_key="damage", delay=DAMAGE_DELAY)
                         if target['current_hp'] <= 0 and old_hp > 0:
                             target['is_alive'] = False
                             state.dialogue_mgr.queue_message(f"{target['name']} has been defeated!")
@@ -165,7 +180,7 @@ class ActionExecutor:
                         # Use actor's visual position
                         a_rect = state.current_actor.get('_visual_rect')
                         a_pos = (a_rect.centerx, a_rect.centery) if a_rect else state.current_actor.get('screen_pos', (0,0))
-                        state.float_mgr.add(str(val), a_pos, color_key="heal")
+                        state.float_mgr.add(str(val), a_pos, color_key="heal", delay=DAMAGE_DELAY)
 
                     elif eff_type == 'swift':
                         # Mark that we've triggered swift this turn to avoid infinite attacks
@@ -187,7 +202,7 @@ class ActionExecutor:
                         recipient_rect = effect_recipient.get('_visual_rect')
                         recipient_pos = (recipient_rect.centerx, recipient_rect.centery) if recipient_rect else effect_recipient.get('screen_pos', (0,0))
                         float_text = f"{eff_name.upper()}+" if refreshed else eff_name.upper()
-                        state.float_mgr.add(float_text, recipient_pos, color_key="effect")
+                        state.float_mgr.add(float_text, recipient_pos, color_key="effect", delay=EFFECT_DELAY)
 
             # --- Advantage Next Consumption ---
             # 1. Consumption from Target (Next hit on them)

@@ -1140,6 +1140,7 @@
             "bonus": 3,
             "crit+": 2,
             "cost": 2000,
+            "in_shop": false,
             "description": "A finely crafted longsword, awarded to champions. It feels perfectly balanced in your hand."
         },
         "rod_of_the_archmage": {
@@ -1153,6 +1154,7 @@
             "crit+": 1,
             "spell_save": 4,
             "cost": 2500,
+            "in_shop": false,
             "description": "A rod imbued with the essence of an archmage. +3 bonus, +4 Spell DC."
         },
         "warloards_glaive": {
@@ -1165,6 +1167,7 @@
             "bonus": 3,
             "crit+": 2,
             "cost": 2000,
+            "in_shop": false,
             "description": "A massive glaive wielded by a legendary warlord. +4 bonus."
         },
         "shadow_dagger": {
@@ -1178,6 +1181,7 @@
             "crit+": 3,
             "spell_save": 3,
             "cost": 500,
+            "in_shop": false,
             "description": "A dagger forged from shadow, it seems to absorb light. +3 to bonus and +3 Spell DC."
         }
 

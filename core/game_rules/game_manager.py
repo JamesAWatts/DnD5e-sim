@@ -2,8 +2,6 @@ import pygame
 from ui.debug_overlay import DebugOverlay
 from graphics.transition_manager import TransitionManager
 
-pygame.init()
-
 class GameManager:
     def __init__(self, god_mode=False, music_manager=None):
         self.state = None
@@ -71,22 +69,16 @@ class GameManager:
 
     def change_state(self, new_state, transition_type='fade'):
         # --- 1. LEVEL UP INTERCEPT ---
-        # Check if any party member needs to level up before changing to a non-special state.
-        # This allows us to "pause" the flow to handle character progression.
         from core.players.leveler import needs_level_up
         state_name = type(new_state).__name__
         
-        # We don't intercept if we're already going to LevelUp, Title, or ClassSelect
         if state_name not in ["LevelUpState", "TitleState", "ClassSelectState"]:
             levelup_p = next((p for p in self.party if needs_level_up(p)), None)
             if levelup_p:
                 from states.level_up import LevelUpState
-                # Grab fonts from current state if possible
                 fonts = getattr(self.state, 'fonts', None)
                 if fonts:
-                    print(f"[GAME] Intercepting {state_name} -> LevelUpState for {levelup_p.get('name')}")
                     new_state = LevelUpState(self, fonts, player=levelup_p)
-                    # Re-check transition type or use default fade
                     transition_type = 'fade'
 
         # If we already have a state, use a transition
@@ -94,9 +86,10 @@ class GameManager:
             self.pending_state = new_state
             self.pending_transition_type = transition_type
             
-            # Start audio fade out early to avoid pops/glitches during transition
+            # HARD CUT for Wasm: ALWAYS stop music during the transition to prevent glitches.
+            # We capture the position before stopping so we can resume if the next state uses the same track.
             if self.music_manager:
-                self.music_manager.fade_out()
+                self.music_manager.stop_and_capture()
 
             # Check if this is a combat transition with a leader
             is_combat = type(new_state).__name__ == "CombatState"

@@ -290,7 +290,7 @@
     "tarrasque": {
         "level": 30,
         "hp": 1000,
-        "armor": 25,
+        "armor": 24,
         "die": "8d12",
         "proficiency_bonus": 18,
         "crit+": 2,

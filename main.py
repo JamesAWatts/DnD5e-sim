@@ -1,8 +1,13 @@
 # pygbag: name=Valor, width=1280, height=720
 import pygame
+import asyncio
+
+pygame.mixer.pre_init(44100, -16, 2, 1024)
+pygame.init()
+pygame.mixer.set_num_channels(32)
+
 import sys
 import os
-import asyncio
 
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -17,12 +22,10 @@ from core.game_rules.constants import (
 from core.game_rules.path_utils import get_resource_path
 
 async def main():
-    pygame.mixer.pre_init(44100, -16, 2, 8192)
-    pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     clock = pygame.time.Clock()
     
-    pygame.display.set_caption("Valor - 5e RPG Simulator")
+    pygame.display.set_caption("Valor - Alpha Demo - A.1.2")
     
     # Load all font sizes
     fonts = {

@@ -13,8 +13,12 @@ class MusicManager:
         self.last_boss_index = -1
         
         # Settings
-        self.volume = 0.15
+        self.volume = 0.5
         self.is_muted = False
+        
+        # Position Tracking (for WASM Resume)
+        self.current_track_start_offset = 0.0 # The 'start' time passed to play()
+        self.last_captured_pos = 0.0          # The absolute position when stopped
         
         # Fading Logic
         self.fade_state = 'IDLE' # 'IDLE', 'FADING_OUT', 'FADING_IN'
@@ -24,65 +28,36 @@ class MusicManager:
         self.target_loops = -1
         self._track_lists = {}
 
-        # 2. Force a clean mixer initialization
-        if not pygame.mixer.get_init():
-            pygame.mixer.pre_init(44100, -16, 2, 2048)
-            pygame.mixer.init()
-            
         # 3. Set an initial volume
         pygame.mixer.music.set_volume(self.volume)
         print(f"MusicManager: Mixer initialized. Music Dir: {self.music_dir}")
 
     def update(self, dt_ms):
-        """Processes music volume fades."""
-        if self.is_muted:
-            return
+        """Processes music volume fades (Disabled for Wasm optimization)."""
+        pass
 
-        if self.fade_state == 'FADING_OUT':
-            self.fade_timer += dt_ms / 1000.0
-            progress = min(1.0, self.fade_timer / self.FADE_DURATION)
+    def stop_and_capture(self):
+        """Captures the current playback position and performs a hard stop."""
+        if self.current_track and pygame.mixer.music.get_busy():
+            # music.get_pos() returns ms since play() was called
+            relative_pos = pygame.mixer.music.get_pos() / 1000.0
+            self.last_captured_pos = self.current_track_start_offset + relative_pos
+            print(f"MusicManager: Captured position {self.last_captured_pos:.2f}s")
+        else:
+            self.last_captured_pos = 0.0
             
-            # Reduce volume
-            current_vol = self.volume * (1.0 - progress)
-            pygame.mixer.music.set_volume(current_vol)
-
-            if progress >= 1.0:
-                if self.target_track:
-                    # Switch tracks and start fade in
-                    self._execute_play(self.target_track, self.target_loops)
-                    self.fade_state = 'FADING_IN'
-                    self.fade_timer = 0.0
-                    pygame.mixer.music.set_volume(0.0)
-                else:
-                    # Just stop and stay idle at 0 volume
-                    pygame.mixer.music.stop()
-                    self.current_track = None
-                    self.fade_state = 'IDLE'
-
-        elif self.fade_state == 'FADING_IN':
-            self.fade_timer += dt_ms / 1000.0
-            progress = min(1.0, self.fade_timer / self.FADE_DURATION)
-            
-            # Increase volume
-            current_vol = self.volume * progress
-            pygame.mixer.music.set_volume(current_vol)
-
-            if progress >= 1.0:
-                pygame.mixer.music.set_volume(self.volume)
-                self.fade_state = 'IDLE'
-                self.target_track = None
+        pygame.mixer.music.stop()
 
     def fade_out(self, duration=None):
         """Initiates a volume fade out of the current music."""
         if duration: self.FADE_DURATION = duration
         if self.current_track and pygame.mixer.music.get_busy():
-            self.fade_state = 'FADING_OUT'
-            self.fade_timer = 0.0
+            self.fade_state = 'IDLE' 
 
     def set_volume(self, value):
         """Sets the target volume (0.0 to 1.0)."""
         self.volume = max(0.0, min(1.0, value))
-        if not self.is_muted and self.fade_state == 'IDLE':
+        if not self.is_muted:
             pygame.mixer.music.set_volume(self.volume)
 
     def toggle_mute(self):
@@ -91,76 +66,73 @@ class MusicManager:
         if self.is_muted:
             pygame.mixer.music.set_volume(0.0)
         else:
-            if self.fade_state == 'IDLE':
-                pygame.mixer.music.set_volume(self.volume)
+            pygame.mixer.music.set_volume(self.volume)
         return self.is_muted
 
     def play_state_music(self, state_name, is_boss=False):
         """
-        Initiates a faded transition to the music defined for the state.
+        Immediately transitions to the music defined for the state (Hard cut for Wasm).
         """
         new_path = None
-        # Handle variants of state names (e.g. CombatStateNew -> combat)
         s_name = state_name.lower()
 
-        # 1. Map states to their music files/folders
-        if 'title' in s_name:
-            new_path = os.path.join(self.music_dir, 'title', 'theme - into the throne v3.ogg')
-        elif any(x in s_name for x in ['hub', 'shop', 'tavern', 'bestiary', 'inventory']):
-            new_path = os.path.join(self.music_dir, 'hub', 'scene - prepare for tomorrow.ogg')
-        elif any(x in s_name for x in ['level_up', 'levelup', 'victory']):
-            new_path = os.path.join(self.music_dir, 'level_up', 'jingle - win.ogg')
-        elif 'combat' in s_name:
-            if is_boss:
-                new_path = self._get_random_track('boss')
-            else:
-                new_path = self._get_random_track('combat')
+        # Explicit Silence
+        if 'autosave' in s_name:
+            return
+
+        # 0. Inheritance Passthrough
+        # Settings, Inventory, and Save ALWAYS inherit the current track.
+        is_menu = any(x in s_name for x in ['settings', 'inventory', 'save'])
+        if is_menu and self.current_track:
+            new_path = self.current_track
+        
+        # 1. Map states to their music files/folders (if not inherited)
+        if new_path is None:
+            if 'title' in s_name:
+                new_path = os.path.join(self.music_dir, 'title', 'theme - into the throne v3.ogg')
+            elif any(x in s_name for x in ['hub', 'shop', 'tavern', 'bestiary']):
+                new_path = os.path.join(self.music_dir, 'hub', 'scene - prepare for tomorrow.ogg')
+            elif any(x in s_name for x in ['level_up', 'levelup', 'victory']):
+                new_path = os.path.join(self.music_dir, 'level_up', 'jingle - win.ogg')
+            elif 'combat' in s_name:
+                # SPECIAL CASE: If we are in Combat and just came FROM Settings, 
+                # we don't want a new random track. We want the one we were just playing.
+                if self.current_track and 'combat' in self.current_track.lower():
+                     new_path = self.current_track
+                else:
+                    if is_boss:
+                        new_path = self._get_random_track('boss')
+                    else:
+                        new_path = self._get_random_track('combat')
 
         # 2. Check if we actually have music for this state
         if new_path is None or not os.path.exists(new_path):
             return
 
-        # 3. Check if we're already playing or transitioning to this exact track
-        if new_path == self.current_track or new_path == self.target_track:
-            # If we are the same track, but we've been told to fade out (or are already low volume),
-            # we should start a fade-in to "resume" the audio experience.
-            if self.fade_state == 'FADING_OUT' or pygame.mixer.music.get_volume() < self.volume:
-                self.fade_state = 'FADING_IN'
-                self.fade_timer = 0.0
-                # Ensure we start from 0 to get the full fade-in effect
-                pygame.mixer.music.set_volume(0.0)
-            return
-
-        # 4. Initiate Fade Transition
+        # 3. Resume vs New Play
         loops = 0 if any(x in s_name for x in ['level_up', 'levelup', 'victory']) else -1
         
-        # Prepare target
-        self.target_track = new_path
-        self.target_loops = loops
-
-        # Check if we should jump straight to fade-in
-        is_playing = pygame.mixer.music.get_busy()
-        is_faded_out = pygame.mixer.music.get_volume() < 0.02
-        
-        if self.current_track is None or not is_playing or is_faded_out:
-            # Quick start if nothing is playing or already silent
-            self._execute_play(new_path, loops)
-            self.fade_state = 'FADING_IN'
-            self.fade_timer = 0.0
-            pygame.mixer.music.set_volume(0.0)
+        if new_path == self.current_track:
+            # Same track: Resume at captured position
+            self._execute_play(new_path, loops, start_time=self.last_captured_pos)
         else:
-            # Fade out current, then fade in new
-            self.fade_state = 'FADING_OUT'
-            self.fade_timer = 0.0
+            # Different track: Start from beginning
+            self.last_captured_pos = 0.0
+            self._execute_play(new_path, loops, start_time=0.0)
 
-    def _execute_play(self, path, loops):
+        pygame.mixer.music.set_volume(self.volume)
+        self.fade_state = 'IDLE'
+
+    def _execute_play(self, path, loops, start_time=0.0):
         """Immediate track execution (stops current)."""
         try:
             pygame.mixer.music.stop()
             pygame.mixer.music.load(path)
-            pygame.mixer.music.play(loops)
+            # Pygame music.play() 'start' is in seconds for OGG
+            pygame.mixer.music.play(loops, start=start_time)
             self.current_track = path
-            print(f"MusicManager: Transitioned to {os.path.basename(path)}")
+            self.current_track_start_offset = start_time
+            print(f"MusicManager: Playing {os.path.basename(path)} at {start_time:.2f}s")
         except Exception as e:
             print(f"MusicManager Error: Could not play {path}: {e}")
 
